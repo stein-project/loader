@@ -94,15 +94,14 @@ The last copy that arrived is kept in `config/steinloader-remoto.json` and is wh
 fetch gets anything other than 200 (while this repository is private, for instance). Keys the Loader does not read
 are ignored; older files also had `servers` and `mods`, which are no longer used.
 
-## Contributing
+## Development
 
-Issues and pull requests are welcome. Read the [contributing guide](https://github.com/Stein-Project/.github/blob/main/CONTRIBUTING.md)
-first. Contributions require signing the [Contributor License Agreement](https://github.com/Stein-Project/.github/blob/main/CLA.md).
+This repository is private. The development guide is [CONTRIBUTING.md](CONTRIBUTING.md).
 
 ## Licence
 
-Stein Loader is licensed under the [Mozilla Public License 2.0](LICENSE), except the mod API
+Stein Loader is proprietary software, all rights reserved (see [LICENSE](LICENSE)), except the mod API
 (`dev.xavier.stein.loader.api`), which is licensed under the [MIT License](LICENSE-API) so mods can use any licence.
-Third-party notices are in [NOTICE](NOTICE). The Stein name and logo are not covered by the licence: see the [trademark policy](TRADEMARK.md).
+Third-party notices are in [NOTICE](NOTICE). The Stein name and logo are trademarks: see the [trademark policy](https://github.com/Stein-Project/.github/blob/main/TRADEMARK.md).
 
 Created by [Breno Xavier](https://github.com/brenoxavier).

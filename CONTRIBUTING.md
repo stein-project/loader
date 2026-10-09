@@ -1,7 +1,7 @@
 # Contributing to Stein Loader
 
 Read the [Stein contributing guide](https://github.com/Stein-Project/.github/blob/main/CONTRIBUTING.md) first: it
-covers the rules, code style, commits and the CLA. This page is what is specific to the Loader.
+covers the rules, code style and commits. This page is what is specific to the Loader.
 
 ## Build and check
 
@@ -32,7 +32,7 @@ Bridge and the SDK next to this repository. While those repositories are private
 reads public repositories: once the siblings are public the secrets can be deleted, and pull requests from forks
 (which never get secrets) build as soon as the siblings are public. The release ships `steinloader.jar`,
 `stein-api.jar`, `stein-api-sources.jar`, `LICENSE`, `LICENSE-API`, `NOTICE` and `SHA256SUMS`; the jars carry their
-licences in `META-INF` too (MPL and NOTICE in the Loader, MIT in the API jars).
+licences in `META-INF` too (LICENSE and NOTICE in the Loader, MIT in the API jars).
 
 ## The mod API
 
