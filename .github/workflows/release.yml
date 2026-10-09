@@ -1,0 +1,68 @@
+# Publishes a Loader release (the Loader, the mod API and its sources) when a v<version> tag is pushed; the tag must
+# match Loader.VERSION. Run by hand (Actions > release > Run workflow) it only builds and keeps the files as a
+# workflow artifact, publishing nothing.
+name: release
+
+on:
+  push:
+    tags: ['v*']
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          path: loader
+      # The Loader builds on the Bridge and the SDK, next to this repository.
+      - uses: actions/checkout@v4
+        with:
+          repository: Stein-Project/bridge
+          path: bridge
+          ssh-key: ${{ secrets.BRIDGE_DEPLOY_KEY }}
+      - uses: actions/checkout@v4
+        with:
+          repository: Stein-Project/sdk
+          path: sdk
+          ssh-key: ${{ secrets.SDK_DEPLOY_KEY }}
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '25'
+      - uses: gradle/actions/setup-gradle@v4
+      - name: Version
+        id: version
+        working-directory: loader
+        run: |
+          v=$(sed -n 's/.*String VERSION = "\([^"]*\)".*/\1/p' src/main/java/dev/xavier/stein/loader/Loader.java)
+          if [[ "$GITHUB_REF" == refs/tags/* && "$GITHUB_REF_NAME" != "v$v" ]]; then
+            echo "::error::tag $GITHUB_REF_NAME does not match Loader.VERSION $v"; exit 1
+          fi
+          echo "version=$v" >> "$GITHUB_OUTPUT"
+      - name: Minecraft 1.8.9
+        working-directory: bridge
+        run: ./gradlew fetchMinecraft
+      - name: Build and check
+        working-directory: loader
+        run: ./gradlew build -Pstein.mcDir="$GITHUB_WORKSPACE/bridge/build/mc"
+      - name: Files
+        run: |
+          mkdir dist
+          cp loader/build/libs/{steinloader,stein-api,stein-api-sources}.jar dist/
+          (cd dist && sha256sum * > SHA256SUMS)
+      - uses: actions/upload-artifact@v4
+        with:
+          name: stein-loader-${{ steps.version.outputs.version }}
+          path: dist/
+      - name: Publish
+        if: startsWith(github.ref, 'refs/tags/')
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          pre=; [[ "$GITHUB_REF_NAME" == *-* ]] && pre=--prerelease
+          gh release create "$GITHUB_REF_NAME" dist/* -R "$GITHUB_REPOSITORY" $pre \
+            --title "Stein Loader ${{ steps.version.outputs.version }}" --generate-notes
