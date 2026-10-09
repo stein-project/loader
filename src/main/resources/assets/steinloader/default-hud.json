@@ -1,0 +1,273 @@
+{
+  "grid": 8,
+  "snap": true,
+  "elements": {
+    "minecraft.actionbar": {
+      "enabled": true,
+      "showInChat": true,
+      "anchorX": 1,
+      "anchorY": 2,
+      "x": 0,
+      "y": -64,
+      "scale": 1.0
+    },
+    "minecraft.bossbar": {
+      "enabled": true,
+      "showInChat": true,
+      "anchorX": 1,
+      "anchorY": 0,
+      "x": 0,
+      "y": 40,
+      "scale": 1.0
+    },
+    "minecraft.sidebar": {
+      "enabled": false,
+      "showInChat": true,
+      "anchorX": 2,
+      "anchorY": 1,
+      "x": -1,
+      "y": 0,
+      "scale": 1.0
+    },
+    "steinhud.armor": {
+      "enabled": true,
+      "showInChat": false,
+      "anchorX": 1,
+      "anchorY": 2,
+      "x": 1,
+      "y": -72,
+      "scale": 1.0,
+      "background": 0.2
+    },
+    "steinhud.effects": {
+      "enabled": true,
+      "showInChat": true,
+      "anchorX": 0,
+      "anchorY": 1,
+      "x": 2,
+      "y": 0,
+      "scale": 1.0,
+      "background": 0.2
+    },
+    "steinhud.direction": {
+      "enabled": true,
+      "showInChat": true,
+      "anchorX": 1,
+      "anchorY": 0,
+      "x": 0,
+      "y": 3,
+      "scale": 1.0,
+      "background": 0.2
+    },
+    "steinhud.fps": {
+      "enabled": true,
+      "showInChat": true,
+      "anchorX": 0,
+      "anchorY": 0,
+      "x": 2,
+      "y": 2,
+      "scale": 1.0
+    },
+    "steinhud.ping": {
+      "enabled": true,
+      "showInChat": true,
+      "anchorX": 0,
+      "anchorY": 0,
+      "x": 58,
+      "y": 2,
+      "scale": 1.0
+    },
+    "steinhud.inventory": {
+      "enabled": true,
+      "showInChat": false,
+      "anchorX": 2,
+      "anchorY": 2,
+      "x": -4,
+      "y": -6,
+      "scale": 1.0,
+      "background": 0.0
+    },
+    "steinhud.low": {
+      "enabled": false,
+      "showInChat": true,
+      "anchorX": 0,
+      "anchorY": 0,
+      "x": 0,
+      "y": 16,
+      "scale": 1.0
+    },
+    "steinhud.cpu": {
+      "enabled": false,
+      "showInChat": true,
+      "anchorX": 0,
+      "anchorY": 0,
+      "x": 2,
+      "y": 30,
+      "scale": 1.0
+    },
+    "steinhud.gpu": {
+      "enabled": false,
+      "showInChat": true,
+      "anchorX": 0,
+      "anchorY": 0,
+      "x": 2,
+      "y": 44,
+      "scale": 1.0
+    },
+    "steinhud.ram": {
+      "enabled": false,
+      "showInChat": true,
+      "anchorX": 0,
+      "anchorY": 0,
+      "x": 2,
+      "y": 58,
+      "scale": 1.0
+    },
+    "steinhud.cps": {
+      "enabled": false,
+      "showInChat": true,
+      "anchorX": 0,
+      "anchorY": 0,
+      "x": 112,
+      "y": 144,
+      "scale": 1.0
+    },
+    "steinhud.minimap": {
+      "enabled": false,
+      "showInChat": true,
+      "anchorX": 2,
+      "anchorY": 0,
+      "x": -2,
+      "y": 2,
+      "scale": 1.0
+    },
+    "steincombat.nearest": {
+      "enabled": false,
+      "showInChat": true,
+      "anchorX": 1,
+      "anchorY": 0,
+      "x": 0,
+      "y": 40,
+      "scale": 1.0
+    },
+    "steinhud.stats": {
+      "enabled": true,
+      "showInChat": true,
+      "anchorX": 0,
+      "anchorY": 0,
+      "x": 6,
+      "y": 3,
+      "scale": 1.0,
+      "background": 0.2
+    },
+    "minecraft.hotbar": {
+      "enabled": true,
+      "showInChat": true,
+      "anchorX": 1,
+      "anchorY": 2,
+      "x": 0,
+      "y": 0,
+      "scale": 1.0
+    },
+    "minecraft.health": {
+      "enabled": true,
+      "showInChat": true,
+      "anchorX": 1,
+      "anchorY": 2,
+      "x": -51,
+      "y": -29,
+      "scale": 1.0
+    },
+    "minecraft.food": {
+      "enabled": true,
+      "showInChat": true,
+      "anchorX": 1,
+      "anchorY": 2,
+      "x": 50,
+      "y": -29,
+      "scale": 1.0
+    },
+    "minecraft.experience": {
+      "enabled": true,
+      "showInChat": true,
+      "anchorX": 1,
+      "anchorY": 2,
+      "x": 0,
+      "y": -24,
+      "scale": 1.0
+    },
+    "minecraft.itemname": {
+      "enabled": true,
+      "showInChat": true,
+      "anchorX": 1,
+      "anchorY": 2,
+      "x": 0,
+      "y": -36,
+      "scale": 1.0
+    },
+    "minecraft.chat": {
+      "enabled": true,
+      "showInChat": true,
+      "anchorX": 0,
+      "anchorY": 2,
+      "x": 2,
+      "y": -28,
+      "scale": 1.0,
+      "background": 0.2
+    },
+    "minecraft.status": {
+      "enabled": true,
+      "showInChat": true,
+      "anchorX": 1,
+      "anchorY": 2,
+      "x": 0,
+      "y": -24,
+      "scale": 1.0
+    },
+    "steincombat.nearestAlly": {
+      "enabled": false,
+      "showInChat": true,
+      "anchorX": 1,
+      "anchorY": 0,
+      "x": 0,
+      "y": 54,
+      "scale": 1.0
+    },
+    "steincombat.features": {
+      "enabled": true,
+      "showInChat": true,
+      "anchorX": 2,
+      "anchorY": 0,
+      "x": 0,
+      "y": 3,
+      "scale": 1.0,
+      "background": 0.2
+    },
+    "steinhud.target": {
+      "enabled": true,
+      "showInChat": false,
+      "anchorX": 2,
+      "anchorY": 0,
+      "x": -88,
+      "y": 3,
+      "scale": 1.0,
+      "background": 0.2
+    }
+  },
+  "minecraft": {
+    "hotbarStyle": 0,
+    "statusStyle": 0,
+    "statusVertical": false,
+    "statusHealth": true,
+    "statusFood": true,
+    "statusXp": true,
+    "actionShadow": false,
+    "bossStyle": 2,
+    "bossName": true,
+    "bossPercent": false,
+    "bossColor": "d",
+    "sideNumbers": false,
+    "sideTitle": true,
+    "sideShadow": false
+  }
+}

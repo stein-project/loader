@@ -1,0 +1,9 @@
+{
+  "id": "hooktest",
+  "name": "Hook Test",
+  "version": "1.0.0",
+  "author": "X4vieer",
+  "description": "Teste dos ganchos da 0.1.14 (so para a bancada).",
+  "entry": "dev.xavier.stein.hooktest.HookTest",
+  "loader": "0.1.14"
+}

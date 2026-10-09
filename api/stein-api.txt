@@ -1,0 +1,763 @@
+C dev/xavier/stein/loader/api/Account public final super=java/lang/Object itf= @Experimental
+C dev/xavier/stein/loader/api/Account$Kind public final super=java/lang/Enum itf=
+C dev/xavier/stein/loader/api/Blend public final super=java/lang/Enum itf= @Experimental
+C dev/xavier/stein/loader/api/Chat public final super=java/lang/Object itf= @Experimental
+C dev/xavier/stein/loader/api/Effects public final super=java/lang/Object itf= @Experimental
+C dev/xavier/stein/loader/api/Effects$Effect public final super=java/lang/Object itf=
+C dev/xavier/stein/loader/api/Entities public final super=java/lang/Object itf= @Experimental
+C dev/xavier/stein/loader/api/Entities$Kind public final super=java/lang/Enum itf= @Experimental
+C dev/xavier/stein/loader/api/Experimental public interface super=java/lang/Object itf=java/lang/annotation/Annotation
+C dev/xavier/stein/loader/api/Game public final super=java/lang/Object itf=
+C dev/xavier/stein/loader/api/Http public final super=java/lang/Object itf= @Experimental
+C dev/xavier/stein/loader/api/Hud public final super=java/lang/Object itf=
+C dev/xavier/stein/loader/api/HudElement public interface super=java/lang/Object itf=
+C dev/xavier/stein/loader/api/HudPlacement public final super=java/lang/Object itf=
+C dev/xavier/stein/loader/api/Inventory public final super=java/lang/Object itf= @Experimental
+C dev/xavier/stein/loader/api/Keys public final super=java/lang/Object itf=
+C dev/xavier/stein/loader/api/Keys$Binding public final super=java/lang/Object itf= @Experimental
+C dev/xavier/stein/loader/api/Keys$GameKey public final super=java/lang/Enum itf= @Experimental
+C dev/xavier/stein/loader/api/Lang public final super=java/lang/Object itf= @Experimental
+C dev/xavier/stein/loader/api/Log public final super=java/lang/Object itf= @Experimental
+C dev/xavier/stein/loader/api/Mesh public final super=java/lang/Object itf= @Experimental
+C dev/xavier/stein/loader/api/Mesh$Builder public final super=java/lang/Object itf=
+C dev/xavier/stein/loader/api/Mesh$Format public final super=java/lang/Enum itf=
+C dev/xavier/stein/loader/api/Mesh$Primitive public final super=java/lang/Enum itf=
+C dev/xavier/stein/loader/api/ModConfig public final super=java/lang/Object itf= @Experimental
+C dev/xavier/stein/loader/api/ModContext public final super=java/lang/Object itf= @Experimental
+C dev/xavier/stein/loader/api/Mods public final super=java/lang/Object itf=
+C dev/xavier/stein/loader/api/Net public final super=java/lang/Object itf=
+C dev/xavier/stein/loader/api/Net$Proxy public interface super=java/lang/Object itf=
+C dev/xavier/stein/loader/api/Option public abstract super=java/lang/Object itf=
+C dev/xavier/stein/loader/api/Option$Check public final super=java/lang/Object itf= @Experimental
+C dev/xavier/stein/loader/api/Option$Key public final super=dev/xavier/stein/loader/api/Option itf= @Experimental
+C dev/xavier/stein/loader/api/Option$Slider public final super=dev/xavier/stein/loader/api/Option itf= @Experimental
+C dev/xavier/stein/loader/api/Option$Text public final super=dev/xavier/stein/loader/api/Option itf=
+C dev/xavier/stein/loader/api/Page public final super=java/lang/Object itf=
+C dev/xavier/stein/loader/api/Page$Entry public final super=java/lang/Object itf=
+C dev/xavier/stein/loader/api/Page$Item public final super=java/lang/Object itf=
+C dev/xavier/stein/loader/api/Panel public final super=java/lang/Object itf=
+C dev/xavier/stein/loader/api/Players public final super=java/lang/Object itf= @Experimental
+C dev/xavier/stein/loader/api/Players$Entry public final super=java/lang/Object itf=
+C dev/xavier/stein/loader/api/Relation public final super=java/lang/Enum itf= @Experimental
+C dev/xavier/stein/loader/api/Relations public final super=java/lang/Object itf= @Experimental
+C dev/xavier/stein/loader/api/Relations$Provider public interface super=java/lang/Object itf=
+C dev/xavier/stein/loader/api/Render public final super=java/lang/Object itf= @Experimental
+C dev/xavier/stein/loader/api/Render$Texture public final super=java/lang/Object itf=
+C dev/xavier/stein/loader/api/Screens public final super=java/lang/Object itf= @Experimental
+C dev/xavier/stein/loader/api/Screens$Kind public final super=java/lang/Enum itf=
+C dev/xavier/stein/loader/api/Secrets public final super=java/lang/Object itf= @Experimental
+C dev/xavier/stein/loader/api/Server public final super=java/lang/Object itf= @Experimental
+C dev/xavier/stein/loader/api/Stacks public final super=java/lang/Object itf= @Experimental
+C dev/xavier/stein/loader/api/SteinMod public interface super=java/lang/Object itf=
+C dev/xavier/stein/loader/api/Targeting public final super=java/lang/Object itf= @Experimental
+C dev/xavier/stein/loader/api/Targeting$BlockFilter public interface super=java/lang/Object itf= @Experimental
+C dev/xavier/stein/loader/api/Targeting$Hit public final super=java/lang/Object itf=
+C dev/xavier/stein/loader/api/Targeting$Query public final super=java/lang/Object itf= @Experimental
+C dev/xavier/stein/loader/api/Targeting$Ray public final super=java/lang/Object itf=
+C dev/xavier/stein/loader/api/Tasks public final super=java/lang/Object itf= @Experimental
+C dev/xavier/stein/loader/api/Terrain public final super=java/lang/Object itf= @Experimental
+C dev/xavier/stein/loader/api/Terrain$Visitor public interface super=java/lang/Object itf=
+C dev/xavier/stein/loader/api/Theme public final super=java/lang/Object itf= @Experimental
+C dev/xavier/stein/loader/api/Typeface public final super=java/lang/Enum itf= @Experimental
+C dev/xavier/stein/loader/api/WorldRender public final super=java/lang/Object itf= @Experimental
+F dev/xavier/stein/loader/api/Account$Kind.CHECKING:Ldev/xavier/stein/loader/api/Account$Kind; public static final
+F dev/xavier/stein/loader/api/Account$Kind.MICROSOFT:Ldev/xavier/stein/loader/api/Account$Kind; public static final
+F dev/xavier/stein/loader/api/Account$Kind.NOT_MICROSOFT:Ldev/xavier/stein/loader/api/Account$Kind; public static final
+F dev/xavier/stein/loader/api/Account$Kind.OFFLINE:Ldev/xavier/stein/loader/api/Account$Kind; public static final
+F dev/xavier/stein/loader/api/Account$Kind.UNVERIFIED:Ldev/xavier/stein/loader/api/Account$Kind; public static final
+F dev/xavier/stein/loader/api/Blend.ADDITIVE:Ldev/xavier/stein/loader/api/Blend; public static final @Experimental
+F dev/xavier/stein/loader/api/Blend.MULTIPLY:Ldev/xavier/stein/loader/api/Blend; public static final @Experimental
+F dev/xavier/stein/loader/api/Blend.NORMAL:Ldev/xavier/stein/loader/api/Blend; public static final @Experimental
+F dev/xavier/stein/loader/api/Blend.SCREEN:Ldev/xavier/stein/loader/api/Blend; public static final @Experimental
+F dev/xavier/stein/loader/api/Effects$Effect.amplifier:I public final
+F dev/xavier/stein/loader/api/Effects$Effect.duration:I public final
+F dev/xavier/stein/loader/api/Effects$Effect.id:I public final
+F dev/xavier/stein/loader/api/Effects$Effect.permanent:Z public final
+F dev/xavier/stein/loader/api/Entities$Kind.HOSTILE:Ldev/xavier/stein/loader/api/Entities$Kind; public static final @Experimental
+F dev/xavier/stein/loader/api/Entities$Kind.OTHER:Ldev/xavier/stein/loader/api/Entities$Kind; public static final @Experimental
+F dev/xavier/stein/loader/api/Entities$Kind.PASSIVE:Ldev/xavier/stein/loader/api/Entities$Kind; public static final @Experimental
+F dev/xavier/stein/loader/api/Entities$Kind.PLAYER:Ldev/xavier/stein/loader/api/Entities$Kind; public static final @Experimental
+F dev/xavier/stein/loader/api/HudPlacement.anchorX:I public final
+F dev/xavier/stein/loader/api/HudPlacement.anchorY:I public final
+F dev/xavier/stein/loader/api/HudPlacement.enabled:Z public final
+F dev/xavier/stein/loader/api/HudPlacement.scale:F public final
+F dev/xavier/stein/loader/api/HudPlacement.showInChat:Z public final
+F dev/xavier/stein/loader/api/HudPlacement.x:I public final
+F dev/xavier/stein/loader/api/HudPlacement.y:I public final
+F dev/xavier/stein/loader/api/Inventory.ARMOR_START:I public static final @Experimental
+F dev/xavier/stein/loader/api/Inventory.BOOTS:I public static final @Experimental
+F dev/xavier/stein/loader/api/Inventory.CHESTPLATE:I public static final @Experimental
+F dev/xavier/stein/loader/api/Inventory.CLONE:I public static final @Experimental
+F dev/xavier/stein/loader/api/Inventory.HELMET:I public static final @Experimental
+F dev/xavier/stein/loader/api/Inventory.HOTBAR_START:I public static final @Experimental
+F dev/xavier/stein/loader/api/Inventory.LEGGINGS:I public static final @Experimental
+F dev/xavier/stein/loader/api/Inventory.MAIN_START:I public static final @Experimental
+F dev/xavier/stein/loader/api/Inventory.OUTSIDE:I public static final @Experimental
+F dev/xavier/stein/loader/api/Inventory.PICKUP:I public static final @Experimental
+F dev/xavier/stein/loader/api/Inventory.PICKUP_ALL:I public static final @Experimental
+F dev/xavier/stein/loader/api/Inventory.QUICK_CRAFT:I public static final @Experimental
+F dev/xavier/stein/loader/api/Inventory.QUICK_MOVE:I public static final @Experimental
+F dev/xavier/stein/loader/api/Inventory.SIZE:I public static final @Experimental
+F dev/xavier/stein/loader/api/Inventory.SWAP:I public static final @Experimental
+F dev/xavier/stein/loader/api/Inventory.THROW:I public static final @Experimental
+F dev/xavier/stein/loader/api/Keys$GameKey.ATTACK:Ldev/xavier/stein/loader/api/Keys$GameKey; public static final @Experimental
+F dev/xavier/stein/loader/api/Keys$GameKey.BACK:Ldev/xavier/stein/loader/api/Keys$GameKey; public static final @Experimental
+F dev/xavier/stein/loader/api/Keys$GameKey.CHAT:Ldev/xavier/stein/loader/api/Keys$GameKey; public static final @Experimental
+F dev/xavier/stein/loader/api/Keys$GameKey.COMMAND:Ldev/xavier/stein/loader/api/Keys$GameKey; public static final @Experimental
+F dev/xavier/stein/loader/api/Keys$GameKey.DROP:Ldev/xavier/stein/loader/api/Keys$GameKey; public static final @Experimental
+F dev/xavier/stein/loader/api/Keys$GameKey.FORWARD:Ldev/xavier/stein/loader/api/Keys$GameKey; public static final @Experimental
+F dev/xavier/stein/loader/api/Keys$GameKey.INVENTORY:Ldev/xavier/stein/loader/api/Keys$GameKey; public static final @Experimental
+F dev/xavier/stein/loader/api/Keys$GameKey.JUMP:Ldev/xavier/stein/loader/api/Keys$GameKey; public static final @Experimental
+F dev/xavier/stein/loader/api/Keys$GameKey.LEFT:Ldev/xavier/stein/loader/api/Keys$GameKey; public static final @Experimental
+F dev/xavier/stein/loader/api/Keys$GameKey.PERSPECTIVE:Ldev/xavier/stein/loader/api/Keys$GameKey; public static final @Experimental
+F dev/xavier/stein/loader/api/Keys$GameKey.PICK_BLOCK:Ldev/xavier/stein/loader/api/Keys$GameKey; public static final @Experimental
+F dev/xavier/stein/loader/api/Keys$GameKey.PLAYER_LIST:Ldev/xavier/stein/loader/api/Keys$GameKey; public static final @Experimental
+F dev/xavier/stein/loader/api/Keys$GameKey.RIGHT:Ldev/xavier/stein/loader/api/Keys$GameKey; public static final @Experimental
+F dev/xavier/stein/loader/api/Keys$GameKey.SCREENSHOT:Ldev/xavier/stein/loader/api/Keys$GameKey; public static final @Experimental
+F dev/xavier/stein/loader/api/Keys$GameKey.SNEAK:Ldev/xavier/stein/loader/api/Keys$GameKey; public static final @Experimental
+F dev/xavier/stein/loader/api/Keys$GameKey.SPRINT:Ldev/xavier/stein/loader/api/Keys$GameKey; public static final @Experimental
+F dev/xavier/stein/loader/api/Keys$GameKey.USE:Ldev/xavier/stein/loader/api/Keys$GameKey; public static final @Experimental
+F dev/xavier/stein/loader/api/Keys.KEY_B:I public static final
+F dev/xavier/stein/loader/api/Keys.KEY_C:I public static final
+F dev/xavier/stein/loader/api/Keys.KEY_E:I public static final
+F dev/xavier/stein/loader/api/Keys.KEY_ESCAPE:I public static final
+F dev/xavier/stein/loader/api/Keys.KEY_F1:I public static final
+F dev/xavier/stein/loader/api/Keys.KEY_F:I public static final
+F dev/xavier/stein/loader/api/Keys.KEY_G:I public static final
+F dev/xavier/stein/loader/api/Keys.KEY_H:I public static final
+F dev/xavier/stein/loader/api/Keys.KEY_I:I public static final
+F dev/xavier/stein/loader/api/Keys.KEY_INSERT:I public static final
+F dev/xavier/stein/loader/api/Keys.KEY_J:I public static final
+F dev/xavier/stein/loader/api/Keys.KEY_K:I public static final
+F dev/xavier/stein/loader/api/Keys.KEY_L:I public static final
+F dev/xavier/stein/loader/api/Keys.KEY_LCONTROL:I public static final
+F dev/xavier/stein/loader/api/Keys.KEY_LMENU:I public static final
+F dev/xavier/stein/loader/api/Keys.KEY_LSHIFT:I public static final
+F dev/xavier/stein/loader/api/Keys.KEY_M:I public static final
+F dev/xavier/stein/loader/api/Keys.KEY_N:I public static final
+F dev/xavier/stein/loader/api/Keys.KEY_NONE:I public static final
+F dev/xavier/stein/loader/api/Keys.KEY_O:I public static final
+F dev/xavier/stein/loader/api/Keys.KEY_P:I public static final
+F dev/xavier/stein/loader/api/Keys.KEY_Q:I public static final
+F dev/xavier/stein/loader/api/Keys.KEY_R:I public static final
+F dev/xavier/stein/loader/api/Keys.KEY_RCONTROL:I public static final
+F dev/xavier/stein/loader/api/Keys.KEY_RETURN:I public static final
+F dev/xavier/stein/loader/api/Keys.KEY_RMENU:I public static final
+F dev/xavier/stein/loader/api/Keys.KEY_RSHIFT:I public static final
+F dev/xavier/stein/loader/api/Keys.KEY_SPACE:I public static final
+F dev/xavier/stein/loader/api/Keys.KEY_T:I public static final
+F dev/xavier/stein/loader/api/Keys.KEY_TAB:I public static final
+F dev/xavier/stein/loader/api/Keys.KEY_U:I public static final
+F dev/xavier/stein/loader/api/Keys.KEY_V:I public static final
+F dev/xavier/stein/loader/api/Keys.KEY_X:I public static final
+F dev/xavier/stein/loader/api/Keys.KEY_Y:I public static final
+F dev/xavier/stein/loader/api/Keys.KEY_Z:I public static final
+F dev/xavier/stein/loader/api/Mesh$Format.COLOR:Ldev/xavier/stein/loader/api/Mesh$Format; public static final
+F dev/xavier/stein/loader/api/Mesh$Format.TEXTURE:Ldev/xavier/stein/loader/api/Mesh$Format; public static final
+F dev/xavier/stein/loader/api/Mesh$Format.TEXTURE_COLOR:Ldev/xavier/stein/loader/api/Mesh$Format; public static final
+F dev/xavier/stein/loader/api/Mesh$Primitive.LINES:Ldev/xavier/stein/loader/api/Mesh$Primitive; public static final
+F dev/xavier/stein/loader/api/Mesh$Primitive.LINE_STRIP:Ldev/xavier/stein/loader/api/Mesh$Primitive; public static final
+F dev/xavier/stein/loader/api/Mesh$Primitive.QUADS:Ldev/xavier/stein/loader/api/Mesh$Primitive; public static final
+F dev/xavier/stein/loader/api/Mesh$Primitive.TRIANGLES:Ldev/xavier/stein/loader/api/Mesh$Primitive; public static final
+F dev/xavier/stein/loader/api/Mesh$Primitive.TRIANGLE_FAN:Ldev/xavier/stein/loader/api/Mesh$Primitive; public static final
+F dev/xavier/stein/loader/api/Mesh$Primitive.TRIANGLE_STRIP:Ldev/xavier/stein/loader/api/Mesh$Primitive; public static final
+F dev/xavier/stein/loader/api/Option$Slider.max:D public final @Experimental
+F dev/xavier/stein/loader/api/Option$Slider.min:D public final @Experimental
+F dev/xavier/stein/loader/api/Option$Slider.step:D public final @Experimental
+F dev/xavier/stein/loader/api/Option$Text.get:Ljava/util/function/Supplier; public final
+F dev/xavier/stein/loader/api/Option$Text.hint:Ljava/lang/String; public final
+F dev/xavier/stein/loader/api/Option$Text.secret:Z public final
+F dev/xavier/stein/loader/api/Option$Text.set:Ljava/util/function/Consumer; public final
+F dev/xavier/stein/loader/api/Option.CODES:Ljava/lang/String; public static final
+F dev/xavier/stein/loader/api/Option.RGB:[I public static final
+F dev/xavier/stein/loader/api/Option.label:Ljava/lang/String; public final
+F dev/xavier/stein/loader/api/Page$Entry.empty:Ljava/lang/String; public final
+F dev/xavier/stein/loader/api/Page$Entry.items:Ljava/util/function/Supplier; public final
+F dev/xavier/stein/loader/api/Page$Entry.label:Ljava/lang/String; public final
+F dev/xavier/stein/loader/api/Page$Entry.onClick:Ljava/util/function/Consumer; public final
+F dev/xavier/stein/loader/api/Page$Entry.option:Ldev/xavier/stein/loader/api/Option; public final
+F dev/xavier/stein/loader/api/Page$Entry.removes:Z public final
+F dev/xavier/stein/loader/api/Page$Entry.rows:Ljava/util/function/Supplier; public final
+F dev/xavier/stein/loader/api/Page$Entry.screen:Ljava/util/function/Function; public final
+F dev/xavier/stein/loader/api/Page$Entry.section:Ljava/lang/String; public final
+F dev/xavier/stein/loader/api/Page$Item.current:Z public final
+F dev/xavier/stein/loader/api/Page$Item.detail:Ljava/lang/String; public final
+F dev/xavier/stein/loader/api/Page$Item.remove:Ljava/lang/Runnable; public final
+F dev/xavier/stein/loader/api/Page$Item.title:Ljava/lang/String; public final
+F dev/xavier/stein/loader/api/Page$Item.use:Ljava/lang/Runnable; public final
+F dev/xavier/stein/loader/api/Players$Entry.hasSkin:Z public final
+F dev/xavier/stein/loader/api/Players$Entry.nick:Ljava/lang/String; public final
+F dev/xavier/stein/loader/api/Players$Entry.ping:I public final
+F dev/xavier/stein/loader/api/Players$Entry.spectator:Z public final
+F dev/xavier/stein/loader/api/Players$Entry.tabName:Ljava/lang/String; public final
+F dev/xavier/stein/loader/api/Players$Entry.team:Ljava/lang/String; public final
+F dev/xavier/stein/loader/api/Relation.ALLY:Ldev/xavier/stein/loader/api/Relation; public static final @Experimental
+F dev/xavier/stein/loader/api/Relation.ENEMY:Ldev/xavier/stein/loader/api/Relation; public static final @Experimental
+F dev/xavier/stein/loader/api/Relation.GROUP:Ldev/xavier/stein/loader/api/Relation; public static final @Experimental
+F dev/xavier/stein/loader/api/Relation.NEUTRAL:Ldev/xavier/stein/loader/api/Relation; public static final @Experimental
+F dev/xavier/stein/loader/api/Relation.NONE:Ldev/xavier/stein/loader/api/Relation; public static final @Experimental
+F dev/xavier/stein/loader/api/Relation.SELF:Ldev/xavier/stein/loader/api/Relation; public static final @Experimental
+F dev/xavier/stein/loader/api/Render$Texture.height:I public final
+F dev/xavier/stein/loader/api/Render$Texture.width:I public final
+F dev/xavier/stein/loader/api/Screens$Kind.CHAT:Ldev/xavier/stein/loader/api/Screens$Kind; public static final
+F dev/xavier/stein/loader/api/Screens$Kind.CONNECTING:Ldev/xavier/stein/loader/api/Screens$Kind; public static final
+F dev/xavier/stein/loader/api/Screens$Kind.CONTAINER:Ldev/xavier/stein/loader/api/Screens$Kind; public static final
+F dev/xavier/stein/loader/api/Screens$Kind.DISCONNECTED:Ldev/xavier/stein/loader/api/Screens$Kind; public static final
+F dev/xavier/stein/loader/api/Screens$Kind.INVENTORY:Ldev/xavier/stein/loader/api/Screens$Kind; public static final
+F dev/xavier/stein/loader/api/Screens$Kind.MAIN_MENU:Ldev/xavier/stein/loader/api/Screens$Kind; public static final
+F dev/xavier/stein/loader/api/Screens$Kind.MULTIPLAYER:Ldev/xavier/stein/loader/api/Screens$Kind; public static final
+F dev/xavier/stein/loader/api/Screens$Kind.NONE:Ldev/xavier/stein/loader/api/Screens$Kind; public static final
+F dev/xavier/stein/loader/api/Screens$Kind.OPTIONS:Ldev/xavier/stein/loader/api/Screens$Kind; public static final
+F dev/xavier/stein/loader/api/Screens$Kind.OTHER:Ldev/xavier/stein/loader/api/Screens$Kind; public static final
+F dev/xavier/stein/loader/api/Screens$Kind.PAUSE:Ldev/xavier/stein/loader/api/Screens$Kind; public static final
+F dev/xavier/stein/loader/api/Screens$Kind.SINGLEPLAYER:Ldev/xavier/stein/loader/api/Screens$Kind; public static final
+F dev/xavier/stein/loader/api/Screens$Kind.STEIN:Ldev/xavier/stein/loader/api/Screens$Kind; public static final
+F dev/xavier/stein/loader/api/Targeting$Hit.distance:D public final
+F dev/xavier/stein/loader/api/Targeting$Hit.entity:Ljava/lang/Object; public final
+F dev/xavier/stein/loader/api/Targeting$Hit.x:D public final
+F dev/xavier/stein/loader/api/Targeting$Hit.y:D public final
+F dev/xavier/stein/loader/api/Targeting$Hit.z:D public final
+F dev/xavier/stein/loader/api/Targeting$Query.cutAtBlock:Z public @Experimental
+F dev/xavier/stein/loader/api/Targeting$Query.excluded:Ljava/util/List; public final @Experimental
+F dev/xavier/stein/loader/api/Targeting$Query.living:Z public @Experimental
+F dev/xavier/stein/loader/api/Targeting$Query.margin:D public @Experimental
+F dev/xavier/stein/loader/api/Targeting$Query.passThrough:Ldev/xavier/stein/loader/api/Targeting$BlockFilter; public @Experimental
+F dev/xavier/stein/loader/api/Targeting$Query.reach:D public @Experimental
+F dev/xavier/stein/loader/api/Targeting$Query.visibleOnly:Z public @Experimental
+F dev/xavier/stein/loader/api/Targeting$Ray.blockDistance:D public final
+F dev/xavier/stein/loader/api/Targeting$Ray.blockId:Ljava/lang/String; public final @Experimental
+F dev/xavier/stein/loader/api/Targeting$Ray.blockX:I public final @Experimental
+F dev/xavier/stein/loader/api/Targeting$Ray.blockY:I public final @Experimental
+F dev/xavier/stein/loader/api/Targeting$Ray.blockZ:I public final @Experimental
+F dev/xavier/stein/loader/api/Targeting$Ray.hits:Ljava/util/List; public final
+F dev/xavier/stein/loader/api/Targeting$Ray.reach:D public final
+F dev/xavier/stein/loader/api/Targeting.FOLIAGE:Ldev/xavier/stein/loader/api/Targeting$BlockFilter; public static final @Experimental
+F dev/xavier/stein/loader/api/Targeting.GLASS:Ldev/xavier/stein/loader/api/Targeting$BlockFilter; public static final @Experimental
+F dev/xavier/stein/loader/api/Theme.ACCENT:I public static final @Experimental
+F dev/xavier/stein/loader/api/Theme.ACCENT_SOFT:I public static final @Experimental
+F dev/xavier/stein/loader/api/Theme.BACKGROUND:I public static final @Experimental
+F dev/xavier/stein/loader/api/Theme.DANGER:I public static final @Experimental
+F dev/xavier/stein/loader/api/Theme.FAINT:I public static final @Experimental
+F dev/xavier/stein/loader/api/Theme.GOLD:I public static final @Experimental
+F dev/xavier/stein/loader/api/Theme.INK:I public static final @Experimental
+F dev/xavier/stein/loader/api/Theme.MUTED:I public static final @Experimental
+F dev/xavier/stein/loader/api/Theme.OK:I public static final @Experimental
+F dev/xavier/stein/loader/api/Theme.RULE:I public static final @Experimental
+F dev/xavier/stein/loader/api/Theme.RULE_STRONG:I public static final @Experimental
+F dev/xavier/stein/loader/api/Theme.WARN:I public static final @Experimental
+F dev/xavier/stein/loader/api/Typeface.ITALIC:Ldev/xavier/stein/loader/api/Typeface; public static final @Experimental
+F dev/xavier/stein/loader/api/Typeface.MONO:Ldev/xavier/stein/loader/api/Typeface; public static final @Experimental
+F dev/xavier/stein/loader/api/Typeface.TEXT:Ldev/xavier/stein/loader/api/Typeface; public static final @Experimental
+F dev/xavier/stein/loader/api/Typeface.TITLE:Ldev/xavier/stein/loader/api/Typeface; public static final @Experimental
+M dev/xavier/stein/loader/api/Account$Kind.valueOf(Ljava/lang/String;)Ldev/xavier/stein/loader/api/Account$Kind; public static
+M dev/xavier/stein/loader/api/Account$Kind.values()[Ldev/xavier/stein/loader/api/Account$Kind; public static
+M dev/xavier/stein/loader/api/Account.isLauncher()Z public static @Experimental
+M dev/xavier/stein/loader/api/Account.kind()Ldev/xavier/stein/loader/api/Account$Kind; public static @Experimental
+M dev/xavier/stein/loader/api/Account.launcherKind()Ldev/xavier/stein/loader/api/Account$Kind; public static @Experimental
+M dev/xavier/stein/loader/api/Account.launcherName()Ljava/lang/String; public static @Experimental
+M dev/xavier/stein/loader/api/Account.name()Ljava/lang/String; public static @Experimental
+M dev/xavier/stein/loader/api/Account.restoreLauncher()V public static @Experimental
+M dev/xavier/stein/loader/api/Account.useOffline(Ljava/lang/String;)V public static @Experimental
+M dev/xavier/stein/loader/api/Blend.valueOf(Ljava/lang/String;)Ldev/xavier/stein/loader/api/Blend; public static @Experimental
+M dev/xavier/stein/loader/api/Blend.values()[Ldev/xavier/stein/loader/api/Blend; public static @Experimental
+M dev/xavier/stein/loader/api/Chat.actionBar(Ljava/lang/String;)V public static @Experimental
+M dev/xavier/stein/loader/api/Chat.formatted(Ljava/lang/Object;)Ljava/lang/String; public static @Experimental
+M dev/xavier/stein/loader/api/Chat.plain(Ljava/lang/Object;)Ljava/lang/String; public static @Experimental
+M dev/xavier/stein/loader/api/Chat.print(Ljava/lang/String;)V public static @Experimental
+M dev/xavier/stein/loader/api/Chat.send(Ljava/lang/String;)V public static @Experimental
+M dev/xavier/stein/loader/api/Chat.text(Ljava/lang/String;)Ljava/lang/Object; public static @Experimental
+M dev/xavier/stein/loader/api/Effects$Effect.<init>(IIIZ)V public
+M dev/xavier/stein/loader/api/Effects.durationText(Ldev/xavier/stein/loader/api/Effects$Effect;)Ljava/lang/String; public static @Experimental
+M dev/xavier/stein/loader/api/Effects.hasIcon(I)Z public static @Experimental
+M dev/xavier/stein/loader/api/Effects.name(Ldev/xavier/stein/loader/api/Effects$Effect;)Ljava/lang/String; public static @Experimental
+M dev/xavier/stein/loader/api/Effects.of(Ljava/lang/Object;)Ljava/util/List; public static @Experimental
+M dev/xavier/stein/loader/api/Entities$Kind.valueOf(Ljava/lang/String;)Ldev/xavier/stein/loader/api/Entities$Kind; public static @Experimental
+M dev/xavier/stein/loader/api/Entities$Kind.values()[Ldev/xavier/stein/loader/api/Entities$Kind; public static @Experimental
+M dev/xavier/stein/loader/api/Entities.absorption(Ljava/lang/Object;)F public static @Experimental
+M dev/xavier/stein/loader/api/Entities.all()Ljava/util/List; public static @Experimental
+M dev/xavier/stein/loader/api/Entities.armor(Ljava/lang/Object;)I public static @Experimental
+M dev/xavier/stein/loader/api/Entities.camera()Ljava/lang/Object; public static @Experimental
+M dev/xavier/stein/loader/api/Entities.displayName(Ljava/lang/Object;)Ljava/lang/String; public static @Experimental
+M dev/xavier/stein/loader/api/Entities.distance(Ljava/lang/Object;Ljava/lang/Object;)F public static @Experimental
+M dev/xavier/stein/loader/api/Entities.health(Ljava/lang/Object;)F public static @Experimental
+M dev/xavier/stein/loader/api/Entities.hurtTime(Ljava/lang/Object;)I public static @Experimental
+M dev/xavier/stein/loader/api/Entities.isAlive(Ljava/lang/Object;)Z public static @Experimental
+M dev/xavier/stein/loader/api/Entities.isInvisible(Ljava/lang/Object;)Z public static @Experimental
+M dev/xavier/stein/loader/api/Entities.isLiving(Ljava/lang/Object;)Z public static @Experimental
+M dev/xavier/stein/loader/api/Entities.isPlayer(Ljava/lang/Object;)Z public static @Experimental
+M dev/xavier/stein/loader/api/Entities.kind(Ljava/lang/Object;)Ldev/xavier/stein/loader/api/Entities$Kind; public static @Experimental
+M dev/xavier/stein/loader/api/Entities.maxHealth(Ljava/lang/Object;)F public static @Experimental
+M dev/xavier/stein/loader/api/Entities.name(Ljava/lang/Object;)Ljava/lang/String; public static @Experimental
+M dev/xavier/stein/loader/api/Entities.player(Ljava/lang/String;)Ljava/lang/Object; public static @Experimental
+M dev/xavier/stein/loader/api/Entities.players()Ljava/util/List; public static @Experimental
+M dev/xavier/stein/loader/api/Entities.self()Ljava/lang/Object; public static @Experimental
+M dev/xavier/stein/loader/api/Entities.typeName(Ljava/lang/Object;)Ljava/lang/String; public static @Experimental
+M dev/xavier/stein/loader/api/Entities.x(Ljava/lang/Object;F)D public static @Experimental
+M dev/xavier/stein/loader/api/Entities.y(Ljava/lang/Object;F)D public static @Experimental
+M dev/xavier/stein/loader/api/Entities.yaw(Ljava/lang/Object;F)F public static @Experimental
+M dev/xavier/stein/loader/api/Entities.z(Ljava/lang/Object;F)D public static @Experimental
+M dev/xavier/stein/loader/api/Experimental.since()Ljava/lang/String; public abstract
+M dev/xavier/stein/loader/api/Game.enchantmentsVersion()I public static
+M dev/xavier/stein/loader/api/Game.fps()I public static @Experimental
+M dev/xavier/stein/loader/api/Game.fpsLimit()I public static @Experimental
+M dev/xavier/stein/loader/api/Game.itemData(Ljava/lang/Object;)Ljava/lang/Object; public static
+M dev/xavier/stein/loader/api/Game.partialTicks()F public static
+M dev/xavier/stein/loader/api/Game.refreshRate()I public static @Experimental
+M dev/xavier/stein/loader/api/Game.resetCameraSmoothing()V public static
+M dev/xavier/stein/loader/api/Game.setInventoryEffectsHidden(Z)V public static
+M dev/xavier/stein/loader/api/Game.setItemData(Ljava/lang/Object;Ljava/lang/Object;)V public static
+M dev/xavier/stein/loader/api/Game.spriteAt(FF)Ljava/lang/Object; public static
+M dev/xavier/stein/loader/api/Game.watchBlockModel(Ljava/lang/Object;Z)V public static
+M dev/xavier/stein/loader/api/Http.getText(Ljava/lang/String;Ljava/util/function/Consumer;Ljava/util/function/Consumer;)V public static @Experimental
+M dev/xavier/stein/loader/api/Http.getTextNow(Ljava/lang/String;)Ljava/lang/String; public static @Experimental
+M dev/xavier/stein/loader/api/Hud.cover(FFFF)V public static @Experimental
+M dev/xavier/stein/loader/api/Hud.editorScreen(Ljava/lang/Object;)Ljava/lang/Object; public static
+M dev/xavier/stein/loader/api/Hud.isEnabled(Ljava/lang/String;)Z public static
+M dev/xavier/stein/loader/api/Hud.register(Ldev/xavier/stein/loader/api/HudElement;)V public static
+M dev/xavier/stein/loader/api/Hud.setHidden(Z)V public static @Experimental
+M dev/xavier/stein/loader/api/HudElement.defaultBackground()F public @Experimental
+M dev/xavier/stein/loader/api/HudElement.defaultPlacement()Ldev/xavier/stein/loader/api/HudPlacement; public abstract
+M dev/xavier/stein/loader/api/HudElement.draw(ZF)V public abstract
+M dev/xavier/stein/loader/api/HudElement.hasBackground()Z public @Experimental
+M dev/xavier/stein/loader/api/HudElement.height()I public abstract
+M dev/xavier/stein/loader/api/HudElement.hideWithDebug()Z public
+M dev/xavier/stein/loader/api/HudElement.id()Ljava/lang/String; public abstract
+M dev/xavier/stein/loader/api/HudElement.layout(ZF)Z public abstract
+M dev/xavier/stein/loader/api/HudElement.name()Ljava/lang/String; public abstract
+M dev/xavier/stein/loader/api/HudElement.options(Ljava/util/List;)V public
+M dev/xavier/stein/loader/api/HudElement.optionsChanged()V public
+M dev/xavier/stein/loader/api/HudElement.restoreOptions()V public
+M dev/xavier/stein/loader/api/HudElement.savedPlacement()Ldev/xavier/stein/loader/api/HudPlacement; public
+M dev/xavier/stein/loader/api/HudElement.visibleWithScreens()Z public
+M dev/xavier/stein/loader/api/HudElement.width()I public abstract
+M dev/xavier/stein/loader/api/HudPlacement.<init>(IIIIFZZ)V public
+M dev/xavier/stein/loader/api/Inventory.accepts(ILjava/lang/Object;)Z public static @Experimental
+M dev/xavier/stein/loader/api/Inventory.armor(I)Ljava/lang/Object; public static @Experimental
+M dev/xavier/stein/loader/api/Inventory.armorPiece(Ljava/lang/Object;)I public static @Experimental
+M dev/xavier/stein/loader/api/Inventory.armorValue(Ljava/lang/Object;)I public static @Experimental
+M dev/xavier/stein/loader/api/Inventory.clearPending()V public static @Experimental
+M dev/xavier/stein/loader/api/Inventory.clearPending(Ljava/lang/String;)V public static @Experimental
+M dev/xavier/stein/loader/api/Inventory.click(III)Z public static @Experimental
+M dev/xavier/stein/loader/api/Inventory.clickLater(III)V public static @Experimental
+M dev/xavier/stein/loader/api/Inventory.clickLater(Ljava/lang/String;III)V public static @Experimental
+M dev/xavier/stein/loader/api/Inventory.closeContainer()V public static @Experimental
+M dev/xavier/stein/loader/api/Inventory.closeScreen()V public static @Experimental
+M dev/xavier/stein/loader/api/Inventory.closeWindowOnServer(I)V public static @Experimental
+M dev/xavier/stein/loader/api/Inventory.containerSize()I public static @Experimental
+M dev/xavier/stein/loader/api/Inventory.count(Ljava/util/function/Predicate;)I public static @Experimental
+M dev/xavier/stein/loader/api/Inventory.cursor()Ljava/lang/Object; public static @Experimental
+M dev/xavier/stein/loader/api/Inventory.drop(IZ)Z public static @Experimental
+M dev/xavier/stein/loader/api/Inventory.dropCursor()Z public static @Experimental
+M dev/xavier/stein/loader/api/Inventory.equip(I)Z public static @Experimental
+M dev/xavier/stein/loader/api/Inventory.find(Ljava/util/function/Predicate;II)I public static @Experimental
+M dev/xavier/stein/loader/api/Inventory.firstEmpty()I public static @Experimental
+M dev/xavier/stein/loader/api/Inventory.heldItem()Ljava/lang/Object; public static @Experimental
+M dev/xavier/stein/loader/api/Inventory.hideContainerScreen()V public static @Experimental
+M dev/xavier/stein/loader/api/Inventory.hoveredSlot()I public static @Experimental
+M dev/xavier/stein/loader/api/Inventory.inventoryIndexOf(I)I public static @Experimental
+M dev/xavier/stein/loader/api/Inventory.isContainerOpen()Z public static @Experimental
+M dev/xavier/stein/loader/api/Inventory.isCraftingSlot(I)Z public static @Experimental
+M dev/xavier/stein/loader/api/Inventory.isScreenOpen()Z public static @Experimental
+M dev/xavier/stein/loader/api/Inventory.isUsingItem()Z public static @Experimental
+M dev/xavier/stein/loader/api/Inventory.move(II)Z public static @Experimental
+M dev/xavier/stein/loader/api/Inventory.openInventory()V public static @Experimental
+M dev/xavier/stein/loader/api/Inventory.openVirtualNext(J)V public static @Experimental
+M dev/xavier/stein/loader/api/Inventory.pendingClicks()I public static @Experimental
+M dev/xavier/stein/loader/api/Inventory.pendingClicks(Ljava/lang/String;)I public static @Experimental
+M dev/xavier/stein/loader/api/Inventory.pickup(I)Z public static @Experimental
+M dev/xavier/stein/loader/api/Inventory.pickupHalf(I)Z public static @Experimental
+M dev/xavier/stein/loader/api/Inventory.quickMove(I)Z public static @Experimental
+M dev/xavier/stein/loader/api/Inventory.resync()Z public static @Experimental
+M dev/xavier/stein/loader/api/Inventory.room(I)I public static @Experimental
+M dev/xavier/stein/loader/api/Inventory.selectHotbar(I)V public static @Experimental
+M dev/xavier/stein/loader/api/Inventory.selectedHotbar()I public static @Experimental
+M dev/xavier/stein/loader/api/Inventory.slotCount()I public static @Experimental
+M dev/xavier/stein/loader/api/Inventory.slotOf(I)I public static @Experimental
+M dev/xavier/stein/loader/api/Inventory.slotStack(I)Ljava/lang/Object; public static @Experimental
+M dev/xavier/stein/loader/api/Inventory.stack(I)Ljava/lang/Object; public static @Experimental
+M dev/xavier/stein/loader/api/Inventory.stacksWith(Ljava/lang/Object;Ljava/lang/Object;)Z public static @Experimental
+M dev/xavier/stein/loader/api/Inventory.swapHotbar(II)Z public static @Experimental
+M dev/xavier/stein/loader/api/Inventory.unequip(I)Z public static @Experimental
+M dev/xavier/stein/loader/api/Inventory.useHeldItem()Z public static @Experimental
+M dev/xavier/stein/loader/api/Inventory.windowId()I public static @Experimental
+M dev/xavier/stein/loader/api/Keys$Binding.consumeClick()Z public @Experimental
+M dev/xavier/stein/loader/api/Keys$Binding.handle()Ljava/lang/Object; public @Experimental
+M dev/xavier/stein/loader/api/Keys$Binding.hold(Z)V public @Experimental
+M dev/xavier/stein/loader/api/Keys$Binding.isDown()Z public @Experimental
+M dev/xavier/stein/loader/api/Keys$Binding.key()I public @Experimental
+M dev/xavier/stein/loader/api/Keys$Binding.setKey(I)V public @Experimental
+M dev/xavier/stein/loader/api/Keys$GameKey.valueOf(Ljava/lang/String;)Ldev/xavier/stein/loader/api/Keys$GameKey; public static @Experimental
+M dev/xavier/stein/loader/api/Keys$GameKey.values()[Ldev/xavier/stein/loader/api/Keys$GameKey; public static @Experimental
+M dev/xavier/stein/loader/api/Keys.bind(Ljava/lang/String;ILjava/lang/String;)Ldev/xavier/stein/loader/api/Keys$Binding; public static @Experimental
+M dev/xavier/stein/loader/api/Keys.click(I)V public static @Experimental
+M dev/xavier/stein/loader/api/Keys.game(Ldev/xavier/stein/loader/api/Keys$GameKey;)Ldev/xavier/stein/loader/api/Keys$Binding; public static @Experimental
+M dev/xavier/stein/loader/api/Keys.isAltDown()Z public static @Experimental
+M dev/xavier/stein/loader/api/Keys.isCtrlDown()Z public static @Experimental
+M dev/xavier/stein/loader/api/Keys.isDown(I)Z public static @Experimental
+M dev/xavier/stein/loader/api/Keys.isMouseDown(I)Z public static @Experimental
+M dev/xavier/stein/loader/api/Keys.isShiftDown()Z public static @Experimental
+M dev/xavier/stein/loader/api/Keys.mouseButton()I public static @Experimental
+M dev/xavier/stein/loader/api/Keys.mousePressed()Z public static @Experimental
+M dev/xavier/stein/loader/api/Keys.mouseWheel()I public static @Experimental
+M dev/xavier/stein/loader/api/Keys.register(Ljava/lang/Object;)V public static
+M dev/xavier/stein/loader/api/Lang.has(Ljava/lang/String;)Z public static @Experimental
+M dev/xavier/stein/loader/api/Lang.language()Ljava/lang/String; public static @Experimental
+M dev/xavier/stein/loader/api/Lang.tr(Ljava/lang/String;)Ljava/lang/String; public static @Experimental
+M dev/xavier/stein/loader/api/Lang.tr(Ljava/lang/String;[Ljava/lang/Object;)Ljava/lang/String; public static @Experimental
+M dev/xavier/stein/loader/api/Log.debug(Ljava/lang/String;)V public @Experimental
+M dev/xavier/stein/loader/api/Log.error(Ljava/lang/String;Ljava/lang/Throwable;)V public @Experimental
+M dev/xavier/stein/loader/api/Log.info(Ljava/lang/String;)V public @Experimental
+M dev/xavier/stein/loader/api/Log.isDebug()Z public @Experimental
+M dev/xavier/stein/loader/api/Log.of(Ljava/lang/String;)Ldev/xavier/stein/loader/api/Log; public static @Experimental
+M dev/xavier/stein/loader/api/Log.warn(Ljava/lang/String;)V public @Experimental
+M dev/xavier/stein/loader/api/Mesh$Builder.build()Ldev/xavier/stein/loader/api/Mesh; public
+M dev/xavier/stein/loader/api/Mesh$Builder.color(I)Ldev/xavier/stein/loader/api/Mesh$Builder; public
+M dev/xavier/stein/loader/api/Mesh$Builder.uv(FF)Ldev/xavier/stein/loader/api/Mesh$Builder; public
+M dev/xavier/stein/loader/api/Mesh$Builder.vertex(DDD)Ldev/xavier/stein/loader/api/Mesh$Builder; public
+M dev/xavier/stein/loader/api/Mesh$Format.valueOf(Ljava/lang/String;)Ldev/xavier/stein/loader/api/Mesh$Format; public static
+M dev/xavier/stein/loader/api/Mesh$Format.values()[Ldev/xavier/stein/loader/api/Mesh$Format; public static
+M dev/xavier/stein/loader/api/Mesh$Primitive.valueOf(Ljava/lang/String;)Ldev/xavier/stein/loader/api/Mesh$Primitive; public static
+M dev/xavier/stein/loader/api/Mesh$Primitive.values()[Ldev/xavier/stein/loader/api/Mesh$Primitive; public static
+M dev/xavier/stein/loader/api/Mesh.builder(Ldev/xavier/stein/loader/api/Mesh$Primitive;Ldev/xavier/stein/loader/api/Mesh$Format;)Ldev/xavier/stein/loader/api/Mesh$Builder; public static @Experimental
+M dev/xavier/stein/loader/api/Mesh.format()Ldev/xavier/stein/loader/api/Mesh$Format; public @Experimental
+M dev/xavier/stein/loader/api/Mesh.isReleased()Z public @Experimental
+M dev/xavier/stein/loader/api/Mesh.primitive()Ldev/xavier/stein/loader/api/Mesh$Primitive; public @Experimental
+M dev/xavier/stein/loader/api/Mesh.release()V public @Experimental
+M dev/xavier/stein/loader/api/Mesh.vertexCount()I public @Experimental
+M dev/xavier/stein/loader/api/ModConfig.file()Ljava/io/File; public @Experimental
+M dev/xavier/stein/loader/api/ModConfig.get()Ljava/lang/Object; public @Experimental
+M dev/xavier/stein/loader/api/ModConfig.of(Ljava/lang/String;Ljava/lang/Class;)Ldev/xavier/stein/loader/api/ModConfig; public static @Experimental
+M dev/xavier/stein/loader/api/ModConfig.reload()Ljava/lang/Object; public @Experimental
+M dev/xavier/stein/loader/api/ModConfig.reset()Ljava/lang/Object; public @Experimental
+M dev/xavier/stein/loader/api/ModConfig.save()V public @Experimental
+M dev/xavier/stein/loader/api/ModConfig.saveSoon()V public @Experimental
+M dev/xavier/stein/loader/api/ModContext.config(Ljava/lang/Class;)Ldev/xavier/stein/loader/api/ModConfig; public @Experimental
+M dev/xavier/stein/loader/api/ModContext.configFile()Ljava/io/File; public @Experimental
+M dev/xavier/stein/loader/api/ModContext.folder()Ljava/io/File; public @Experimental
+M dev/xavier/stein/loader/api/ModContext.id()Ljava/lang/String; public @Experimental
+M dev/xavier/stein/loader/api/ModContext.log()Ldev/xavier/stein/loader/api/Log; public @Experimental
+M dev/xavier/stein/loader/api/ModContext.of(Ldev/xavier/stein/loader/api/SteinMod;)Ldev/xavier/stein/loader/api/ModContext; public static @Experimental
+M dev/xavier/stein/loader/api/ModContext.secrets()Ldev/xavier/stein/loader/api/Secrets; public @Experimental
+M dev/xavier/stein/loader/api/ModContext.tr(Ljava/lang/String;[Ljava/lang/Object;)Ljava/lang/String; public @Experimental
+M dev/xavier/stein/loader/api/ModContext.version()Ljava/lang/String; public @Experimental
+M dev/xavier/stein/loader/api/Mods.isLoaded(Ljava/lang/String;)Z public static
+M dev/xavier/stein/loader/api/Mods.version(Ljava/lang/String;)Ljava/lang/String; public static
+M dev/xavier/stein/loader/api/Net$Proxy.address(Ljava/lang/Object;I)Ljava/lang/Object; public abstract
+M dev/xavier/stein/loader/api/Net$Proxy.wrap(Ljava/lang/Object;)Ljava/lang/Object; public abstract
+M dev/xavier/stein/loader/api/Net.sendPayload(Ljava/lang/String;[B)Z public static @Experimental
+M dev/xavier/stein/loader/api/Net.set(Ldev/xavier/stein/loader/api/Net$Proxy;)V public static
+M dev/xavier/stein/loader/api/Option$Check.hint()Ljava/lang/String; public @Experimental
+M dev/xavier/stein/loader/api/Option$Check.isOn()Z public @Experimental
+M dev/xavier/stein/loader/api/Option$Check.toggle()V public @Experimental
+M dev/xavier/stein/loader/api/Option$Key.click(Z)V public @Experimental
+M dev/xavier/stein/loader/api/Option$Key.code()I public @Experimental
+M dev/xavier/stein/loader/api/Option$Key.isListening()Z public @Experimental
+M dev/xavier/stein/loader/api/Option$Key.keyPressed(I)Z public @Experimental
+M dev/xavier/stein/loader/api/Option$Key.mousePressed(I)Z public @Experimental
+M dev/xavier/stein/loader/api/Option$Key.value()Ljava/lang/String; public @Experimental
+M dev/xavier/stein/loader/api/Option$Slider.click(Z)V public @Experimental
+M dev/xavier/stein/loader/api/Option$Slider.fraction()F public @Experimental
+M dev/xavier/stein/loader/api/Option$Slider.get()D public @Experimental
+M dev/xavier/stein/loader/api/Option$Slider.set(D)V public @Experimental
+M dev/xavier/stein/loader/api/Option$Slider.setFraction(F)V public @Experimental
+M dev/xavier/stein/loader/api/Option$Slider.value()Ljava/lang/String; public @Experimental
+M dev/xavier/stein/loader/api/Option$Text.<init>(Ljava/lang/String;Ljava/lang/String;Ljava/util/function/Supplier;Ljava/util/function/Consumer;)V public
+M dev/xavier/stein/loader/api/Option$Text.<init>(Ljava/lang/String;Ljava/lang/String;Ljava/util/function/Supplier;Ljava/util/function/Consumer;Z)V public
+M dev/xavier/stein/loader/api/Option$Text.click(Z)V public
+M dev/xavier/stein/loader/api/Option$Text.value()Ljava/lang/String; public
+M dev/xavier/stein/loader/api/Option.<init>(Ljava/lang/String;)V protected
+M dev/xavier/stein/loader/api/Option.action(Ljava/lang/String;Ljava/lang/String;Ljava/lang/Runnable;)Ldev/xavier/stein/loader/api/Option; public static
+M dev/xavier/stein/loader/api/Option.advanced()Ldev/xavier/stein/loader/api/Option; public
+M dev/xavier/stein/loader/api/Option.check()Ldev/xavier/stein/loader/api/Option$Check; public @Experimental
+M dev/xavier/stein/loader/api/Option.click(Z)V public abstract
+M dev/xavier/stein/loader/api/Option.color(Ljava/lang/String;Ljava/util/function/Supplier;Ljava/util/function/Consumer;)Ldev/xavier/stein/loader/api/Option; public static
+M dev/xavier/stein/loader/api/Option.colorIndex(Ljava/lang/String;)I public static
+M dev/xavier/stein/loader/api/Option.colorName(Ljava/lang/String;)Ljava/lang/String; public static
+M dev/xavier/stein/loader/api/Option.cycle(Ljava/lang/String;[Ljava/lang/String;Ljava/util/function/IntSupplier;Ljava/util/function/IntConsumer;)Ldev/xavier/stein/loader/api/Option; public static
+M dev/xavier/stein/loader/api/Option.fmt(Ljava/lang/String;)Ljava/lang/String; public static
+M dev/xavier/stein/loader/api/Option.isAdvanced()Z public
+M dev/xavier/stein/loader/api/Option.isRestore()Z public
+M dev/xavier/stein/loader/api/Option.isStepped()Z public @Experimental
+M dev/xavier/stein/loader/api/Option.isVisible()Z public @Experimental
+M dev/xavier/stein/loader/api/Option.key()Ldev/xavier/stein/loader/api/Option$Key; public @Experimental
+M dev/xavier/stein/loader/api/Option.key(Ljava/lang/String;Ljava/util/function/IntSupplier;Ljava/util/function/IntConsumer;)Ldev/xavier/stein/loader/api/Option$Key; public static @Experimental
+M dev/xavier/stein/loader/api/Option.restore(Ljava/lang/Runnable;)Ldev/xavier/stein/loader/api/Option; public static
+M dev/xavier/stein/loader/api/Option.rgb(Ljava/lang/String;)I public static
+M dev/xavier/stein/loader/api/Option.slider(Ljava/lang/String;DDDLjava/util/function/DoubleSupplier;Ljava/util/function/DoubleConsumer;Ljava/util/function/DoubleFunction;)Ldev/xavier/stein/loader/api/Option$Slider; public static @Experimental
+M dev/xavier/stein/loader/api/Option.state()Ljava/lang/Boolean; public
+M dev/xavier/stein/loader/api/Option.text()Ljava/lang/String; public
+M dev/xavier/stein/loader/api/Option.toggle(Ljava/lang/String;Ljava/util/function/BooleanSupplier;Ljava/util/function/Consumer;)Ldev/xavier/stein/loader/api/Option; public static
+M dev/xavier/stein/loader/api/Option.value()Ljava/lang/String; public abstract
+M dev/xavier/stein/loader/api/Option.visibleWhen(Ljava/util/function/BooleanSupplier;)Ldev/xavier/stein/loader/api/Option; public @Experimental
+M dev/xavier/stein/loader/api/Option.withCheck(Ljava/lang/String;Ljava/util/function/BooleanSupplier;Ljava/util/function/Consumer;)Ldev/xavier/stein/loader/api/Option; public @Experimental
+M dev/xavier/stein/loader/api/Option.withKey(Ljava/util/function/IntSupplier;Ljava/util/function/IntConsumer;)Ldev/xavier/stein/loader/api/Option; public @Experimental
+M dev/xavier/stein/loader/api/Page$Item.<init>(Ljava/lang/String;Ljava/lang/String;ZLjava/lang/Runnable;Ljava/lang/Runnable;)V public
+M dev/xavier/stein/loader/api/Page.<init>(Ljava/lang/String;)V public
+M dev/xavier/stein/loader/api/Page.entries()Ljava/util/List; public
+M dev/xavier/stein/loader/api/Page.icon()Ljava/lang/String; public
+M dev/xavier/stein/loader/api/Page.icon(Ljava/lang/String;)Ldev/xavier/stein/loader/api/Page; public
+M dev/xavier/stein/loader/api/Page.isEmpty()Z public
+M dev/xavier/stein/loader/api/Page.items(Ljava/util/function/Supplier;Ljava/util/function/Consumer;Ljava/lang/String;Z)Ldev/xavier/stein/loader/api/Page; public
+M dev/xavier/stein/loader/api/Page.option(Ldev/xavier/stein/loader/api/Option;)Ldev/xavier/stein/loader/api/Page; public
+M dev/xavier/stein/loader/api/Page.restore(Ljava/lang/Runnable;)Ldev/xavier/stein/loader/api/Page; public
+M dev/xavier/stein/loader/api/Page.rows(Ljava/util/function/Supplier;Ljava/lang/String;)Ldev/xavier/stein/loader/api/Page; public
+M dev/xavier/stein/loader/api/Page.screen(Ljava/lang/String;Ljava/util/function/Function;)Ldev/xavier/stein/loader/api/Page; public
+M dev/xavier/stein/loader/api/Page.section(Ljava/lang/String;)Ldev/xavier/stein/loader/api/Page; public
+M dev/xavier/stein/loader/api/Page.title()Ljava/lang/String; public
+M dev/xavier/stein/loader/api/Page.title(Ljava/lang/String;)Ldev/xavier/stein/loader/api/Page; public
+M dev/xavier/stein/loader/api/Panel.close()V public static
+M dev/xavier/stein/loader/api/Panel.open(Ljava/lang/Object;)V public static
+M dev/xavier/stein/loader/api/Panel.open(Ljava/lang/Object;Ljava/lang/String;)V public static
+M dev/xavier/stein/loader/api/Panel.openOnly(Ljava/lang/Object;Ljava/lang/String;)V public static
+M dev/xavier/stein/loader/api/Players$Entry.<init>(Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;IZZ)V public
+M dev/xavier/stein/loader/api/Players.bracketTag(Ljava/lang/String;)Ljava/lang/String; public static @Experimental
+M dev/xavier/stein/loader/api/Players.count()I public static @Experimental
+M dev/xavier/stein/loader/api/Players.displayName(Ljava/lang/String;)Ljava/lang/String; public static @Experimental
+M dev/xavier/stein/loader/api/Players.group(Ljava/lang/String;)Ljava/lang/String; public static @Experimental
+M dev/xavier/stein/loader/api/Players.groupResolver(Ljava/lang/String;Ljava/util/function/Function;)V public static @Experimental
+M dev/xavier/stein/loader/api/Players.isValidNick(Ljava/lang/String;)Z public static @Experimental
+M dev/xavier/stein/loader/api/Players.list()Ljava/util/List; public static @Experimental
+M dev/xavier/stein/loader/api/Players.listScore(Ljava/lang/String;)Ljava/lang/String; public static @Experimental
+M dev/xavier/stein/loader/api/Players.nickOf(Ljava/lang/Object;)Ljava/lang/String; public static @Experimental
+M dev/xavier/stein/loader/api/Players.online()Ljava/util/List; public static @Experimental
+M dev/xavier/stein/loader/api/Players.ping(Ljava/lang/String;)I public static @Experimental
+M dev/xavier/stein/loader/api/Players.prefix(Ljava/lang/String;)Ljava/lang/String; public static @Experimental
+M dev/xavier/stein/loader/api/Players.self()Ljava/lang/String; public static @Experimental
+M dev/xavier/stein/loader/api/Players.suffix(Ljava/lang/String;)Ljava/lang/String; public static @Experimental
+M dev/xavier/stein/loader/api/Players.tabFooter()Ljava/lang/String; public static @Experimental
+M dev/xavier/stein/loader/api/Players.tabHeader()Ljava/lang/String; public static @Experimental
+M dev/xavier/stein/loader/api/Players.tabName(Ljava/lang/String;)Ljava/lang/String; public static @Experimental
+M dev/xavier/stein/loader/api/Players.team(Ljava/lang/String;)Ljava/lang/String; public static @Experimental
+M dev/xavier/stein/loader/api/Relation.friendly()Z public @Experimental
+M dev/xavier/stein/loader/api/Relation.valueOf(Ljava/lang/String;)Ldev/xavier/stein/loader/api/Relation; public static @Experimental
+M dev/xavier/stein/loader/api/Relation.values()[Ldev/xavier/stein/loader/api/Relation; public static @Experimental
+M dev/xavier/stein/loader/api/Relations$Provider.relationOf(Ljava/lang/String;Ljava/lang/String;)Ldev/xavier/stein/loader/api/Relation; public abstract
+M dev/xavier/stein/loader/api/Relations.changed()V public static @Experimental
+M dev/xavier/stein/loader/api/Relations.clear(Ljava/lang/String;)V public static @Experimental
+M dev/xavier/stein/loader/api/Relations.color(Ldev/xavier/stein/loader/api/Relation;)I public static @Experimental
+M dev/xavier/stein/loader/api/Relations.groups(Ldev/xavier/stein/loader/api/Relation;)Ljava/util/List; public static @Experimental
+M dev/xavier/stein/loader/api/Relations.of(Ljava/lang/Object;)Ldev/xavier/stein/loader/api/Relation; public static @Experimental
+M dev/xavier/stein/loader/api/Relations.of(Ljava/lang/String;)Ldev/xavier/stein/loader/api/Relation; public static @Experimental
+M dev/xavier/stein/loader/api/Relations.players(Ldev/xavier/stein/loader/api/Relation;)Ljava/util/List; public static @Experimental
+M dev/xavier/stein/loader/api/Relations.register(Ljava/lang/String;Ldev/xavier/stein/loader/api/Relations$Provider;)V public static @Experimental
+M dev/xavier/stein/loader/api/Relations.setColor(Ldev/xavier/stein/loader/api/Relation;I)V public static @Experimental
+M dev/xavier/stein/loader/api/Relations.setGroup(Ljava/lang/String;Ljava/lang/String;Ldev/xavier/stein/loader/api/Relation;)V public static @Experimental
+M dev/xavier/stein/loader/api/Relations.setPlayer(Ljava/lang/String;Ljava/lang/String;Ldev/xavier/stein/loader/api/Relation;)V public static @Experimental
+M dev/xavier/stein/loader/api/Relations.unregister(Ljava/lang/String;)V public static @Experimental
+M dev/xavier/stein/loader/api/Relations.version()I public static @Experimental
+M dev/xavier/stein/loader/api/Render$Texture.draw(FFFF)V public
+M dev/xavier/stein/loader/api/Render$Texture.draw(FFFFFFFFI)V public
+M dev/xavier/stein/loader/api/Render$Texture.drawFan([F[F[F[FII)V public @Experimental
+M dev/xavier/stein/loader/api/Render$Texture.release()V public
+M dev/xavier/stein/loader/api/Render$Texture.set(IIII[II)V public
+M dev/xavier/stein/loader/api/Render$Texture.smooth(Z)V public @Experimental
+M dev/xavier/stein/loader/api/Render.alpha(IF)I public static @Experimental
+M dev/xavier/stein/loader/api/Render.arc(FFFFFFI)V public static @Experimental
+M dev/xavier/stein/loader/api/Render.blend(Ldev/xavier/stein/loader/api/Blend;Ljava/lang/Runnable;)V public static @Experimental
+M dev/xavier/stein/loader/api/Render.circle(FFFI)V public static @Experimental
+M dev/xavier/stein/loader/api/Render.clip(FFFF)V public static @Experimental
+M dev/xavier/stein/loader/api/Render.effectIcon(IFF)V public static @Experimental
+M dev/xavier/stein/loader/api/Render.fan([F[FII)V public static @Experimental
+M dev/xavier/stein/loader/api/Render.fontHeight()I public static @Experimental
+M dev/xavier/stein/loader/api/Render.gameFont(Ljava/lang/Runnable;)V public static @Experimental
+M dev/xavier/stein/loader/api/Render.gameTabList(I)V public static @Experimental
+M dev/xavier/stein/loader/api/Render.gradient(FFFFIIZ)V public static @Experimental
+M dev/xavier/stein/loader/api/Render.guiHeight()I public static @Experimental
+M dev/xavier/stein/loader/api/Render.guiWidth()I public static @Experimental
+M dev/xavier/stein/loader/api/Render.image(Ljava/lang/String;FFFF)V public static @Experimental
+M dev/xavier/stein/loader/api/Render.image(Ljava/lang/String;FFFFFFFFI)V public static @Experimental
+M dev/xavier/stein/loader/api/Render.item(Ljava/lang/Object;IIZ)V public static @Experimental
+M dev/xavier/stein/loader/api/Render.item(Ljava/lang/Object;IIZLjava/lang/String;)V public static @Experimental
+M dev/xavier/stein/loader/api/Render.line(FFFFFI)V public static @Experimental
+M dev/xavier/stein/loader/api/Render.mesh(Ldev/xavier/stein/loader/api/Mesh;)V public static @Experimental
+M dev/xavier/stein/loader/api/Render.mesh(Ldev/xavier/stein/loader/api/Mesh;Ldev/xavier/stein/loader/api/Render$Texture;)V public static @Experimental
+M dev/xavier/stein/loader/api/Render.mesh(Ldev/xavier/stein/loader/api/Mesh;Ljava/lang/String;)V public static @Experimental
+M dev/xavier/stein/loader/api/Render.mix(IIF)I public static @Experimental
+M dev/xavier/stein/loader/api/Render.pingIcon(IFF)V public static @Experimental
+M dev/xavier/stein/loader/api/Render.playerHead(Ljava/lang/String;FFF)V public static @Experimental
+M dev/xavier/stein/loader/api/Render.playerHead(Ljava/lang/String;FFFZ)V public static @Experimental
+M dev/xavier/stein/loader/api/Render.playerSkin(Ljava/lang/String;)Ljava/lang/Object; public static @Experimental
+M dev/xavier/stein/loader/api/Render.polyline([F[FIFIZ)V public static @Experimental
+M dev/xavier/stein/loader/api/Render.pop()V public static @Experimental
+M dev/xavier/stein/loader/api/Render.push()V public static @Experimental
+M dev/xavier/stein/loader/api/Render.rect(FFFFI)V public static @Experimental
+M dev/xavier/stein/loader/api/Render.rectOutline(FFFFFI)V public static @Experimental
+M dev/xavier/stein/loader/api/Render.ring(FFFFI)V public static @Experimental
+M dev/xavier/stein/loader/api/Render.rotate(F)V public static @Experimental
+M dev/xavier/stein/loader/api/Render.roundRect(FFFFFI)V public static @Experimental
+M dev/xavier/stein/loader/api/Render.scale(F)V public static @Experimental
+M dev/xavier/stein/loader/api/Render.surface(FFFFF)V public static @Experimental
+M dev/xavier/stein/loader/api/Render.text(Ljava/lang/String;FFILdev/xavier/stein/loader/api/Typeface;F)F public static @Experimental
+M dev/xavier/stein/loader/api/Render.text(Ljava/lang/String;FFIZ)I public static @Experimental
+M dev/xavier/stein/loader/api/Render.textHeight(Ldev/xavier/stein/loader/api/Typeface;F)F public static @Experimental
+M dev/xavier/stein/loader/api/Render.textWidth(Ljava/lang/String;)I public static @Experimental
+M dev/xavier/stein/loader/api/Render.textWidth(Ljava/lang/String;Ldev/xavier/stein/loader/api/Typeface;F)F public static @Experimental
+M dev/xavier/stein/loader/api/Render.texture(II)Ldev/xavier/stein/loader/api/Render$Texture; public static @Experimental
+M dev/xavier/stein/loader/api/Render.texture(IIZ)Ldev/xavier/stein/loader/api/Render$Texture; public static @Experimental
+M dev/xavier/stein/loader/api/Render.translate(FF)V public static @Experimental
+M dev/xavier/stein/loader/api/Render.triangle(FFFFFFI)V public static @Experimental
+M dev/xavier/stein/loader/api/Render.trim(Ljava/lang/String;I)Ljava/lang/String; public static @Experimental
+M dev/xavier/stein/loader/api/Render.unclip()V public static @Experimental
+M dev/xavier/stein/loader/api/Render.wrap(Ljava/lang/String;I)Ljava/util/List; public static @Experimental
+M dev/xavier/stein/loader/api/Screens$Kind.valueOf(Ljava/lang/String;)Ldev/xavier/stein/loader/api/Screens$Kind; public static
+M dev/xavier/stein/loader/api/Screens$Kind.values()[Ldev/xavier/stein/loader/api/Screens$Kind; public static
+M dev/xavier/stein/loader/api/Screens.button(IIIIILjava/lang/String;)Ljava/lang/Object; public static @Experimental
+M dev/xavier/stein/loader/api/Screens.buttonId(Ljava/lang/Object;)I public static @Experimental
+M dev/xavier/stein/loader/api/Screens.buttonX(Ljava/lang/Object;)I public static @Experimental
+M dev/xavier/stein/loader/api/Screens.buttonY(Ljava/lang/Object;)I public static @Experimental
+M dev/xavier/stein/loader/api/Screens.current()Ljava/lang/Object; public static @Experimental
+M dev/xavier/stein/loader/api/Screens.currentKind()Ldev/xavier/stein/loader/api/Screens$Kind; public static @Experimental
+M dev/xavier/stein/loader/api/Screens.findButton(Ljava/util/List;I)Ljava/lang/Object; public static @Experimental
+M dev/xavier/stein/loader/api/Screens.height(Ljava/lang/Object;)I public static @Experimental
+M dev/xavier/stein/loader/api/Screens.isOpen()Z public static @Experimental
+M dev/xavier/stein/loader/api/Screens.kind(Ljava/lang/Object;)Ldev/xavier/stein/loader/api/Screens$Kind; public static @Experimental
+M dev/xavier/stein/loader/api/Screens.open(Ljava/lang/Object;)V public static @Experimental
+M dev/xavier/stein/loader/api/Screens.setEnabled(Ljava/lang/Object;Z)V public static @Experimental
+M dev/xavier/stein/loader/api/Screens.setLabel(Ljava/lang/Object;Ljava/lang/String;)V public static @Experimental
+M dev/xavier/stein/loader/api/Screens.width(Ljava/lang/Object;)I public static @Experimental
+M dev/xavier/stein/loader/api/Secrets.get(Ljava/lang/String;)Ljava/lang/String; public @Experimental
+M dev/xavier/stein/loader/api/Secrets.isSystemProtected()Z public static @Experimental
+M dev/xavier/stein/loader/api/Secrets.keys()Ljava/util/Set; public @Experimental
+M dev/xavier/stein/loader/api/Secrets.of(Ljava/lang/String;)Ldev/xavier/stein/loader/api/Secrets; public static @Experimental
+M dev/xavier/stein/loader/api/Secrets.put(Ljava/lang/String;Ljava/lang/String;)V public @Experimental
+M dev/xavier/stein/loader/api/Secrets.remove(Ljava/lang/String;)V public @Experimental
+M dev/xavier/stein/loader/api/Server.address()Ljava/lang/String; public static @Experimental
+M dev/xavier/stein/loader/api/Server.connect(Ljava/lang/String;)V public static @Experimental
+M dev/xavier/stein/loader/api/Server.connectingAddress()Ljava/lang/String; public static @Experimental
+M dev/xavier/stein/loader/api/Server.isMultiplayer()Z public static @Experimental
+M dev/xavier/stein/loader/api/Server.lastAddress()Ljava/lang/String; public static @Experimental
+M dev/xavier/stein/loader/api/Server.latency()I public static @Experimental
+M dev/xavier/stein/loader/api/Server.name()Ljava/lang/String; public static @Experimental
+M dev/xavier/stein/loader/api/Stacks.count(Ljava/lang/Object;)I public static @Experimental
+M dev/xavier/stein/loader/api/Stacks.create(Ljava/lang/String;II)Ljava/lang/Object; public static @Experimental
+M dev/xavier/stein/loader/api/Stacks.damage(Ljava/lang/Object;)I public static @Experimental
+M dev/xavier/stein/loader/api/Stacks.enchantLevel(Ljava/lang/Object;I)I public static @Experimental
+M dev/xavier/stein/loader/api/Stacks.id(Ljava/lang/Object;)Ljava/lang/String; public static @Experimental
+M dev/xavier/stein/loader/api/Stacks.is(Ljava/lang/Object;Ljava/lang/String;)Z public static @Experimental
+M dev/xavier/stein/loader/api/Stacks.isDamageable(Ljava/lang/Object;)Z public static @Experimental
+M dev/xavier/stein/loader/api/Stacks.isEnchanted(Ljava/lang/Object;)Z public static @Experimental
+M dev/xavier/stein/loader/api/Stacks.isSplashPotion(Ljava/lang/Object;)Z public static @Experimental
+M dev/xavier/stein/loader/api/Stacks.maxCount(Ljava/lang/Object;)I public static @Experimental
+M dev/xavier/stein/loader/api/Stacks.maxDamage(Ljava/lang/Object;)I public static @Experimental
+M dev/xavier/stein/loader/api/Stacks.name(Ljava/lang/Object;)Ljava/lang/String; public static @Experimental
+M dev/xavier/stein/loader/api/Stacks.potionEffects(Ljava/lang/Object;)[I public static @Experimental
+M dev/xavier/stein/loader/api/Stacks.sameKind(Ljava/lang/Object;Ljava/lang/Object;)Z public static @Experimental
+M dev/xavier/stein/loader/api/SteinMod.afterDrawScreen(Ljava/lang/Object;IIF)V public
+M dev/xavier/stein/loader/api/SteinMod.afterStartGame()V public
+M dev/xavier/stein/loader/api/SteinMod.beforeDrawScreen(Ljava/lang/Object;IIF)V public
+M dev/xavier/stein/loader/api/SteinMod.beforeStartGame()V public
+M dev/xavier/stein/loader/api/SteinMod.configScreen(Ljava/lang/Object;)Ljava/lang/Object; public
+M dev/xavier/stein/loader/api/SteinMod.onArmorTexture(Ljava/lang/Object;ILjava/lang/String;Ljava/lang/Object;)Ljava/lang/Object; public
+M dev/xavier/stein/loader/api/SteinMod.onAttackEntity(Ljava/lang/Object;)Z public
+M dev/xavier/stein/loader/api/SteinMod.onBlockModel(Ljava/lang/Object;Ljava/lang/Object;Ljava/lang/Object;Ljava/lang/Object;)Ljava/lang/Object; public
+M dev/xavier/stein/loader/api/SteinMod.onChat(Ljava/lang/Object;)Ljava/lang/Object; public
+M dev/xavier/stein/loader/api/SteinMod.onCustomPayload(Ljava/lang/String;[B)V public @Experimental
+M dev/xavier/stein/loader/api/SteinMod.onDisconnected(Ljava/lang/String;Ljava/lang/String;)V public @Experimental
+M dev/xavier/stein/loader/api/SteinMod.onEntityDeath(Ljava/lang/Object;)V public @Experimental
+M dev/xavier/stein/loader/api/SteinMod.onEntityHurt(Ljava/lang/Object;)Z public @Experimental
+M dev/xavier/stein/loader/api/SteinMod.onFov(FFZ)F public
+M dev/xavier/stein/loader/api/SteinMod.onFovModifier(F)F public
+M dev/xavier/stein/loader/api/SteinMod.onGhostEntity(Ljava/lang/Object;)Z public
+M dev/xavier/stein/loader/api/SteinMod.onGuiAction(Ljava/lang/Object;Ljava/lang/Object;)Z public
+M dev/xavier/stein/loader/api/SteinMod.onGuiInit(Ljava/lang/Object;Ljava/util/List;)V public
+M dev/xavier/stein/loader/api/SteinMod.onGuiMouseInput(Ljava/lang/Object;)Z public
+M dev/xavier/stein/loader/api/SteinMod.onHealthChanged(Ljava/lang/Object;FFFF)V public @Experimental
+M dev/xavier/stein/loader/api/SteinMod.onHideEntity(Ljava/lang/Object;)Z public
+M dev/xavier/stein/loader/api/SteinMod.onInteractEntity(Ljava/lang/Object;)Z public @Experimental
+M dev/xavier/stein/loader/api/SteinMod.onItemModel(Ljava/lang/Object;Ljava/lang/Object;)Ljava/lang/Object; public
+M dev/xavier/stein/loader/api/SteinMod.onJoinGame()V public
+M dev/xavier/stein/loader/api/SteinMod.onKeyInput()V public
+M dev/xavier/stein/loader/api/SteinMod.onModelsReloaded()V public
+M dev/xavier/stein/loader/api/SteinMod.onMouseInput()V public
+M dev/xavier/stein/loader/api/SteinMod.onNametag(Ljava/lang/Object;Ljava/lang/Object;)Ljava/lang/Object; public
+M dev/xavier/stein/loader/api/SteinMod.onOverlay(F)V public
+M dev/xavier/stein/loader/api/SteinMod.onOverlayTop(F)V public
+M dev/xavier/stein/loader/api/SteinMod.onPage(Ldev/xavier/stein/loader/api/Page;)V public
+M dev/xavier/stein/loader/api/SteinMod.onPlaySound(Ljava/lang/Object;)Ljava/lang/Object; public @Experimental
+M dev/xavier/stein/loader/api/SteinMod.onPlayerList(Ljava/lang/Object;ILjava/lang/Object;Ljava/lang/Object;)Z public
+M dev/xavier/stein/loader/api/SteinMod.onPlayerListName(Ljava/lang/Object;Ljava/lang/String;)Ljava/lang/String; public
+M dev/xavier/stein/loader/api/SteinMod.onRelationsChanged()V public @Experimental
+M dev/xavier/stein/loader/api/SteinMod.onRenderWorld(F)V public @Experimental
+M dev/xavier/stein/loader/api/SteinMod.onSendChat(Ljava/lang/String;)Ljava/lang/String; public @Experimental
+M dev/xavier/stein/loader/api/SteinMod.onShutdown()V public @Experimental
+M dev/xavier/stein/loader/api/SteinMod.onSlotChanged(IILjava/lang/Object;)V public @Experimental
+M dev/xavier/stein/loader/api/SteinMod.onTextureStitch(Ljava/lang/Object;)V public
+M dev/xavier/stein/loader/api/SteinMod.onTickEnd()V public
+M dev/xavier/stein/loader/api/SteinMod.onWindowClick(IIII)Z public @Experimental
+M dev/xavier/stein/loader/api/SteinMod.onWindowItems(I)V public @Experimental
+M dev/xavier/stein/loader/api/Targeting$BlockFilter.or(Ldev/xavier/stein/loader/api/Targeting$BlockFilter;)Ldev/xavier/stein/loader/api/Targeting$BlockFilter; public @Experimental
+M dev/xavier/stein/loader/api/Targeting$BlockFilter.passes(Ljava/lang/String;)Z public abstract @Experimental
+M dev/xavier/stein/loader/api/Targeting$Hit.<init>(Ljava/lang/Object;DDDD)V public
+M dev/xavier/stein/loader/api/Targeting$Query.<init>()V public @Experimental
+M dev/xavier/stein/loader/api/Targeting$Query.cutAtBlock()Ldev/xavier/stein/loader/api/Targeting$Query; public @Experimental
+M dev/xavier/stein/loader/api/Targeting$Query.exclude(Ljava/lang/Object;)Ldev/xavier/stein/loader/api/Targeting$Query; public @Experimental
+M dev/xavier/stein/loader/api/Targeting$Query.living()Ldev/xavier/stein/loader/api/Targeting$Query; public @Experimental
+M dev/xavier/stein/loader/api/Targeting$Query.margin(D)Ldev/xavier/stein/loader/api/Targeting$Query; public @Experimental
+M dev/xavier/stein/loader/api/Targeting$Query.passThrough(Ldev/xavier/stein/loader/api/Targeting$BlockFilter;)Ldev/xavier/stein/loader/api/Targeting$Query; public @Experimental
+M dev/xavier/stein/loader/api/Targeting$Query.reach(D)Ldev/xavier/stein/loader/api/Targeting$Query; public @Experimental
+M dev/xavier/stein/loader/api/Targeting$Query.visibleOnly()Ldev/xavier/stein/loader/api/Targeting$Query; public @Experimental
+M dev/xavier/stein/loader/api/Targeting$Ray.<init>(Ljava/util/List;DD)V public
+M dev/xavier/stein/loader/api/Targeting$Ray.<init>(Ljava/util/List;DDLjava/lang/String;III)V public @Experimental
+M dev/xavier/stein/loader/api/Targeting$Ray.first()Ldev/xavier/stein/loader/api/Targeting$Hit; public
+M dev/xavier/stein/loader/api/Targeting.attack(Ljava/lang/Object;)Z public static @Experimental
+M dev/xavier/stein/loader/api/Targeting.attackReach()D public static @Experimental
+M dev/xavier/stein/loader/api/Targeting.ids([Ljava/lang/String;)Ldev/xavier/stein/loader/api/Targeting$BlockFilter; public static @Experimental
+M dev/xavier/stein/loader/api/Targeting.interact(Ljava/lang/Object;)Z public static @Experimental
+M dev/xavier/stein/loader/api/Targeting.pointedEntity()Ljava/lang/Object; public static @Experimental
+M dev/xavier/stein/loader/api/Targeting.query()Ldev/xavier/stein/loader/api/Targeting$Query; public static @Experimental
+M dev/xavier/stein/loader/api/Targeting.raycast()Ldev/xavier/stein/loader/api/Targeting$Ray; public static @Experimental
+M dev/xavier/stein/loader/api/Targeting.raycast(D)Ldev/xavier/stein/loader/api/Targeting$Ray; public static @Experimental
+M dev/xavier/stein/loader/api/Targeting.raycast(Ldev/xavier/stein/loader/api/Targeting$Query;)Ldev/xavier/stein/loader/api/Targeting$Ray; public static @Experimental
+M dev/xavier/stein/loader/api/Targeting.swing()V public static @Experimental
+M dev/xavier/stein/loader/api/Tasks.async(Ljava/util/concurrent/Callable;Ljava/util/function/Consumer;Ljava/util/function/Consumer;)V public static @Experimental
+M dev/xavier/stein/loader/api/Tasks.background(Ljava/lang/Runnable;)V public static @Experimental
+M dev/xavier/stein/loader/api/Tasks.later(ILjava/lang/Runnable;)V public static @Experimental
+M dev/xavier/stein/loader/api/Tasks.onGameThread(Ljava/lang/Runnable;)V public static @Experimental
+M dev/xavier/stein/loader/api/Terrain$Visitor.at(III)V public abstract
+M dev/xavier/stein/loader/api/Terrain.blockId(III)Ljava/lang/String; public static @Experimental
+M dev/xavier/stein/loader/api/Terrain.color(III)I public static @Experimental
+M dev/xavier/stein/loader/api/Terrain.current()Ljava/lang/Object; public static @Experimental
+M dev/xavier/stein/loader/api/Terrain.forEachSpawner(Ldev/xavier/stein/loader/api/Terrain$Visitor;)V public static @Experimental
+M dev/xavier/stein/loader/api/Terrain.hasSky()Z public static @Experimental
+M dev/xavier/stein/loader/api/Terrain.height(II)I public static @Experimental
+M dev/xavier/stein/loader/api/Terrain.isAir(III)Z public static @Experimental
+M dev/xavier/stein/loader/api/Terrain.isLoaded(II)Z public static @Experimental
+M dev/xavier/stein/loader/api/Terrain.isSolid(III)Z public static @Experimental
+M dev/xavier/stein/loader/api/Terrain.isWater(III)Z public static @Experimental
+M dev/xavier/stein/loader/api/Terrain.mapColor(III)I public static @Experimental
+M dev/xavier/stein/loader/api/Terrain.skyLight(III)I public static @Experimental
+M dev/xavier/stein/loader/api/Typeface.valueOf(Ljava/lang/String;)Ldev/xavier/stein/loader/api/Typeface; public static @Experimental
+M dev/xavier/stein/loader/api/Typeface.values()[Ldev/xavier/stein/loader/api/Typeface; public static @Experimental
+M dev/xavier/stein/loader/api/WorldRender.beam(DDDDDI)V public static @Experimental
+M dev/xavier/stein/loader/api/WorldRender.blend(Ldev/xavier/stein/loader/api/Blend;Ljava/lang/Runnable;)V public static @Experimental
+M dev/xavier/stein/loader/api/WorldRender.block(IIII)V public static @Experimental
+M dev/xavier/stein/loader/api/WorldRender.blockOutline(IIIDI)V public static @Experimental
+M dev/xavier/stein/loader/api/WorldRender.box(DDDDDDI)V public static @Experimental
+M dev/xavier/stein/loader/api/WorldRender.boxOutline(DDDDDDDI)V public static @Experimental
+M dev/xavier/stein/loader/api/WorldRender.cameraX()D public static @Experimental
+M dev/xavier/stein/loader/api/WorldRender.cameraY()D public static @Experimental
+M dev/xavier/stein/loader/api/WorldRender.cameraZ()D public static @Experimental
+M dev/xavier/stein/loader/api/WorldRender.circle(DDDDI)V public static @Experimental
+M dev/xavier/stein/loader/api/WorldRender.distance(DDD)D public static @Experimental
+M dev/xavier/stein/loader/api/WorldRender.entityBox(Ljava/lang/Object;I)V public static @Experimental
+M dev/xavier/stein/loader/api/WorldRender.entityOutline(Ljava/lang/Object;DI)V public static @Experimental
+M dev/xavier/stein/loader/api/WorldRender.image(Ldev/xavier/stein/loader/api/Render$Texture;DDDDI)V public static @Experimental
+M dev/xavier/stein/loader/api/WorldRender.image(Ljava/lang/String;DDDDI)V public static @Experimental
+M dev/xavier/stein/loader/api/WorldRender.label(Ljava/lang/String;DDDFI)V public static @Experimental
+M dev/xavier/stein/loader/api/WorldRender.label(Ljava/lang/String;DDDFIZ)V public static @Experimental
+M dev/xavier/stein/loader/api/WorldRender.line(DDDDDDDI)V public static @Experimental
+M dev/xavier/stein/loader/api/WorldRender.mesh(Ldev/xavier/stein/loader/api/Mesh;DDD)V public static @Experimental
+M dev/xavier/stein/loader/api/WorldRender.mesh(Ldev/xavier/stein/loader/api/Mesh;Ldev/xavier/stein/loader/api/Render$Texture;DDD)V public static @Experimental
+M dev/xavier/stein/loader/api/WorldRender.mesh(Ldev/xavier/stein/loader/api/Mesh;Ljava/lang/String;DDD)V public static @Experimental
+M dev/xavier/stein/loader/api/WorldRender.partialTicks()F public static @Experimental
+M dev/xavier/stein/loader/api/WorldRender.pop()V public static @Experimental
+M dev/xavier/stein/loader/api/WorldRender.push()V public static @Experimental
+M dev/xavier/stein/loader/api/WorldRender.push(DDD)V public static @Experimental
+M dev/xavier/stein/loader/api/WorldRender.quad(DDDDDDDDDDDDI)V public static @Experimental
+M dev/xavier/stein/loader/api/WorldRender.ring(DDDDDI)V public static @Experimental
+M dev/xavier/stein/loader/api/WorldRender.rotate(FFFF)V public static @Experimental
+M dev/xavier/stein/loader/api/WorldRender.scale(F)V public static @Experimental
+M dev/xavier/stein/loader/api/WorldRender.scale(FFF)V public static @Experimental
+M dev/xavier/stein/loader/api/WorldRender.throughWalls(Ljava/lang/Runnable;)V public static @Experimental
+M dev/xavier/stein/loader/api/WorldRender.translate(DDD)V public static @Experimental
+M dev/xavier/stein/loader/api/WorldRender.triangle(DDDDDDDDDI)V public static @Experimental
