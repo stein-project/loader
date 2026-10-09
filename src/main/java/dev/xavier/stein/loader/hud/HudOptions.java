@@ -8,6 +8,7 @@
 
 package dev.xavier.stein.loader.hud;
 
+import dev.xavier.stein.bridge.core.Log;
 import dev.xavier.stein.bridge.hooks.VanillaHud;
 import dev.xavier.stein.loader.api.HudElement;
 import dev.xavier.stein.loader.api.HudPlacement;
@@ -73,17 +74,15 @@ final class HudOptions {
                             p.gameFont = i == 1;
                             fontChanged(e, p);
                             ScaledResolution r = new ScaledResolution(Minecraft.getMinecraft());
-                            // The other font has a different width: if it touches another element,
-                            // it goes to the
-                            // nearest free place.
+                            // The other font has a different width: if the element now touches
+                            // another one, it moves to the nearest free place.
                             if (HudCollision.collides(e, r.getScaledWidth(), r.getScaledHeight())) {
                                 HudCollision.findFree(e, r.getScaledWidth(), r.getScaledHeight());
                             }
                             HudPersistence.touch();
                         }));
         // Stein's default background, the same on every element that accepts a background: the
-        // player picks only the transparency
-        // (100% = no background).
+        // player picks only the transparency (100% = no background).
         if (e.hasBackground()) {
             out.add(
                     Option.slider(
@@ -193,7 +192,7 @@ final class HudOptions {
             e.restoreOptions();
             e.optionsChanged();
         } catch (Throwable t) {
-            System.out.println("[loader] HUD: " + e.id() + ": restoring options failed: " + t);
+            Log.info("loader", "HUD: " + e.id() + ": restoring options failed: " + t);
         }
     }
 

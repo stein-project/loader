@@ -25,7 +25,10 @@ public final class HudPlacement {
      */
     public final int x;
 
+    /** Vertical offset to the anchor, in GUI pixels (see {@link #x}). */
     public final int y;
+
+    /** Size factor of the element (1 = its natural size). */
     public final float scale;
 
     /**
@@ -33,8 +36,20 @@ public final class HudPlacement {
      */
     public final boolean enabled;
 
+    /** Whether the element also stays on screen while the chat is open. */
     public final boolean showInChat;
 
+    /**
+     * A placement.
+     *
+     * @param anchorX 0 left, 1 center, 2 right
+     * @param anchorY 0 top, 1 middle, 2 bottom
+     * @param x horizontal offset to the anchor, in GUI pixels
+     * @param y vertical offset to the anchor, in GUI pixels
+     * @param scale size factor (1 = natural size)
+     * @param enabled whether it starts shown (only the game's own parts)
+     * @param showInChat whether it stays on screen while the chat is open
+     */
     public HudPlacement(
             int anchorX,
             int anchorY,

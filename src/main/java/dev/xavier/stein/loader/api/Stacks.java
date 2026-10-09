@@ -52,6 +52,12 @@ public final class Stacks {
         return Host.INSTANCE.stackName(stack);
     }
 
+    /**
+     * How many items are in the stack.
+     *
+     * @param stack an ItemStack (game type, as Object)
+     * @return the count, or 0 when it is not a stack
+     */
     public static int count(Object stack) {
         return Host.INSTANCE.stackCount(stack);
     }
@@ -74,6 +80,12 @@ public final class Stacks {
         return Host.INSTANCE.stackDamage(stack);
     }
 
+    /**
+     * The damage at which the item breaks ({@link #damage}); 0 for items that do not wear out.
+     *
+     * @param stack an ItemStack (game type, as Object)
+     * @return the maximum damage, or 0
+     */
     public static int maxDamage(Object stack) {
         return Host.INSTANCE.stackMaxDamage(stack);
     }

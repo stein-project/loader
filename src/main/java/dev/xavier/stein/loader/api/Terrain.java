@@ -27,6 +27,13 @@ public final class Terrain {
     /** Receives each position of a search ({@link #forEachSpawner}). */
     @FunctionalInterface
     public interface Visitor {
+        /**
+         * One position found.
+         *
+         * @param x block x
+         * @param y block y
+         * @param z block z
+         */
         void at(int x, int y, int z);
     }
 
@@ -53,6 +60,14 @@ public final class Terrain {
         return Host.INSTANCE.terrainHeight(x, z);
     }
 
+    /**
+     * Whether there is no block at the position (also true with no chunk).
+     *
+     * @param x block x
+     * @param y block y
+     * @param z block z
+     * @return true for air
+     */
     public static boolean isAir(int x, int y, int z) {
         return Host.INSTANCE.terrainAir(x, y, z);
     }
@@ -69,6 +84,14 @@ public final class Terrain {
         return Host.INSTANCE.terrainSolid(x, y, z);
     }
 
+    /**
+     * Whether the block is water (still or flowing).
+     *
+     * @param x block x
+     * @param y block y
+     * @param z block z
+     * @return true for water
+     */
     public static boolean isWater(int x, int y, int z) {
         return Host.INSTANCE.terrainWater(x, y, z);
     }

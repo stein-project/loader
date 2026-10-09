@@ -104,9 +104,8 @@ public final class Draw2D {
             float x1, float y1, float x2, float y2, float x3, float y3, int argb) {
         Tessellator t = Tessellator.getInstance();
         WorldRenderer wr = t.getWorldRenderer();
-        GlStateManager
-                .disableCull(); // both sides: the caller does not need to think about the vertex
-        // order
+        // Both sides: the caller does not need to think about the vertex order.
+        GlStateManager.disableCull();
         beginFlat(argb);
         wr.begin(GL11.GL_TRIANGLES, DefaultVertexFormats.POSITION);
         wr.pos(x1, y1, 0).endVertex();

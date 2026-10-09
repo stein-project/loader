@@ -8,6 +8,7 @@
 
 package dev.xavier.stein.loader.font;
 
+import dev.xavier.stein.bridge.core.Log;
 import dev.xavier.stein.bridge.engine.TextHook;
 
 /**
@@ -41,15 +42,15 @@ public final class GameText implements TextHook.Source {
         if (SteinFont.ready(SteinFont.Face.HUD)) {
             TextHook.source = new GameText();
         } else {
-            System.out.println("[loader] Stein font unavailable: the HUD uses the Minecraft font");
+            Log.info("loader", "Stein font unavailable: the HUD uses the Minecraft font");
         }
     }
 
     @Override
     public int advance(char c) {
         if (TextHook.hudDepth <= 0 || TextHook.gameFontDepth > 0 || !hud) {
-            return NONE; // game's own text, an element using the game's font, or the option
-            // disabled
+            // The game's own text, an element using the game's font, or the option disabled.
+            return NONE;
         }
         if (c == ' ') {
             return SteinFont.GAME_ADVANCE;

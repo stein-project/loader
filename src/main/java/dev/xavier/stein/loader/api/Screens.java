@@ -37,8 +37,11 @@ public final class Screens {
     public enum Kind {
         /** No screen: the player is in the world. */
         NONE,
+        /** The game's title screen. */
         MAIN_MENU,
+        /** The singleplayer world list. */
         SINGLEPLAYER,
+        /** The multiplayer server list. */
         MULTIPLAYER,
         /** "Connecting to server..." (the address: {@link Server#connectingAddress}). */
         CONNECTING,
@@ -46,7 +49,9 @@ public final class Screens {
         DISCONNECTED,
         /** The Esc menu. */
         PAUSE,
+        /** The game's Options screen (and its subscreens are {@link #OTHER}). */
         OPTIONS,
+        /** The chat (typing). */
         CHAT,
         /** The player's inventory (the E one) or the creative one. */
         INVENTORY,
@@ -54,6 +59,7 @@ public final class Screens {
         CONTAINER,
         /** The Panel and the Stein Loader screens. */
         STEIN,
+        /** Any other screen: a mod's, or a game screen not listed here. */
         OTHER
     }
 
@@ -116,10 +122,22 @@ public final class Screens {
         return null;
     }
 
+    /**
+     * The button's x, in GUI coordinates.
+     *
+     * @param button a GuiButton (game type, as Object)
+     * @return its left edge, or 0 when it is not a button
+     */
     public static int buttonX(Object button) {
         return Host.INSTANCE.buttonX(button);
     }
 
+    /**
+     * The button's y, in GUI coordinates.
+     *
+     * @param button a GuiButton (game type, as Object)
+     * @return its top edge, or 0 when it is not a button
+     */
     public static int buttonY(Object button) {
         return Host.INSTANCE.buttonY(button);
     }

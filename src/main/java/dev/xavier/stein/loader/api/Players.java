@@ -172,6 +172,7 @@ public final class Players {
 
     /** A row of the Tab list, read in one go ({@link #list}). */
     public static final class Entry {
+        /** The player's nick. */
         public final String nick;
 
         /**
@@ -186,6 +187,7 @@ public final class Players {
         /** Ms; 0 while the server has not measured. */
         public final int ping;
 
+        /** In spectator mode. */
         public final boolean spectator;
 
         /**
@@ -194,6 +196,16 @@ public final class Players {
          */
         public final boolean hasSkin;
 
+        /**
+         * A row of the Tab list.
+         *
+         * @param nick the nick
+         * @param tabName the name as the Tab shows it, with colors
+         * @param team the scoreboard team name, or ""
+         * @param ping the ping in ms (0 = not measured yet)
+         * @param spectator in spectator mode
+         * @param hasSkin the server sent a skin
+         */
         public Entry(
                 String nick,
                 String tabName,

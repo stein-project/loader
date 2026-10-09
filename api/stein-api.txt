@@ -19,9 +19,9 @@ C dev/xavier/stein/loader/api/Keys$GameKey public final super=java/lang/Enum itf
 C dev/xavier/stein/loader/api/Lang public final super=java/lang/Object itf= @Experimental
 C dev/xavier/stein/loader/api/Log public final super=java/lang/Object itf= @Experimental
 C dev/xavier/stein/loader/api/Mesh public final super=java/lang/Object itf= @Experimental
-C dev/xavier/stein/loader/api/Mesh$Builder public final super=java/lang/Object itf=
-C dev/xavier/stein/loader/api/Mesh$Format public final super=java/lang/Enum itf=
-C dev/xavier/stein/loader/api/Mesh$Primitive public final super=java/lang/Enum itf=
+C dev/xavier/stein/loader/api/Mesh$Builder public final super=java/lang/Object itf= @Experimental
+C dev/xavier/stein/loader/api/Mesh$Format public final super=java/lang/Enum itf= @Experimental
+C dev/xavier/stein/loader/api/Mesh$Primitive public final super=java/lang/Enum itf= @Experimental
 C dev/xavier/stein/loader/api/ModConfig public final super=java/lang/Object itf= @Experimental
 C dev/xavier/stein/loader/api/ModContext public final super=java/lang/Object itf= @Experimental
 C dev/xavier/stein/loader/api/Mods public final super=java/lang/Object itf=
@@ -60,23 +60,23 @@ C dev/xavier/stein/loader/api/Terrain$Visitor public interface super=java/lang/O
 C dev/xavier/stein/loader/api/Theme public final super=java/lang/Object itf= @Experimental
 C dev/xavier/stein/loader/api/Typeface public final super=java/lang/Enum itf= @Experimental
 C dev/xavier/stein/loader/api/WorldRender public final super=java/lang/Object itf= @Experimental
-F dev/xavier/stein/loader/api/Account$Kind.CHECKING:Ldev/xavier/stein/loader/api/Account$Kind; public static final
-F dev/xavier/stein/loader/api/Account$Kind.MICROSOFT:Ldev/xavier/stein/loader/api/Account$Kind; public static final
-F dev/xavier/stein/loader/api/Account$Kind.NOT_MICROSOFT:Ldev/xavier/stein/loader/api/Account$Kind; public static final
-F dev/xavier/stein/loader/api/Account$Kind.OFFLINE:Ldev/xavier/stein/loader/api/Account$Kind; public static final
-F dev/xavier/stein/loader/api/Account$Kind.UNVERIFIED:Ldev/xavier/stein/loader/api/Account$Kind; public static final
-F dev/xavier/stein/loader/api/Blend.ADDITIVE:Ldev/xavier/stein/loader/api/Blend; public static final @Experimental
-F dev/xavier/stein/loader/api/Blend.MULTIPLY:Ldev/xavier/stein/loader/api/Blend; public static final @Experimental
-F dev/xavier/stein/loader/api/Blend.NORMAL:Ldev/xavier/stein/loader/api/Blend; public static final @Experimental
-F dev/xavier/stein/loader/api/Blend.SCREEN:Ldev/xavier/stein/loader/api/Blend; public static final @Experimental
+F dev/xavier/stein/loader/api/Account$Kind.CHECKING:Ldev/xavier/stein/loader/api/Account$Kind; public static final ordinal=1
+F dev/xavier/stein/loader/api/Account$Kind.MICROSOFT:Ldev/xavier/stein/loader/api/Account$Kind; public static final ordinal=2
+F dev/xavier/stein/loader/api/Account$Kind.NOT_MICROSOFT:Ldev/xavier/stein/loader/api/Account$Kind; public static final ordinal=3
+F dev/xavier/stein/loader/api/Account$Kind.OFFLINE:Ldev/xavier/stein/loader/api/Account$Kind; public static final ordinal=0
+F dev/xavier/stein/loader/api/Account$Kind.UNVERIFIED:Ldev/xavier/stein/loader/api/Account$Kind; public static final ordinal=4
+F dev/xavier/stein/loader/api/Blend.ADDITIVE:Ldev/xavier/stein/loader/api/Blend; public static final ordinal=1 @Experimental
+F dev/xavier/stein/loader/api/Blend.MULTIPLY:Ldev/xavier/stein/loader/api/Blend; public static final ordinal=2 @Experimental
+F dev/xavier/stein/loader/api/Blend.NORMAL:Ldev/xavier/stein/loader/api/Blend; public static final ordinal=0 @Experimental
+F dev/xavier/stein/loader/api/Blend.SCREEN:Ldev/xavier/stein/loader/api/Blend; public static final ordinal=3 @Experimental
 F dev/xavier/stein/loader/api/Effects$Effect.amplifier:I public final
 F dev/xavier/stein/loader/api/Effects$Effect.duration:I public final
 F dev/xavier/stein/loader/api/Effects$Effect.id:I public final
 F dev/xavier/stein/loader/api/Effects$Effect.permanent:Z public final
-F dev/xavier/stein/loader/api/Entities$Kind.HOSTILE:Ldev/xavier/stein/loader/api/Entities$Kind; public static final @Experimental
-F dev/xavier/stein/loader/api/Entities$Kind.OTHER:Ldev/xavier/stein/loader/api/Entities$Kind; public static final @Experimental
-F dev/xavier/stein/loader/api/Entities$Kind.PASSIVE:Ldev/xavier/stein/loader/api/Entities$Kind; public static final @Experimental
-F dev/xavier/stein/loader/api/Entities$Kind.PLAYER:Ldev/xavier/stein/loader/api/Entities$Kind; public static final @Experimental
+F dev/xavier/stein/loader/api/Entities$Kind.HOSTILE:Ldev/xavier/stein/loader/api/Entities$Kind; public static final ordinal=1 @Experimental
+F dev/xavier/stein/loader/api/Entities$Kind.OTHER:Ldev/xavier/stein/loader/api/Entities$Kind; public static final ordinal=3 @Experimental
+F dev/xavier/stein/loader/api/Entities$Kind.PASSIVE:Ldev/xavier/stein/loader/api/Entities$Kind; public static final ordinal=2 @Experimental
+F dev/xavier/stein/loader/api/Entities$Kind.PLAYER:Ldev/xavier/stein/loader/api/Entities$Kind; public static final ordinal=0 @Experimental
 F dev/xavier/stein/loader/api/HudPlacement.anchorX:I public final
 F dev/xavier/stein/loader/api/HudPlacement.anchorY:I public final
 F dev/xavier/stein/loader/api/HudPlacement.enabled:Z public final
@@ -84,83 +84,83 @@ F dev/xavier/stein/loader/api/HudPlacement.scale:F public final
 F dev/xavier/stein/loader/api/HudPlacement.showInChat:Z public final
 F dev/xavier/stein/loader/api/HudPlacement.x:I public final
 F dev/xavier/stein/loader/api/HudPlacement.y:I public final
-F dev/xavier/stein/loader/api/Inventory.ARMOR_START:I public static final @Experimental
-F dev/xavier/stein/loader/api/Inventory.BOOTS:I public static final @Experimental
-F dev/xavier/stein/loader/api/Inventory.CHESTPLATE:I public static final @Experimental
-F dev/xavier/stein/loader/api/Inventory.CLONE:I public static final @Experimental
-F dev/xavier/stein/loader/api/Inventory.HELMET:I public static final @Experimental
-F dev/xavier/stein/loader/api/Inventory.HOTBAR_START:I public static final @Experimental
-F dev/xavier/stein/loader/api/Inventory.LEGGINGS:I public static final @Experimental
-F dev/xavier/stein/loader/api/Inventory.MAIN_START:I public static final @Experimental
-F dev/xavier/stein/loader/api/Inventory.OUTSIDE:I public static final @Experimental
-F dev/xavier/stein/loader/api/Inventory.PICKUP:I public static final @Experimental
-F dev/xavier/stein/loader/api/Inventory.PICKUP_ALL:I public static final @Experimental
-F dev/xavier/stein/loader/api/Inventory.QUICK_CRAFT:I public static final @Experimental
-F dev/xavier/stein/loader/api/Inventory.QUICK_MOVE:I public static final @Experimental
-F dev/xavier/stein/loader/api/Inventory.SIZE:I public static final @Experimental
-F dev/xavier/stein/loader/api/Inventory.SWAP:I public static final @Experimental
-F dev/xavier/stein/loader/api/Inventory.THROW:I public static final @Experimental
-F dev/xavier/stein/loader/api/Keys$GameKey.ATTACK:Ldev/xavier/stein/loader/api/Keys$GameKey; public static final @Experimental
-F dev/xavier/stein/loader/api/Keys$GameKey.BACK:Ldev/xavier/stein/loader/api/Keys$GameKey; public static final @Experimental
-F dev/xavier/stein/loader/api/Keys$GameKey.CHAT:Ldev/xavier/stein/loader/api/Keys$GameKey; public static final @Experimental
-F dev/xavier/stein/loader/api/Keys$GameKey.COMMAND:Ldev/xavier/stein/loader/api/Keys$GameKey; public static final @Experimental
-F dev/xavier/stein/loader/api/Keys$GameKey.DROP:Ldev/xavier/stein/loader/api/Keys$GameKey; public static final @Experimental
-F dev/xavier/stein/loader/api/Keys$GameKey.FORWARD:Ldev/xavier/stein/loader/api/Keys$GameKey; public static final @Experimental
-F dev/xavier/stein/loader/api/Keys$GameKey.INVENTORY:Ldev/xavier/stein/loader/api/Keys$GameKey; public static final @Experimental
-F dev/xavier/stein/loader/api/Keys$GameKey.JUMP:Ldev/xavier/stein/loader/api/Keys$GameKey; public static final @Experimental
-F dev/xavier/stein/loader/api/Keys$GameKey.LEFT:Ldev/xavier/stein/loader/api/Keys$GameKey; public static final @Experimental
-F dev/xavier/stein/loader/api/Keys$GameKey.PERSPECTIVE:Ldev/xavier/stein/loader/api/Keys$GameKey; public static final @Experimental
-F dev/xavier/stein/loader/api/Keys$GameKey.PICK_BLOCK:Ldev/xavier/stein/loader/api/Keys$GameKey; public static final @Experimental
-F dev/xavier/stein/loader/api/Keys$GameKey.PLAYER_LIST:Ldev/xavier/stein/loader/api/Keys$GameKey; public static final @Experimental
-F dev/xavier/stein/loader/api/Keys$GameKey.RIGHT:Ldev/xavier/stein/loader/api/Keys$GameKey; public static final @Experimental
-F dev/xavier/stein/loader/api/Keys$GameKey.SCREENSHOT:Ldev/xavier/stein/loader/api/Keys$GameKey; public static final @Experimental
-F dev/xavier/stein/loader/api/Keys$GameKey.SNEAK:Ldev/xavier/stein/loader/api/Keys$GameKey; public static final @Experimental
-F dev/xavier/stein/loader/api/Keys$GameKey.SPRINT:Ldev/xavier/stein/loader/api/Keys$GameKey; public static final @Experimental
-F dev/xavier/stein/loader/api/Keys$GameKey.USE:Ldev/xavier/stein/loader/api/Keys$GameKey; public static final @Experimental
-F dev/xavier/stein/loader/api/Keys.KEY_B:I public static final
-F dev/xavier/stein/loader/api/Keys.KEY_C:I public static final
-F dev/xavier/stein/loader/api/Keys.KEY_E:I public static final
-F dev/xavier/stein/loader/api/Keys.KEY_ESCAPE:I public static final
-F dev/xavier/stein/loader/api/Keys.KEY_F1:I public static final
-F dev/xavier/stein/loader/api/Keys.KEY_F:I public static final
-F dev/xavier/stein/loader/api/Keys.KEY_G:I public static final
-F dev/xavier/stein/loader/api/Keys.KEY_H:I public static final
-F dev/xavier/stein/loader/api/Keys.KEY_I:I public static final
-F dev/xavier/stein/loader/api/Keys.KEY_INSERT:I public static final
-F dev/xavier/stein/loader/api/Keys.KEY_J:I public static final
-F dev/xavier/stein/loader/api/Keys.KEY_K:I public static final
-F dev/xavier/stein/loader/api/Keys.KEY_L:I public static final
-F dev/xavier/stein/loader/api/Keys.KEY_LCONTROL:I public static final
-F dev/xavier/stein/loader/api/Keys.KEY_LMENU:I public static final
-F dev/xavier/stein/loader/api/Keys.KEY_LSHIFT:I public static final
-F dev/xavier/stein/loader/api/Keys.KEY_M:I public static final
-F dev/xavier/stein/loader/api/Keys.KEY_N:I public static final
-F dev/xavier/stein/loader/api/Keys.KEY_NONE:I public static final
-F dev/xavier/stein/loader/api/Keys.KEY_O:I public static final
-F dev/xavier/stein/loader/api/Keys.KEY_P:I public static final
-F dev/xavier/stein/loader/api/Keys.KEY_Q:I public static final
-F dev/xavier/stein/loader/api/Keys.KEY_R:I public static final
-F dev/xavier/stein/loader/api/Keys.KEY_RCONTROL:I public static final
-F dev/xavier/stein/loader/api/Keys.KEY_RETURN:I public static final
-F dev/xavier/stein/loader/api/Keys.KEY_RMENU:I public static final
-F dev/xavier/stein/loader/api/Keys.KEY_RSHIFT:I public static final
-F dev/xavier/stein/loader/api/Keys.KEY_SPACE:I public static final
-F dev/xavier/stein/loader/api/Keys.KEY_T:I public static final
-F dev/xavier/stein/loader/api/Keys.KEY_TAB:I public static final
-F dev/xavier/stein/loader/api/Keys.KEY_U:I public static final
-F dev/xavier/stein/loader/api/Keys.KEY_V:I public static final
-F dev/xavier/stein/loader/api/Keys.KEY_X:I public static final
-F dev/xavier/stein/loader/api/Keys.KEY_Y:I public static final
-F dev/xavier/stein/loader/api/Keys.KEY_Z:I public static final
-F dev/xavier/stein/loader/api/Mesh$Format.COLOR:Ldev/xavier/stein/loader/api/Mesh$Format; public static final
-F dev/xavier/stein/loader/api/Mesh$Format.TEXTURE:Ldev/xavier/stein/loader/api/Mesh$Format; public static final
-F dev/xavier/stein/loader/api/Mesh$Format.TEXTURE_COLOR:Ldev/xavier/stein/loader/api/Mesh$Format; public static final
-F dev/xavier/stein/loader/api/Mesh$Primitive.LINES:Ldev/xavier/stein/loader/api/Mesh$Primitive; public static final
-F dev/xavier/stein/loader/api/Mesh$Primitive.LINE_STRIP:Ldev/xavier/stein/loader/api/Mesh$Primitive; public static final
-F dev/xavier/stein/loader/api/Mesh$Primitive.QUADS:Ldev/xavier/stein/loader/api/Mesh$Primitive; public static final
-F dev/xavier/stein/loader/api/Mesh$Primitive.TRIANGLES:Ldev/xavier/stein/loader/api/Mesh$Primitive; public static final
-F dev/xavier/stein/loader/api/Mesh$Primitive.TRIANGLE_FAN:Ldev/xavier/stein/loader/api/Mesh$Primitive; public static final
-F dev/xavier/stein/loader/api/Mesh$Primitive.TRIANGLE_STRIP:Ldev/xavier/stein/loader/api/Mesh$Primitive; public static final
+F dev/xavier/stein/loader/api/Inventory.ARMOR_START:I public static final value=36 @Experimental
+F dev/xavier/stein/loader/api/Inventory.BOOTS:I public static final value=0 @Experimental
+F dev/xavier/stein/loader/api/Inventory.CHESTPLATE:I public static final value=2 @Experimental
+F dev/xavier/stein/loader/api/Inventory.CLONE:I public static final value=3 @Experimental
+F dev/xavier/stein/loader/api/Inventory.HELMET:I public static final value=3 @Experimental
+F dev/xavier/stein/loader/api/Inventory.HOTBAR_START:I public static final value=0 @Experimental
+F dev/xavier/stein/loader/api/Inventory.LEGGINGS:I public static final value=1 @Experimental
+F dev/xavier/stein/loader/api/Inventory.MAIN_START:I public static final value=9 @Experimental
+F dev/xavier/stein/loader/api/Inventory.OUTSIDE:I public static final value=-999 @Experimental
+F dev/xavier/stein/loader/api/Inventory.PICKUP:I public static final value=0 @Experimental
+F dev/xavier/stein/loader/api/Inventory.PICKUP_ALL:I public static final value=6 @Experimental
+F dev/xavier/stein/loader/api/Inventory.QUICK_CRAFT:I public static final value=5 @Experimental
+F dev/xavier/stein/loader/api/Inventory.QUICK_MOVE:I public static final value=1 @Experimental
+F dev/xavier/stein/loader/api/Inventory.SIZE:I public static final value=40 @Experimental
+F dev/xavier/stein/loader/api/Inventory.SWAP:I public static final value=2 @Experimental
+F dev/xavier/stein/loader/api/Inventory.THROW:I public static final value=4 @Experimental
+F dev/xavier/stein/loader/api/Keys$GameKey.ATTACK:Ldev/xavier/stein/loader/api/Keys$GameKey; public static final ordinal=7 @Experimental
+F dev/xavier/stein/loader/api/Keys$GameKey.BACK:Ldev/xavier/stein/loader/api/Keys$GameKey; public static final ordinal=1 @Experimental
+F dev/xavier/stein/loader/api/Keys$GameKey.CHAT:Ldev/xavier/stein/loader/api/Keys$GameKey; public static final ordinal=12 @Experimental
+F dev/xavier/stein/loader/api/Keys$GameKey.COMMAND:Ldev/xavier/stein/loader/api/Keys$GameKey; public static final ordinal=13 @Experimental
+F dev/xavier/stein/loader/api/Keys$GameKey.DROP:Ldev/xavier/stein/loader/api/Keys$GameKey; public static final ordinal=10 @Experimental
+F dev/xavier/stein/loader/api/Keys$GameKey.FORWARD:Ldev/xavier/stein/loader/api/Keys$GameKey; public static final ordinal=0 @Experimental
+F dev/xavier/stein/loader/api/Keys$GameKey.INVENTORY:Ldev/xavier/stein/loader/api/Keys$GameKey; public static final ordinal=11 @Experimental
+F dev/xavier/stein/loader/api/Keys$GameKey.JUMP:Ldev/xavier/stein/loader/api/Keys$GameKey; public static final ordinal=4 @Experimental
+F dev/xavier/stein/loader/api/Keys$GameKey.LEFT:Ldev/xavier/stein/loader/api/Keys$GameKey; public static final ordinal=2 @Experimental
+F dev/xavier/stein/loader/api/Keys$GameKey.PERSPECTIVE:Ldev/xavier/stein/loader/api/Keys$GameKey; public static final ordinal=15 @Experimental
+F dev/xavier/stein/loader/api/Keys$GameKey.PICK_BLOCK:Ldev/xavier/stein/loader/api/Keys$GameKey; public static final ordinal=9 @Experimental
+F dev/xavier/stein/loader/api/Keys$GameKey.PLAYER_LIST:Ldev/xavier/stein/loader/api/Keys$GameKey; public static final ordinal=14 @Experimental
+F dev/xavier/stein/loader/api/Keys$GameKey.RIGHT:Ldev/xavier/stein/loader/api/Keys$GameKey; public static final ordinal=3 @Experimental
+F dev/xavier/stein/loader/api/Keys$GameKey.SCREENSHOT:Ldev/xavier/stein/loader/api/Keys$GameKey; public static final ordinal=16 @Experimental
+F dev/xavier/stein/loader/api/Keys$GameKey.SNEAK:Ldev/xavier/stein/loader/api/Keys$GameKey; public static final ordinal=5 @Experimental
+F dev/xavier/stein/loader/api/Keys$GameKey.SPRINT:Ldev/xavier/stein/loader/api/Keys$GameKey; public static final ordinal=6 @Experimental
+F dev/xavier/stein/loader/api/Keys$GameKey.USE:Ldev/xavier/stein/loader/api/Keys$GameKey; public static final ordinal=8 @Experimental
+F dev/xavier/stein/loader/api/Keys.KEY_B:I public static final value=48
+F dev/xavier/stein/loader/api/Keys.KEY_C:I public static final value=46
+F dev/xavier/stein/loader/api/Keys.KEY_E:I public static final value=18
+F dev/xavier/stein/loader/api/Keys.KEY_ESCAPE:I public static final value=1
+F dev/xavier/stein/loader/api/Keys.KEY_F1:I public static final value=59
+F dev/xavier/stein/loader/api/Keys.KEY_F:I public static final value=33
+F dev/xavier/stein/loader/api/Keys.KEY_G:I public static final value=34
+F dev/xavier/stein/loader/api/Keys.KEY_H:I public static final value=35
+F dev/xavier/stein/loader/api/Keys.KEY_I:I public static final value=23
+F dev/xavier/stein/loader/api/Keys.KEY_INSERT:I public static final value=210
+F dev/xavier/stein/loader/api/Keys.KEY_J:I public static final value=36
+F dev/xavier/stein/loader/api/Keys.KEY_K:I public static final value=37
+F dev/xavier/stein/loader/api/Keys.KEY_L:I public static final value=38
+F dev/xavier/stein/loader/api/Keys.KEY_LCONTROL:I public static final value=29
+F dev/xavier/stein/loader/api/Keys.KEY_LMENU:I public static final value=56
+F dev/xavier/stein/loader/api/Keys.KEY_LSHIFT:I public static final value=42
+F dev/xavier/stein/loader/api/Keys.KEY_M:I public static final value=50
+F dev/xavier/stein/loader/api/Keys.KEY_N:I public static final value=49
+F dev/xavier/stein/loader/api/Keys.KEY_NONE:I public static final value=0
+F dev/xavier/stein/loader/api/Keys.KEY_O:I public static final value=24
+F dev/xavier/stein/loader/api/Keys.KEY_P:I public static final value=25
+F dev/xavier/stein/loader/api/Keys.KEY_Q:I public static final value=16
+F dev/xavier/stein/loader/api/Keys.KEY_R:I public static final value=19
+F dev/xavier/stein/loader/api/Keys.KEY_RCONTROL:I public static final value=157
+F dev/xavier/stein/loader/api/Keys.KEY_RETURN:I public static final value=28
+F dev/xavier/stein/loader/api/Keys.KEY_RMENU:I public static final value=184
+F dev/xavier/stein/loader/api/Keys.KEY_RSHIFT:I public static final value=54
+F dev/xavier/stein/loader/api/Keys.KEY_SPACE:I public static final value=57
+F dev/xavier/stein/loader/api/Keys.KEY_T:I public static final value=20
+F dev/xavier/stein/loader/api/Keys.KEY_TAB:I public static final value=15
+F dev/xavier/stein/loader/api/Keys.KEY_U:I public static final value=22
+F dev/xavier/stein/loader/api/Keys.KEY_V:I public static final value=47
+F dev/xavier/stein/loader/api/Keys.KEY_X:I public static final value=45
+F dev/xavier/stein/loader/api/Keys.KEY_Y:I public static final value=21
+F dev/xavier/stein/loader/api/Keys.KEY_Z:I public static final value=44
+F dev/xavier/stein/loader/api/Mesh$Format.COLOR:Ldev/xavier/stein/loader/api/Mesh$Format; public static final ordinal=0 @Experimental
+F dev/xavier/stein/loader/api/Mesh$Format.TEXTURE:Ldev/xavier/stein/loader/api/Mesh$Format; public static final ordinal=1 @Experimental
+F dev/xavier/stein/loader/api/Mesh$Format.TEXTURE_COLOR:Ldev/xavier/stein/loader/api/Mesh$Format; public static final ordinal=2 @Experimental
+F dev/xavier/stein/loader/api/Mesh$Primitive.LINES:Ldev/xavier/stein/loader/api/Mesh$Primitive; public static final ordinal=0 @Experimental
+F dev/xavier/stein/loader/api/Mesh$Primitive.LINE_STRIP:Ldev/xavier/stein/loader/api/Mesh$Primitive; public static final ordinal=1 @Experimental
+F dev/xavier/stein/loader/api/Mesh$Primitive.QUADS:Ldev/xavier/stein/loader/api/Mesh$Primitive; public static final ordinal=5 @Experimental
+F dev/xavier/stein/loader/api/Mesh$Primitive.TRIANGLES:Ldev/xavier/stein/loader/api/Mesh$Primitive; public static final ordinal=2 @Experimental
+F dev/xavier/stein/loader/api/Mesh$Primitive.TRIANGLE_FAN:Ldev/xavier/stein/loader/api/Mesh$Primitive; public static final ordinal=4 @Experimental
+F dev/xavier/stein/loader/api/Mesh$Primitive.TRIANGLE_STRIP:Ldev/xavier/stein/loader/api/Mesh$Primitive; public static final ordinal=3 @Experimental
 F dev/xavier/stein/loader/api/Option$Slider.max:D public final @Experimental
 F dev/xavier/stein/loader/api/Option$Slider.min:D public final @Experimental
 F dev/xavier/stein/loader/api/Option$Slider.step:D public final @Experimental
@@ -168,7 +168,7 @@ F dev/xavier/stein/loader/api/Option$Text.get:Ljava/util/function/Supplier; publ
 F dev/xavier/stein/loader/api/Option$Text.hint:Ljava/lang/String; public final
 F dev/xavier/stein/loader/api/Option$Text.secret:Z public final
 F dev/xavier/stein/loader/api/Option$Text.set:Ljava/util/function/Consumer; public final
-F dev/xavier/stein/loader/api/Option.CODES:Ljava/lang/String; public static final
+F dev/xavier/stein/loader/api/Option.CODES:Ljava/lang/String; public static final value="0123456789abcdef"
 F dev/xavier/stein/loader/api/Option.RGB:[I public static final
 F dev/xavier/stein/loader/api/Option.label:Ljava/lang/String; public final
 F dev/xavier/stein/loader/api/Page$Entry.empty:Ljava/lang/String; public final
@@ -191,27 +191,27 @@ F dev/xavier/stein/loader/api/Players$Entry.ping:I public final
 F dev/xavier/stein/loader/api/Players$Entry.spectator:Z public final
 F dev/xavier/stein/loader/api/Players$Entry.tabName:Ljava/lang/String; public final
 F dev/xavier/stein/loader/api/Players$Entry.team:Ljava/lang/String; public final
-F dev/xavier/stein/loader/api/Relation.ALLY:Ldev/xavier/stein/loader/api/Relation; public static final @Experimental
-F dev/xavier/stein/loader/api/Relation.ENEMY:Ldev/xavier/stein/loader/api/Relation; public static final @Experimental
-F dev/xavier/stein/loader/api/Relation.GROUP:Ldev/xavier/stein/loader/api/Relation; public static final @Experimental
-F dev/xavier/stein/loader/api/Relation.NEUTRAL:Ldev/xavier/stein/loader/api/Relation; public static final @Experimental
-F dev/xavier/stein/loader/api/Relation.NONE:Ldev/xavier/stein/loader/api/Relation; public static final @Experimental
-F dev/xavier/stein/loader/api/Relation.SELF:Ldev/xavier/stein/loader/api/Relation; public static final @Experimental
+F dev/xavier/stein/loader/api/Relation.ALLY:Ldev/xavier/stein/loader/api/Relation; public static final ordinal=3 @Experimental
+F dev/xavier/stein/loader/api/Relation.ENEMY:Ldev/xavier/stein/loader/api/Relation; public static final ordinal=4 @Experimental
+F dev/xavier/stein/loader/api/Relation.GROUP:Ldev/xavier/stein/loader/api/Relation; public static final ordinal=2 @Experimental
+F dev/xavier/stein/loader/api/Relation.NEUTRAL:Ldev/xavier/stein/loader/api/Relation; public static final ordinal=5 @Experimental
+F dev/xavier/stein/loader/api/Relation.NONE:Ldev/xavier/stein/loader/api/Relation; public static final ordinal=0 @Experimental
+F dev/xavier/stein/loader/api/Relation.SELF:Ldev/xavier/stein/loader/api/Relation; public static final ordinal=1 @Experimental
 F dev/xavier/stein/loader/api/Render$Texture.height:I public final
 F dev/xavier/stein/loader/api/Render$Texture.width:I public final
-F dev/xavier/stein/loader/api/Screens$Kind.CHAT:Ldev/xavier/stein/loader/api/Screens$Kind; public static final
-F dev/xavier/stein/loader/api/Screens$Kind.CONNECTING:Ldev/xavier/stein/loader/api/Screens$Kind; public static final
-F dev/xavier/stein/loader/api/Screens$Kind.CONTAINER:Ldev/xavier/stein/loader/api/Screens$Kind; public static final
-F dev/xavier/stein/loader/api/Screens$Kind.DISCONNECTED:Ldev/xavier/stein/loader/api/Screens$Kind; public static final
-F dev/xavier/stein/loader/api/Screens$Kind.INVENTORY:Ldev/xavier/stein/loader/api/Screens$Kind; public static final
-F dev/xavier/stein/loader/api/Screens$Kind.MAIN_MENU:Ldev/xavier/stein/loader/api/Screens$Kind; public static final
-F dev/xavier/stein/loader/api/Screens$Kind.MULTIPLAYER:Ldev/xavier/stein/loader/api/Screens$Kind; public static final
-F dev/xavier/stein/loader/api/Screens$Kind.NONE:Ldev/xavier/stein/loader/api/Screens$Kind; public static final
-F dev/xavier/stein/loader/api/Screens$Kind.OPTIONS:Ldev/xavier/stein/loader/api/Screens$Kind; public static final
-F dev/xavier/stein/loader/api/Screens$Kind.OTHER:Ldev/xavier/stein/loader/api/Screens$Kind; public static final
-F dev/xavier/stein/loader/api/Screens$Kind.PAUSE:Ldev/xavier/stein/loader/api/Screens$Kind; public static final
-F dev/xavier/stein/loader/api/Screens$Kind.SINGLEPLAYER:Ldev/xavier/stein/loader/api/Screens$Kind; public static final
-F dev/xavier/stein/loader/api/Screens$Kind.STEIN:Ldev/xavier/stein/loader/api/Screens$Kind; public static final
+F dev/xavier/stein/loader/api/Screens$Kind.CHAT:Ldev/xavier/stein/loader/api/Screens$Kind; public static final ordinal=8
+F dev/xavier/stein/loader/api/Screens$Kind.CONNECTING:Ldev/xavier/stein/loader/api/Screens$Kind; public static final ordinal=4
+F dev/xavier/stein/loader/api/Screens$Kind.CONTAINER:Ldev/xavier/stein/loader/api/Screens$Kind; public static final ordinal=10
+F dev/xavier/stein/loader/api/Screens$Kind.DISCONNECTED:Ldev/xavier/stein/loader/api/Screens$Kind; public static final ordinal=5
+F dev/xavier/stein/loader/api/Screens$Kind.INVENTORY:Ldev/xavier/stein/loader/api/Screens$Kind; public static final ordinal=9
+F dev/xavier/stein/loader/api/Screens$Kind.MAIN_MENU:Ldev/xavier/stein/loader/api/Screens$Kind; public static final ordinal=1
+F dev/xavier/stein/loader/api/Screens$Kind.MULTIPLAYER:Ldev/xavier/stein/loader/api/Screens$Kind; public static final ordinal=3
+F dev/xavier/stein/loader/api/Screens$Kind.NONE:Ldev/xavier/stein/loader/api/Screens$Kind; public static final ordinal=0
+F dev/xavier/stein/loader/api/Screens$Kind.OPTIONS:Ldev/xavier/stein/loader/api/Screens$Kind; public static final ordinal=7
+F dev/xavier/stein/loader/api/Screens$Kind.OTHER:Ldev/xavier/stein/loader/api/Screens$Kind; public static final ordinal=12
+F dev/xavier/stein/loader/api/Screens$Kind.PAUSE:Ldev/xavier/stein/loader/api/Screens$Kind; public static final ordinal=6
+F dev/xavier/stein/loader/api/Screens$Kind.SINGLEPLAYER:Ldev/xavier/stein/loader/api/Screens$Kind; public static final ordinal=2
+F dev/xavier/stein/loader/api/Screens$Kind.STEIN:Ldev/xavier/stein/loader/api/Screens$Kind; public static final ordinal=11
 F dev/xavier/stein/loader/api/Targeting$Hit.distance:D public final
 F dev/xavier/stein/loader/api/Targeting$Hit.entity:Ljava/lang/Object; public final
 F dev/xavier/stein/loader/api/Targeting$Hit.x:D public final
@@ -233,22 +233,22 @@ F dev/xavier/stein/loader/api/Targeting$Ray.hits:Ljava/util/List; public final
 F dev/xavier/stein/loader/api/Targeting$Ray.reach:D public final
 F dev/xavier/stein/loader/api/Targeting.FOLIAGE:Ldev/xavier/stein/loader/api/Targeting$BlockFilter; public static final @Experimental
 F dev/xavier/stein/loader/api/Targeting.GLASS:Ldev/xavier/stein/loader/api/Targeting$BlockFilter; public static final @Experimental
-F dev/xavier/stein/loader/api/Theme.ACCENT:I public static final @Experimental
-F dev/xavier/stein/loader/api/Theme.ACCENT_SOFT:I public static final @Experimental
-F dev/xavier/stein/loader/api/Theme.BACKGROUND:I public static final @Experimental
-F dev/xavier/stein/loader/api/Theme.DANGER:I public static final @Experimental
-F dev/xavier/stein/loader/api/Theme.FAINT:I public static final @Experimental
-F dev/xavier/stein/loader/api/Theme.GOLD:I public static final @Experimental
-F dev/xavier/stein/loader/api/Theme.INK:I public static final @Experimental
-F dev/xavier/stein/loader/api/Theme.MUTED:I public static final @Experimental
-F dev/xavier/stein/loader/api/Theme.OK:I public static final @Experimental
-F dev/xavier/stein/loader/api/Theme.RULE:I public static final @Experimental
-F dev/xavier/stein/loader/api/Theme.RULE_STRONG:I public static final @Experimental
-F dev/xavier/stein/loader/api/Theme.WARN:I public static final @Experimental
-F dev/xavier/stein/loader/api/Typeface.ITALIC:Ldev/xavier/stein/loader/api/Typeface; public static final @Experimental
-F dev/xavier/stein/loader/api/Typeface.MONO:Ldev/xavier/stein/loader/api/Typeface; public static final @Experimental
-F dev/xavier/stein/loader/api/Typeface.TEXT:Ldev/xavier/stein/loader/api/Typeface; public static final @Experimental
-F dev/xavier/stein/loader/api/Typeface.TITLE:Ldev/xavier/stein/loader/api/Typeface; public static final @Experimental
+F dev/xavier/stein/loader/api/Theme.ACCENT:I public static final value=-8630785 @Experimental
+F dev/xavier/stein/loader/api/Theme.ACCENT_SOFT:I public static final value=612126207 @Experimental
+F dev/xavier/stein/loader/api/Theme.BACKGROUND:I public static final value=-16120300 @Experimental
+F dev/xavier/stein/loader/api/Theme.DANGER:I public static final value=-2068342 @Experimental
+F dev/xavier/stein/loader/api/Theme.FAINT:I public static final value=1508434421 @Experimental
+F dev/xavier/stein/loader/api/Theme.GOLD:I public static final value=-4678439 @Experimental
+F dev/xavier/stein/loader/api/Theme.INK:I public static final value=-1515019 @Experimental
+F dev/xavier/stein/loader/api/Theme.MUTED:I public static final value=-1930894859 @Experimental
+F dev/xavier/stein/loader/api/Theme.OK:I public static final value=-6564696 @Experimental
+F dev/xavier/stein/loader/api/Theme.RULE:I public static final value=451469813 @Experimental
+F dev/xavier/stein/loader/api/Theme.RULE_STRONG:I public static final value=954786293 @Experimental
+F dev/xavier/stein/loader/api/Theme.WARN:I public static final value=-2049936 @Experimental
+F dev/xavier/stein/loader/api/Typeface.ITALIC:Ldev/xavier/stein/loader/api/Typeface; public static final ordinal=2 @Experimental
+F dev/xavier/stein/loader/api/Typeface.MONO:Ldev/xavier/stein/loader/api/Typeface; public static final ordinal=3 @Experimental
+F dev/xavier/stein/loader/api/Typeface.TEXT:Ldev/xavier/stein/loader/api/Typeface; public static final ordinal=1 @Experimental
+F dev/xavier/stein/loader/api/Typeface.TITLE:Ldev/xavier/stein/loader/api/Typeface; public static final ordinal=0 @Experimental
 M dev/xavier/stein/loader/api/Account$Kind.valueOf(Ljava/lang/String;)Ldev/xavier/stein/loader/api/Account$Kind; public static
 M dev/xavier/stein/loader/api/Account$Kind.values()[Ldev/xavier/stein/loader/api/Account$Kind; public static
 M dev/xavier/stein/loader/api/Account.isLauncher()Z public static @Experimental
@@ -410,14 +410,14 @@ M dev/xavier/stein/loader/api/Log.info(Ljava/lang/String;)V public @Experimental
 M dev/xavier/stein/loader/api/Log.isDebug()Z public @Experimental
 M dev/xavier/stein/loader/api/Log.of(Ljava/lang/String;)Ldev/xavier/stein/loader/api/Log; public static @Experimental
 M dev/xavier/stein/loader/api/Log.warn(Ljava/lang/String;)V public @Experimental
-M dev/xavier/stein/loader/api/Mesh$Builder.build()Ldev/xavier/stein/loader/api/Mesh; public
-M dev/xavier/stein/loader/api/Mesh$Builder.color(I)Ldev/xavier/stein/loader/api/Mesh$Builder; public
-M dev/xavier/stein/loader/api/Mesh$Builder.uv(FF)Ldev/xavier/stein/loader/api/Mesh$Builder; public
-M dev/xavier/stein/loader/api/Mesh$Builder.vertex(DDD)Ldev/xavier/stein/loader/api/Mesh$Builder; public
-M dev/xavier/stein/loader/api/Mesh$Format.valueOf(Ljava/lang/String;)Ldev/xavier/stein/loader/api/Mesh$Format; public static
-M dev/xavier/stein/loader/api/Mesh$Format.values()[Ldev/xavier/stein/loader/api/Mesh$Format; public static
-M dev/xavier/stein/loader/api/Mesh$Primitive.valueOf(Ljava/lang/String;)Ldev/xavier/stein/loader/api/Mesh$Primitive; public static
-M dev/xavier/stein/loader/api/Mesh$Primitive.values()[Ldev/xavier/stein/loader/api/Mesh$Primitive; public static
+M dev/xavier/stein/loader/api/Mesh$Builder.build()Ldev/xavier/stein/loader/api/Mesh; public @Experimental
+M dev/xavier/stein/loader/api/Mesh$Builder.color(I)Ldev/xavier/stein/loader/api/Mesh$Builder; public @Experimental
+M dev/xavier/stein/loader/api/Mesh$Builder.uv(FF)Ldev/xavier/stein/loader/api/Mesh$Builder; public @Experimental
+M dev/xavier/stein/loader/api/Mesh$Builder.vertex(DDD)Ldev/xavier/stein/loader/api/Mesh$Builder; public @Experimental
+M dev/xavier/stein/loader/api/Mesh$Format.valueOf(Ljava/lang/String;)Ldev/xavier/stein/loader/api/Mesh$Format; public static @Experimental
+M dev/xavier/stein/loader/api/Mesh$Format.values()[Ldev/xavier/stein/loader/api/Mesh$Format; public static @Experimental
+M dev/xavier/stein/loader/api/Mesh$Primitive.valueOf(Ljava/lang/String;)Ldev/xavier/stein/loader/api/Mesh$Primitive; public static @Experimental
+M dev/xavier/stein/loader/api/Mesh$Primitive.values()[Ldev/xavier/stein/loader/api/Mesh$Primitive; public static @Experimental
 M dev/xavier/stein/loader/api/Mesh.builder(Ldev/xavier/stein/loader/api/Mesh$Primitive;Ldev/xavier/stein/loader/api/Mesh$Format;)Ldev/xavier/stein/loader/api/Mesh$Builder; public static @Experimental
 M dev/xavier/stein/loader/api/Mesh.format()Ldev/xavier/stein/loader/api/Mesh$Format; public @Experimental
 M dev/xavier/stein/loader/api/Mesh.isReleased()Z public @Experimental

@@ -43,6 +43,7 @@ public abstract class Option {
         0x555555, 0x5555FF, 0x55FF55, 0x55FFFF, 0xFF5555, 0xFF55FF, 0xFFFF55, 0xFFFFFF,
     };
 
+    /** The text shown for the option (already translated). */
     public final String label;
 
     /**
@@ -51,6 +52,12 @@ public abstract class Option {
      */
     private boolean advanced;
 
+    /**
+     * An option with this label, for subclasses; the factories ({@link #toggle}, {@link #cycle}...)
+     * cover the usual kinds.
+     *
+     * @param label the text shown for the option
+     */
     protected Option(String label) {
         this.label = label;
     }
@@ -106,14 +113,25 @@ public abstract class Option {
             this.set = set;
         }
 
+        /**
+         * The text shown next to the checkbox when the mouse is over it.
+         *
+         * @return the hint given to {@link #withCheck}
+         */
         public String hint() {
             return hint;
         }
 
+        /**
+         * Whether the checkbox is checked now.
+         *
+         * @return the value read from the getter given to {@link #withCheck}
+         */
         public boolean isOn() {
             return get.getAsBoolean();
         }
 
+        /** Flips the checkbox, through the setter given to {@link #withCheck}. */
         public void toggle() {
             set.accept(!get.getAsBoolean());
         }
@@ -160,6 +178,11 @@ public abstract class Option {
         return this;
     }
 
+    /**
+     * Whether the option was marked with {@link #advanced}.
+     *
+     * @return true if the Panel keeps it under "More options"
+     */
     public boolean isAdvanced() {
         return advanced;
     }
@@ -171,6 +194,11 @@ public abstract class Option {
         return false;
     }
 
+    /**
+     * The value as shown on the option's button (may carry formatting codes).
+     *
+     * @return the current value's text
+     */
     public abstract String value();
 
     /** Left button: next value; right: previous. */
@@ -184,6 +212,11 @@ public abstract class Option {
         return null;
     }
 
+    /**
+     * The label and the value, as one line ("Label: value").
+     *
+     * @return the text of the option's button
+     */
     public String text() {
         return label + ": " + value();
     }
@@ -197,6 +230,12 @@ public abstract class Option {
         return i < 0 ? CODES.length() - 1 : i;
     }
 
+    /**
+     * The color (RGB, no alpha) of a color code; unknown codes are white.
+     *
+     * @param code a color code ("f", "c"...)
+     * @return the color, 0xRRGGBB
+     */
     public static int rgb(String code) {
         return RGB[colorIndex(code)];
     }
@@ -211,6 +250,14 @@ public abstract class Option {
         return Lang.tr("steinloader.color." + CODES.charAt(colorIndex(code)));
     }
 
+    /**
+     * An on/off button: shows yes or no, a click flips it.
+     *
+     * @param label the option's text
+     * @param get reads the current value
+     * @param set stores a new value
+     * @return the option
+     */
     public static Option toggle(String label, BooleanSupplier get, Consumer<Boolean> set) {
         return new Option(label) {
             @Override
@@ -230,6 +277,16 @@ public abstract class Option {
         };
     }
 
+    /**
+     * A button that cycles through {@code names}: left click goes to the next one, right click to
+     * the previous one, wrapping around.
+     *
+     * @param label the option's text
+     * @param names the text of each value; the value is its index
+     * @param get reads the current index
+     * @param set stores a new index
+     * @return the option
+     */
     public static Option cycle(String label, String[] names, IntSupplier get, IntConsumer set) {
         return new Option(label) {
             @Override
@@ -251,6 +308,15 @@ public abstract class Option {
         };
     }
 
+    /**
+     * A button that cycles through the 16 game colors (codes 0-9, a-f), showing the color's name in
+     * that color.
+     *
+     * @param label the option's text
+     * @param get reads the current code ("f", "c"...)
+     * @param set stores a new code
+     * @return the option
+     */
     public static Option color(String label, Supplier<String> get, Consumer<String> set) {
         return new Option(label) {
             @Override
@@ -273,6 +339,14 @@ public abstract class Option {
         };
     }
 
+    /**
+     * A button that runs {@code run} on every click (either mouse button).
+     *
+     * @param label the option's text
+     * @param value the text shown on the button
+     * @param run what the click does
+     * @return the option
+     */
     public static Option action(String label, String value, Runnable run) {
         return new Option(label) {
             @Override
@@ -348,11 +422,18 @@ public abstract class Option {
         return new Key(label, get, set);
     }
 
+    /** A number on a track ({@link #slider}). */
     @Experimental(since = "0.1.15")
     public static final class Slider extends Option {
+        /** The smallest value. */
         public final double min;
+
+        /** The largest value (never below {@link #min}). */
         public final double max;
+
+        /** The step the value snaps to; 0 = no step. */
         public final double step;
+
         private final DoubleSupplier get;
         private final DoubleConsumer set;
         private final DoubleFunction<String> format;
@@ -374,6 +455,11 @@ public abstract class Option {
             this.format = format;
         }
 
+        /**
+         * The current value.
+         *
+         * @return the value read from the getter given to {@link #slider}
+         */
         public double get() {
             return get.getAsDouble();
         }
@@ -415,6 +501,7 @@ public abstract class Option {
         }
     }
 
+    /** A key picker ({@link #key(String, IntSupplier, IntConsumer)}). */
     @Experimental(since = "0.1.15")
     public static final class Key extends Option {
         private final IntSupplier get;
@@ -498,17 +585,39 @@ public abstract class Option {
 
     /** Free text (e.g. a list of colors): a text field, not a button. One per element. */
     public static final class Text extends Option {
+        /** Reads the current text. */
         public final Supplier<String> get;
+
+        /** Stores the text the player typed. */
         public final Consumer<String> set;
+
+        /** Gray text shown while the field is empty. */
         public final String hint;
 
         /** Password: the screen shows dots in place of the letters. */
         public final boolean secret;
 
+        /**
+         * A text field.
+         *
+         * @param label the option's text
+         * @param hint gray text shown while the field is empty
+         * @param get reads the current text
+         * @param set stores the text the player typed
+         */
         public Text(String label, String hint, Supplier<String> get, Consumer<String> set) {
             this(label, hint, get, set, false);
         }
 
+        /**
+         * A text field, optionally a password field.
+         *
+         * @param label the option's text
+         * @param hint gray text shown while the field is empty
+         * @param get reads the current text
+         * @param set stores the text the player typed
+         * @param secret true to show dots in place of the letters
+         */
         public Text(
                 String label,
                 String hint,

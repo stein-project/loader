@@ -68,14 +68,26 @@ public final class Inventory {
     public static final int OUTSIDE = -999;
 
     // Armour pieces (inventory index = ARMOR_START + piece).
+    /** Boots: inventory index {@code ARMOR_START + BOOTS}. */
     public static final int BOOTS = 0;
+
+    /** Leggings: inventory index {@code ARMOR_START + LEGGINGS}. */
     public static final int LEGGINGS = 1;
+
+    /** Chestplate: inventory index {@code ARMOR_START + CHESTPLATE}. */
     public static final int CHESTPLATE = 2;
+
+    /** Helmet: inventory index {@code ARMOR_START + HELMET}. */
     public static final int HELMET = 3;
 
     // Player inventory indices.
+    /** First hotbar index (0-8 are the hotbar). */
     public static final int HOTBAR_START = 0;
+
+    /** First index of the main inventory (9-35). */
     public static final int MAIN_START = 9;
+
+    /** First armor index (36-39, boots first). */
     public static final int ARMOR_START = 36;
 
     /** Total number of indices (0-39). */

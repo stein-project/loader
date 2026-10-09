@@ -49,6 +49,8 @@ public final class Relations {
     @FunctionalInterface
     public interface Provider {
         /**
+         * The relation this mod sees with the player.
+         *
          * @param nick the player
          * @param group the player's group ({@link Players#group}), or null
          * @return the relation, or null to leave it to the others
@@ -179,6 +181,11 @@ public final class Relations {
         changed();
     }
 
+    /**
+     * Removes the source's provider ({@link #register}).
+     *
+     * @param source the name given to {@link #register}
+     */
     public static void unregister(String source) {
         if (PROVIDERS.remove(source) != null) {
             changed();

@@ -20,6 +20,7 @@ import net.minecraft.client.network.NetHandlerPlayClient;
 import net.minecraft.network.NetworkManager;
 
 import java.net.SocketAddress;
+import java.util.Locale;
 
 /**
  * The server connection for the API (Server): the current address and name, the last server joined
@@ -27,7 +28,20 @@ import java.net.SocketAddress;
  */
 final class ServerOps {
 
+    private static final String DEFAULT_PORT_SUFFIX = ":25565";
+
     private ServerOps() {}
+
+    /**
+     * The address as the game compares it: lowercase and without the default port ("home.com" and
+     * "home.com:25565" are the same).
+     */
+    static String host(String ip) {
+        String s = (ip == null ? "" : ip).trim().toLowerCase(Locale.ROOT);
+        return s.endsWith(DEFAULT_PORT_SUFFIX)
+                ? s.substring(0, s.length() - DEFAULT_PORT_SUFFIX.length())
+                : s;
+    }
 
     static String lastServer = "";
 
@@ -50,7 +64,7 @@ final class ServerOps {
                 ip = ip.substring(ip.lastIndexOf('/') + 1);
             }
         }
-        return Remote.host(ip);
+        return host(ip);
     }
 
     static String serverName() {
@@ -60,7 +74,7 @@ final class ServerOps {
 
     static void connect(String address) {
         Minecraft mc = mc();
-        GameOps.connecting = Remote.host(address);
+        GameOps.connecting = host(address);
         if (mc.theWorld != null) {
             mc.theWorld.sendQuittingDisconnectingPacket();
             mc.loadWorld(null);

@@ -29,19 +29,24 @@ import java.util.stream.Stream;
  *
  * <p>Reads the public and protected signatures of the classes in dev.xavier.stein.loader.api
  * (except spi, which only the Loader implements) and compares them with the list kept in the
- * repository (api/stein-api.txt):
+ * repository (api/stein-api.txt). Besides the signatures, the list records what javac copies into
+ * the mods that use it: the value of each constant ({@code static final} primitive or String,
+ * inlined at the call site) and the position of each enum constant (its ordinal, which a {@code
+ * switch} over the enum depends on).
  *
  * <ul>
- *   <li>what was removed or changed (type, static, final, abstract, visibility) breaks whoever used
- *       it: the build stops;
+ *   <li>what was removed or changed (type, static, final, abstract, visibility, a constant's value,
+ *       an enum constant's position) breaks whoever used it: the build stops;
  *   <li>a new abstract method on a class or interface that already existed breaks whoever
  *       implements it (HudElement, Option): the build stops — add a default;
- *   <li>what was added is simply appended to the list;
+ *   <li>what was added also stops the build, with the list of new signatures: an addition is public
+ *       API from then on, so it is reviewed and recorded, not taken in silently;
  *   <li>what carries {@code @Experimental} may change or go away without stopping the build.
  * </ul>
  *
- * With {@code --update}, it writes the current list: that is how a break (or an addition) becomes a
- * recorded decision.
+ * With {@code --update} ({@code ./gradlew build -Pstein.apiUpdate}) it writes the current list
+ * instead of comparing: that is how an addition, or a break, becomes a recorded decision, committed
+ * with the change.
  *
  * <p>Usage: java -cp asm.jar tools/ApiCheck.java &lt;classes&gt; &lt;list.txt&gt; [--update]
  */
@@ -60,7 +65,8 @@ public final class ApiCheck {
 
         if (update || !Files.exists(baseline)) {
             Files.createDirectories(baseline.getParent());
-            Files.write(baseline, lines, StandardCharsets.UTF_8);
+            // LF on every system, as the repository keeps it (.gitattributes).
+            Files.writeString(baseline, String.join("\n", lines) + "\n", StandardCharsets.UTF_8);
             System.out.println(
                     "api: list written (" + lines.size() + " signatures) at " + baseline);
             return;
@@ -170,6 +176,7 @@ public final class ApiCheck {
                             private String name;
                             private boolean visible;
                             private boolean classExperimental;
+                            private int enumConstants;
 
                             @Override
                             public void visit(
@@ -206,13 +213,22 @@ public final class ApiCheck {
                             @Override
                             public FieldVisitor visitField(
                                     int access, String n, String desc, String sig, Object value) {
+                                // javac emits enum constants in declaration order: their ordinal.
+                                int ordinal =
+                                        (access & Opcodes.ACC_ENUM) != 0 ? enumConstants++ : -1;
                                 if (!visible || !exposed(access)) {
                                     return null;
                                 }
                                 String key = "F " + name + "." + n + ":" + desc;
+                                // What javac copies into the mod: the ordinal and the constant.
+                                String inlined =
+                                        ordinal >= 0
+                                                ? " ordinal=" + ordinal
+                                                : value != null ? " value=" + constant(value) : "";
                                 out.put(
                                         key,
                                         flags(access, false)
+                                                + inlined
                                                 + (classExperimental ? " @Experimental" : ""));
                                 return new FieldVisitor(Opcodes.ASM9) {
                                     @Override
@@ -257,6 +273,37 @@ public final class ApiCheck {
                             }
                         },
                         ClassReader.SKIP_CODE);
+    }
+
+    /**
+     * A constant's value as the list records it, on one line: strings quoted and escaped (char and
+     * boolean constants are ints in the class file), floating point in hex (exact), the rest as
+     * written.
+     */
+    private static String constant(Object value) {
+        if (value instanceof String s) {
+            StringBuilder sb = new StringBuilder("\"");
+            for (char c : s.toCharArray()) {
+                if (c == '"' || c == '\\') {
+                    sb.append('\\').append(c);
+                } else if (c < 0x20 || c > 0x7E) {
+                    sb.append(String.format("\\u%04x", (int) c));
+                } else {
+                    sb.append(c);
+                }
+            }
+            return sb.append('"').toString();
+        }
+        if (value instanceof Float f) {
+            return Float.toHexString(f) + "f";
+        }
+        if (value instanceof Double d) {
+            return Double.toHexString(d);
+        }
+        if (value instanceof Long l) {
+            return l + "L";
+        }
+        return String.valueOf(value);
     }
 
     /** Public or protected, and not compiler-generated. */

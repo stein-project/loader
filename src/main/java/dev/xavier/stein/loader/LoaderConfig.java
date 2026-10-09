@@ -15,6 +15,7 @@ import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import com.google.gson.JsonPrimitive;
 
+import dev.xavier.stein.bridge.core.Log;
 import dev.xavier.stein.bridge.core.SteinLog;
 import dev.xavier.stein.loader.font.GameText;
 
@@ -59,9 +60,8 @@ final class LoaderConfig {
     }
 
     void read() {
-        // Measurement: -Dsteinloader.disable=id1,id2 disables mods for
-        // this run only.
-        String extra = System.getProperty("steinloader.disable");
+        // Measurement: -Dsteinloader.disable=id1,id2 disables mods for this run only.
+        String extra = LoaderOptions.DISABLE;
         if (extra != null) {
             for (String id : extra.split(",")) {
                 if (!id.isBlank()) {
@@ -113,11 +113,7 @@ final class LoaderConfig {
                 }
             }
         } catch (IOException | RuntimeException e) {
-            System.out.println(
-                    "[loader] "
-                            + configFile
-                            + " unreadable, continuing with all mods enabled: "
-                            + e);
+            Log.info("loader", configFile + " unreadable, continuing with all mods enabled: " + e);
         }
     }
 
@@ -144,7 +140,7 @@ final class LoaderConfig {
                 new OutputStreamWriter(new FileOutputStream(configFile), StandardCharsets.UTF_8)) {
             w.write(new GsonBuilder().setPrettyPrinting().create().toJson(root));
         } catch (IOException e) {
-            System.out.println("[loader] could not save " + configFile + ": " + e);
+            Log.info("loader", "could not save " + configFile + ": " + e);
         }
     }
 }

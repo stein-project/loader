@@ -18,7 +18,10 @@ jobs:
       - uses: actions/checkout@v4
         with:
           path: loader
-      # The Loader builds on the Bridge and the SDK, next to this repository.
+      # The Loader builds on the Bridge and the SDK, next to this repository. While those repositories are private,
+      # the read-only deploy keys in BRIDGE_DEPLOY_KEY and SDK_DEPLOY_KEY open them; without the secret (public
+      # repositories, pull requests from forks, which get no secrets) ssh-key is empty and checkout falls back to
+      # the workflow token, which reads public repositories.
       - uses: actions/checkout@v4
         with:
           repository: Stein-Project/bridge
@@ -53,6 +56,7 @@ jobs:
         run: |
           mkdir dist
           cp loader/build/libs/{steinloader,stein-api,stein-api-sources}.jar dist/
+          cp loader/{LICENSE,LICENSE-API,NOTICE} dist/
           (cd dist && sha256sum * > SHA256SUMS)
       - uses: actions/upload-artifact@v4
         with:

@@ -21,8 +21,12 @@ package dev.xavier.stein.loader.api;
  */
 @Experimental(since = "0.1.18")
 public enum Typeface {
+    /** Titles (Cinzel). */
     TITLE,
+    /** Names, descriptions and running text (EB Garamond). */
     TEXT,
+    /** {@link #TEXT} in italics. */
     ITALIC,
+    /** Numbers, versions, ids and upper-case labels (JetBrains Mono). */
     MONO
 }

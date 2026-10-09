@@ -43,7 +43,11 @@ public interface SteinMod {
     /** After each mouse event handled by the game (InputEvent.MouseInputEvent). */
     default void onMouseInput() {}
 
-    /** After the HUD (RenderGameOverlayEvent.Post, type ALL). */
+    /**
+     * After the HUD (RenderGameOverlayEvent.Post, type ALL).
+     *
+     * @param partialTicks the frame's partial tick (0 to 1, between the last tick and the next)
+     */
     default void onOverlay(float partialTicks) {}
 
     /**
@@ -51,19 +55,36 @@ public interface SteinMod {
      * element (the Tab list). {@link #onOverlay} draws before the grid, so what it draws ends up
      * beneath the elements. Depth starts clean here: not even the grid items, drawn in front, end
      * up on top of what is drawn from here.
+     *
+     * @param partialTicks the frame's partial tick (0 to 1, between the last tick and the next)
      */
     default void onOverlayTop(float partialTicks) {}
 
-    /** Before the open screen draws itself (GuiScreenEvent.DrawScreenEvent.Pre). */
+    /**
+     * Before the open screen draws itself (GuiScreenEvent.DrawScreenEvent.Pre).
+     *
+     * @param screen the open screen (GuiScreen)
+     * @param mouseX the mouse x, in GUI coordinates
+     * @param mouseY the mouse y, in GUI coordinates
+     * @param partialTicks the frame's partial tick
+     */
     default void beforeDrawScreen(Object screen, int mouseX, int mouseY, float partialTicks) {}
 
-    /** After the open screen draws itself (GuiScreenEvent.DrawScreenEvent.Post). */
+    /**
+     * After the open screen draws itself (GuiScreenEvent.DrawScreenEvent.Post).
+     *
+     * @param screen the open screen (GuiScreen)
+     * @param mouseX the mouse x, in GUI coordinates
+     * @param mouseY the mouse y, in GUI coordinates
+     * @param partialTicks the frame's partial tick
+     */
     default void afterDrawScreen(Object screen, int mouseX, int mouseY, float partialTicks) {}
 
     /**
      * Mouse event on an open screen, before the screen gets it
      * (GuiScreenEvent.MouseInputEvent.Pre).
      *
+     * @param screen the open screen (GuiScreen)
      * @return true to keep the screen from receiving the event
      */
     default boolean onGuiMouseInput(Object screen) {
@@ -74,6 +95,7 @@ public interface SteinMod {
      * Chat message received from the server, before it goes to the chat (ClientChatReceivedEvent,
      * types 0 and 1).
      *
+     * @param message the message (IChatComponent), as the previous mod returned it
      * @return the message (the same one or another IChatComponent), or null to discard it
      */
     default Object onChat(Object message) {
@@ -98,6 +120,8 @@ public interface SteinMod {
      * What the mod offers the player during a match: its options and screens on the Panel page
      * (right Shift). Called every time the Panel opens — describe, do not store: the values are
      * read on the spot. If not overridden, the mod does not appear in the Panel list.
+     *
+     * @param page the mod's page, empty, to fill in
      */
     default void onPage(Page page) {}
 
@@ -115,6 +139,8 @@ public interface SteinMod {
      * Button clicked on a screen, before the screen's actionPerformed, like Forge's
      * ActionPerformedEvent.Pre.
      *
+     * @param screen the screen (GuiScreen)
+     * @param button the clicked button (GuiButton)
      * @return true to keep the click (the screen does not receive it)
      */
     default boolean onGuiAction(Object screen, Object button) {
@@ -127,6 +153,9 @@ public interface SteinMod {
      * useFovSetting, the world one (derived from the player's FOV option); without, the hand one
      * (70). Mods receive, in order, the value returned by the previous one.
      *
+     * @param fov the field of view so far, in degrees
+     * @param partialTicks the frame's partial tick
+     * @param useFovSetting true for the world's field of view, false for the hand's
      * @return the field of view to use, in degrees
      */
     default float onFov(float fov, float partialTicks, boolean useFovSetting) {
@@ -137,6 +166,7 @@ public interface SteinMod {
      * The player's FOV factor — speed, sprinting, drawn bow (AbstractClientPlayer.getFovModifier)
      * —, which the game smooths every tick; like Forge's FOVUpdateEvent.
      *
+     * @param modifier the factor so far (1 = unchanged)
      * @return the factor to use (1 = the option's field of view, unchanged)
      */
     default float onFovModifier(float modifier) {
@@ -149,6 +179,8 @@ public interface SteinMod {
      * with a path under mcpatcher/ or optifine/ comes from assets/&lt;domain&gt;/&lt;path&gt;.png
      * (without the leading textures/). May come before afterStartGame (the first load happens
      * inside startGame).
+     *
+     * @param textureMap the atlas being built (TextureMap)
      */
     default void onTextureStitch(Object textureMap) {}
 
@@ -160,6 +192,8 @@ public interface SteinMod {
      * many times per frame — answer quickly for an item that does not belong to the mod. Mods
      * receive, in order, the model returned by the previous one.
      *
+     * @param stack the item (ItemStack)
+     * @param model the model so far (IBakedModel)
      * @return the model (IBakedModel) to use
      */
     default Object onItemModel(Object stack, Object model) {
@@ -170,6 +204,10 @@ public interface SteinMod {
      * Texture of a worn armor piece (LayerArmorBase; Forge's ForgeHooksClient.getArmorTexture):
      * layer 1, or 2 on the leggings; overlay null, or the layer name ("overlay", dyed leather).
      *
+     * @param stack the armor piece (ItemStack)
+     * @param layer 1, or 2 for the leggings
+     * @param overlay null, or the layer name ("overlay")
+     * @param location the texture so far (ResourceLocation)
      * @return the ResourceLocation to use
      */
     default Object onArmorTexture(Object stack, int layer, String overlay, Object location) {
@@ -183,6 +221,10 @@ public interface SteinMod {
      * time: no shared mutable state without care, no OpenGL. world is the access to the blocks of
      * the build (IBlockAccess). Mods receive, in order, the model returned by the previous one.
      *
+     * @param world the blocks of the build (IBlockAccess)
+     * @param state the block (IBlockState)
+     * @param pos its position (BlockPos)
+     * @param model the model so far (IBakedModel)
      * @return the model (IBakedModel) to use
      */
     default Object onBlockModel(Object world, Object state, Object pos, Object model) {
@@ -242,6 +284,8 @@ public interface SteinMod {
      * picking up an item from the ground, of the server touching the inventory. Window -1 and slot
      * -1: the item on the cursor.
      *
+     * @param windowId the window (0 is the player's inventory; -1 with slot -1 is the cursor)
+     * @param slot the window slot
      * @param stack the item now in the slot (ItemStack), or null if it was emptied
      */
     @Experimental(since = "0.1.15")
@@ -250,6 +294,8 @@ public interface SteinMod {
     /**
      * The server sent all the items of a window at once (S30PacketWindowItems), already applied: on
      * opening a chest, on joining the world.
+     *
+     * @param windowId the window
      */
     @Experimental(since = "0.1.15")
     default void onWindowItems(int windowId) {}
@@ -285,6 +331,9 @@ public interface SteinMod {
      * just opened. {@code address} is the server ({@link Server#connectingAddress}), {@code reason}
      * the reason as the game shows it, without colors. Comes before the {@link #onGuiInit} of that
      * screen, once per disconnect.
+     *
+     * @param address the server address
+     * @param reason the reason, without colors
      */
     @Experimental(since = "0.1.16")
     default void onDisconnected(String address, String reason) {}
@@ -298,7 +347,11 @@ public interface SteinMod {
     @Experimental(since = "0.1.16")
     default void onRelationsChanged() {}
 
-    /** An entity died (status 3 of S19PacketEntityStatus), before the death animation. */
+    /**
+     * An entity died (status 3 of S19PacketEntityStatus), before the death animation.
+     *
+     * @param entity the entity (Entity)
+     */
     @Experimental(since = "0.1.15")
     default void onEntityDeath(Object entity) {}
 
@@ -313,6 +366,10 @@ public interface SteinMod {
      * absorption only arrives for players; for mobs it is not synchronized.
      *
      * @param entity the entity (EntityLivingBase)
+     * @param oldHealth the health before
+     * @param newHealth the health now
+     * @param oldAbsorption the absorption before
+     * @param newAbsorption the absorption now
      */
     @Experimental(since = "0.1.15")
     default void onHealthChanged(
@@ -365,7 +422,8 @@ public interface SteinMod {
      * @param overlay the game's GuiPlayerTabOverlay, for what only it knows (the formatted name,
      *     the ping bars)
      * @param width screen width, in GUI pixels
-     * @param scoreboard the Scoreboard; objective the list's ScoreObjective, or null
+     * @param scoreboard the Scoreboard
+     * @param objective the list's ScoreObjective, or null
      * @return true when the mod drew: the game does not draw its own
      */
     default boolean onPlayerList(Object overlay, int width, Object scoreboard, Object objective) {
@@ -378,6 +436,7 @@ public interface SteinMod {
      * order, the name returned by the previous one.
      *
      * @param playerInfo the player in the list (NetworkPlayerInfo)
+     * @param name the name so far
      * @return the name to show
      */
     default String onPlayerListName(Object playerInfo, String name) {
@@ -403,6 +462,8 @@ public interface SteinMod {
      * like Forge's RenderWorldLastEvent. The matrix is the camera's, with the origin at the
      * player's eye: add the camera entity's interpolated position to whatever you want to draw at a
      * world location. Once per frame. Leave the GL state as you found it.
+     *
+     * @param partialTicks the frame's partial tick
      */
     @Experimental(since = "0.1.14")
     default void onRenderWorld(float partialTicks) {}
@@ -412,6 +473,9 @@ public interface SteinMod {
      * ("MC|Brand", "BungeeCord", your plugin's) and a copy of the bytes, which the mod may keep.
      * The game handles the packet the same way afterwards (and ignores channels it does not know).
      * To send one to the server: {@link Net#sendPayload}.
+     *
+     * @param channel the plugin channel
+     * @param data a copy of the bytes
      */
     @Experimental(since = "0.1.14")
     default void onCustomPayload(String channel, byte[] data) {}
@@ -421,6 +485,7 @@ public interface SteinMod {
      * server: the place for a client-only command, like Forge's ClientChatEvent. Mods receive, in
      * order, the message returned by the previous one.
      *
+     * @param message the message or command, as the previous mod returned it
      * @return the message to send (the same or another), or null to send nothing
      */
     @Experimental(since = "0.1.14")
@@ -433,6 +498,7 @@ public interface SteinMod {
      * it. Called for every sound — answer quickly. Mods receive, in order, the sound returned by
      * the previous one.
      *
+     * @param sound the sound (ISound), as the previous mod returned it
      * @return the sound to play (ISound, the same or another), or null to not play
      */
     @Experimental(since = "0.1.14")

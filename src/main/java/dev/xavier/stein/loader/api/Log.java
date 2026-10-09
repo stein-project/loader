@@ -43,14 +43,30 @@ public final class Log {
         return new Log(modId);
     }
 
+    /**
+     * Writes {@code [id] message} to the game log.
+     *
+     * @param message the line
+     */
     public void info(String message) {
         Host.INSTANCE.log(id, INFO, message, null);
     }
 
+    /**
+     * Writes a warning ({@code [id] warning: message}) to the game log.
+     *
+     * @param message the line
+     */
     public void warn(String message) {
         Host.INSTANCE.log(id, WARN, message, null);
     }
 
+    /**
+     * Writes an error with its stack trace to the game log.
+     *
+     * @param message what failed
+     * @param error the cause, or null
+     */
     public void error(String message, Throwable error) {
         Host.INSTANCE.log(id, ERROR, message, error);
     }
@@ -62,6 +78,11 @@ public final class Log {
         }
     }
 
+    /**
+     * Whether {@link #debug} writes, that is, this mod is named in {@code -Dstein.debug}.
+     *
+     * @return true when the mod's debugging is on
+     */
     public boolean isDebug() {
         return debug;
     }

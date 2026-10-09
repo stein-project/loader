@@ -50,14 +50,29 @@ public final class ModContext {
         return new ModContext(id);
     }
 
+    /**
+     * The mod's id, from steinmod.json.
+     *
+     * @return the id
+     */
     public String id() {
         return id;
     }
 
+    /**
+     * The mod's version, from steinmod.json.
+     *
+     * @return the version
+     */
     public String version() {
         return Host.INSTANCE.modVersion(id);
     }
 
+    /**
+     * The mod's log ({@link Log#of} with its id).
+     *
+     * @return the log
+     */
     public Log log() {
         return log;
     }

@@ -33,6 +33,12 @@ public final class Secrets {
         this.id = id;
     }
 
+    /**
+     * The secrets of the mod with this id ({@code config/<id>.secrets}).
+     *
+     * @param modId the mod's id
+     * @return its secrets
+     */
     public static Secrets of(String modId) {
         return new Secrets(modId);
     }
@@ -66,6 +72,11 @@ public final class Secrets {
         write(all);
     }
 
+    /**
+     * Deletes the value under {@code key} (nothing happens when there is none).
+     *
+     * @param key the name of the value
+     */
     public void remove(String key) {
         put(key, null);
     }

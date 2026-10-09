@@ -84,8 +84,8 @@ final class StatusPart extends VanillaPart {
         int top = Integer.MAX_VALUE;
         int bottom = Integer.MIN_VALUE;
         if (health) {
-            // Rows of hearts (max health and absorption) and the armour on top, as the game
-            // stacks them.
+            // Rows of hearts (max health and absorption) and the armour on top, stacked as the
+            // game stacks them.
             int rows =
                     MathHelper.ceiling_float_int(
                             (p.getMaxHealth() + p.getAbsorptionAmount()) / 2.0F / 10.0F);

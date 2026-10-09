@@ -39,14 +39,30 @@ public final class Page {
      * risk deleting one by mistake.
      */
     public static final class Item {
+        /** The name, on the left of the row (never null). */
         public final String title;
+
+        /** The detail, on the right of the row (never null). */
         public final String detail;
+
+        /** Marked as the one in use now. */
         public final boolean current;
+
+        /** What to do when the row is clicked, or null. */
         public final Runnable use;
 
         /** What to do to remove it from the list, or null when it cannot be removed. */
         public final Runnable remove;
 
+        /**
+         * A row of {@link #rows}.
+         *
+         * @param title the name (null = empty)
+         * @param detail the detail on the right (null = empty)
+         * @param current true for the one in use now
+         * @param use what a click on the row does, or null
+         * @param remove what a click on the trash can does, or null when it cannot be removed
+         */
         public Item(String title, String detail, boolean current, Runnable use, Runnable remove) {
             this.title = title == null ? "" : title;
             this.detail = detail == null ? "" : detail;
@@ -116,6 +132,12 @@ public final class Page {
     private String icon = "";
     private final List<Entry> entries = new ArrayList<>();
 
+    /**
+     * An empty page. The Loader creates it with the mod's name and passes it to {@link
+     * SteinMod#onPage}.
+     *
+     * @param title the page name
+     */
     public Page(String title) {
         this.title = title;
     }
@@ -151,14 +173,29 @@ public final class Page {
         return this;
     }
 
+    /**
+     * The icon chosen with {@link #icon(String)}.
+     *
+     * @return the icon name, or empty for the name's initial
+     */
     public String icon() {
         return icon;
     }
 
+    /**
+     * The rows added so far, in order (read by the Panel).
+     *
+     * @return the page's rows
+     */
     public List<Entry> entries() {
         return entries;
     }
 
+    /**
+     * Whether nothing was added: an empty page does not appear in the Panel.
+     *
+     * @return true when the page has no rows
+     */
     public boolean isEmpty() {
         return entries.isEmpty();
     }

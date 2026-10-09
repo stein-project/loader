@@ -8,6 +8,8 @@
 
 package dev.xavier.stein.loader;
 
+import dev.xavier.stein.bridge.core.Log;
+
 import net.minecraft.client.Minecraft;
 
 import java.io.File;
@@ -68,8 +70,7 @@ final class ModCache {
         } catch (IOException | RuntimeException e) {
             // Another game open with the copy in use, or a folder without permission: the file
             // itself still loads.
-            System.out.println(
-                    "[loader] " + name + ": no .jar copy (" + e + "), loading the file itself");
+            Log.info("loader", name + ": no .jar copy (" + e + "), loading the file itself");
             return mod.toURI().toURL();
         }
     }
@@ -95,9 +96,9 @@ final class ModCache {
             rules.transformJar(mod.toPath(), tmp);
             Files.move(tmp, copy.toPath(), StandardCopyOption.REPLACE_EXISTING);
             Files.write(stamp, want.getBytes(StandardCharsets.UTF_8));
-            System.out.println(
-                    "[loader] "
-                            + mod.getName()
+            Log.info(
+                    "loader",
+                    mod.getName()
                             + " adapted to the Bridge in "
                             + (System.nanoTime() - t0) / 1_000_000
                             + " ms");

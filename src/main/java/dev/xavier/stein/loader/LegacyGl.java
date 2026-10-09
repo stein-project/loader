@@ -16,6 +16,7 @@ import org.objectweb.asm.Opcodes;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.Collections;
 import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -40,9 +41,13 @@ final class LegacyGl {
     private static final Pattern GL = Pattern.compile("org/lwjgl/opengl/GL[1-4][0-9]");
 
     /**
-     * The functions of each GLxxC (name + descriptor), read once; null when the class is missing.
+     * The functions of each GLxxC (name + descriptor), read once; {@link #MISSING} when the class
+     * does not exist, so that it is not looked up again on every call.
      */
     private static final Map<String, Set<String>> CORE = new HashMap<>();
+
+    /** Marks a GLxx without a GLxxC: compared by identity, never by content. */
+    private static final Set<String> MISSING = Collections.unmodifiableSet(new HashSet<>());
 
     private LegacyGl() {}
 
@@ -101,14 +106,14 @@ final class LegacyGl {
     /** Whether GLxx.member is missing from GLxxC. Without that class, nothing counts as old. */
     private static boolean isFixedFunction(String owner, String member) {
         Set<String> core = CORE.computeIfAbsent(owner, LegacyGl::coreFunctions);
-        return core != null && !core.contains(member);
+        return core != MISSING && !core.contains(member);
     }
 
     private static Set<String> coreFunctions(String owner) {
         try (InputStream in =
                 LegacyGl.class.getClassLoader().getResourceAsStream(owner + "C.class")) {
             if (in == null) {
-                return null;
+                return MISSING;
             }
             Set<String> out = new HashSet<>();
             new ClassReader(in.readAllBytes())
@@ -128,7 +133,7 @@ final class LegacyGl {
                             ClassReader.SKIP_CODE);
             return out;
         } catch (IOException e) {
-            return null;
+            return MISSING;
         }
     }
 }

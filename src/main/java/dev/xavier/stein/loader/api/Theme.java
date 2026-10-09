@@ -24,6 +24,7 @@ public final class Theme {
     /** Secondary and dimmed text. */
     public static final int MUTED = 0x8CE8E1F5;
 
+    /** Faint text: hints and placeholders. */
     public static final int FAINT = 0x59E8E1F5;
 
     /** Gold-violet: numbers, versions, marks. */
@@ -38,12 +39,16 @@ public final class Theme {
     /** The rules (one-pixel borders and dividers). */
     public static final int RULE = 0x1AE8E1F5;
 
+    /** The stronger rule: dividers that must stand out. */
     public static final int RULE_STRONG = 0x38E8E1F5;
 
-    /** Error, warning, and success. */
+    /** Error. */
     public static final int DANGER = 0xFFE0708A;
 
+    /** Warning. */
     public static final int WARN = 0xFFE0B870;
+
+    /** Success. */
     public static final int OK = 0xFF9BD4A8;
 
     private Theme() {}

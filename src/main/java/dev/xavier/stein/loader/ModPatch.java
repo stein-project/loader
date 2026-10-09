@@ -131,8 +131,19 @@ public final class ModPatch {
     /** Where the game (and JDK) classes come from, to know each member's access. */
     private final ClassLoader game;
 
+    /**
+     * Only the access invokedynamic, without rules or batch hooks: the build's last step on the
+     * Loader itself, after the Patcher (see {@link #main}).
+     */
+    private final boolean accessOnly;
+
     private ModPatch(List<byte[]> files, ClassLoader game) {
+        this(files, game, false);
+    }
+
+    private ModPatch(List<byte[]> files, ClassLoader game, boolean accessOnly) {
         this.game = game;
+        this.accessOnly = accessOnly;
         MessageDigest sha = digest();
         sha.update((byte) VERSION);
         for (byte[] f : files) {
@@ -258,8 +269,7 @@ public final class ModPatch {
 
     private byte[] transform(byte[] classBytes, Classes classes) {
         ClassReader cr = new ClassReader(classBytes);
-        // As in the Patcher: without recomputing frames or maxs — the hooks do not touch the
-        // stack,
+        // As in the Patcher, without recomputing frames or maxs: the hooks do not touch the stack,
         // and both the "static" redirect and the access invokedynamic consume and leave on the
         // stack the same as the original instruction.
         ClassWriter cw = new ClassWriter(0);
@@ -322,6 +332,12 @@ public final class ModPatch {
 
         @Override
         public void visitMethodInsn(int op, String owner, String mName, String mDesc, boolean itf) {
+            if (accessOnly) {
+                if (!bridge(op, owner, mName, mDesc)) {
+                    super.visitMethodInsn(op, owner, mName, mDesc, itf);
+                }
+                return;
+            }
             String key = owner + "." + mName + ":" + mDesc;
             hooks(before.get(key));
             if (GL.matcher(owner).matches() && !MATRIX.matcher(key).matches()) {
@@ -380,8 +396,8 @@ public final class ModPatch {
                     super.visitMethodInsn(op, owner, mName, mDesc, itf);
                 }
             } else if (t.toStatic) {
-                // The receiver and references become Object, and the return
-                // goes back to the type with a cast.
+                // The receiver and references become Object, and the return value goes back to
+                // its type with a cast.
                 Type ret = Type.getReturnType(mDesc);
                 StringBuilder sd =
                         new StringBuilder(op == Opcodes.INVOKESTATIC ? "(" : "(Ljava/lang/Object;");
@@ -624,9 +640,20 @@ public final class ModPatch {
      * Outside the game, for the build: applies the rules of a folder to a jar. The game classes
      * come from this run's classpath (the game jar must be on it).
      *
-     * <p>Usage: ModPatch &lt;rules folder&gt; &lt;input.jar&gt; &lt;output.jar&gt;
+     * <p>With {@code --access} in place of the rules folder it applies only the access to
+     * non-public game members. That is for the Loader itself: the build compiles it against the
+     * opened game jar like a mod, passes it through the Patcher and then through this, so the
+     * Loader that ships is exactly what ModPatch makes of it (modPatchCheck compares the two).
+     *
+     * <p>Usage: ModPatch &lt;rules folder&gt; &lt;input.jar&gt; &lt;output.jar&gt;, or ModPatch
+     * --access &lt;input.jar&gt; &lt;output.jar&gt;
      */
     public static void main(String[] args) throws IOException {
+        if (args[0].equals("--access")) {
+            new ModPatch(List.of(), ModPatch.class.getClassLoader(), true)
+                    .transformJar(Paths.get(args[1]), Paths.get(args[2]));
+            return;
+        }
         List<byte[]> files = new ArrayList<>();
         for (String r : RULES) {
             files.add(Files.readAllBytes(Paths.get(args[0], r)));

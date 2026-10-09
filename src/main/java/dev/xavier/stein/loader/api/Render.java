@@ -32,6 +32,15 @@ public final class Render {
 
     // --- shapes ---
 
+    /**
+     * Filled rectangle.
+     *
+     * @param x left edge
+     * @param y top edge
+     * @param w width
+     * @param h height
+     * @param argb color, {@code 0xAARRGGBB}
+     */
     public static void rect(float x, float y, float w, float h, int argb) {
         Host.INSTANCE.drawRect(x, y, w, h, argb);
     }
@@ -59,6 +68,14 @@ public final class Render {
         Host.INSTANCE.withGameFont(draw);
     }
 
+    /**
+     * Filled circle.
+     *
+     * @param cx center x
+     * @param cy center y
+     * @param r radius
+     * @param argb color, {@code 0xAARRGGBB}
+     */
     public static void circle(float cx, float cy, float r, int argb) {
         roundRect(cx - r, cy - r, r * 2, r * 2, r, argb);
     }
@@ -90,6 +107,12 @@ public final class Render {
         return Host.INSTANCE.drawText(s, x, y, argb, shadow);
     }
 
+    /**
+     * The width of {@code s} as {@link #text} draws it (color codes do not count).
+     *
+     * @param s the text; null is 0 wide
+     * @return the width in GUI units
+     */
     public static int textWidth(String s) {
         return Host.INSTANCE.textWidth(s);
     }
@@ -248,10 +271,10 @@ public final class Render {
         return Host.INSTANCE.playerSkin(nick);
     }
 
-    // --- lines, outlines, gradients, arcs and meshes (0.1.23) ---
+    // --- lines, outlines, gradients, arcs and meshes (0.1.24) ---
 
     /** A line from (x1, y1) to (x2, y2), {@code width} pixels wide (GUI pixels). */
-    @Experimental(since = "0.1.23")
+    @Experimental(since = "0.1.24")
     public static void line(float x1, float y1, float x2, float y2, float width, int argb) {
         begin2d();
         segment(x1, y1, x2, y2, width, argb);
@@ -262,7 +285,7 @@ public final class Render {
      * Lines through the {@code count} points (xs, ys), {@code width} pixels wide; with {@code
      * closed}, the last point joins the first. A chart, a path on a map.
      */
-    @Experimental(since = "0.1.23")
+    @Experimental(since = "0.1.24")
     public static void polyline(
             float[] xs, float[] ys, int count, float width, int argb, boolean closed) {
         if (count < 2) {
@@ -279,7 +302,7 @@ public final class Render {
     }
 
     /** The edge of a rectangle, {@code width} pixels wide, inside (x, y, w, h). */
-    @Experimental(since = "0.1.23")
+    @Experimental(since = "0.1.24")
     public static void rectOutline(float x, float y, float w, float h, float width, int argb) {
         begin2d();
         float t = Math.min(width, Math.min(w, h) / 2);
@@ -296,7 +319,7 @@ public final class Render {
      * A rectangle that fades from {@code from} to {@code to}: top to bottom, or left to right with
      * {@code horizontal}.
      */
-    @Experimental(since = "0.1.23")
+    @Experimental(since = "0.1.24")
     public static void gradient(
             float x, float y, float w, float h, int from, int to, boolean horizontal) {
         begin2d();
@@ -316,7 +339,7 @@ public final class Render {
      * from {@code startDegrees} (0 = right, growing clockwise on the screen) over {@code
      * sweepDegrees}. A cooldown or progress indicator.
      */
-    @Experimental(since = "0.1.23")
+    @Experimental(since = "0.1.24")
     public static void arc(
             float cx,
             float cy,
@@ -342,25 +365,25 @@ public final class Render {
     }
 
     /** A mesh, with x and y in GUI coordinates (z is ignored), at the current transform. */
-    @Experimental(since = "0.1.23")
+    @Experimental(since = "0.1.24")
     public static void mesh(Mesh mesh) {
         drawMesh(mesh, 0, null);
     }
 
     /** A textured mesh, with a mod texture. */
-    @Experimental(since = "0.1.23")
+    @Experimental(since = "0.1.24")
     public static void mesh(Mesh mesh, Texture texture) {
         drawMesh(mesh, texture.handle, null);
     }
 
     /** A textured mesh, with a resource texture ("domain:path"). */
-    @Experimental(since = "0.1.23")
+    @Experimental(since = "0.1.24")
     public static void mesh(Mesh mesh, String texture) {
         drawMesh(mesh, 0, texture);
     }
 
     /** Runs {@code draw} with another {@link Blend} for the shapes, lines and meshes. */
-    @Experimental(since = "0.1.23")
+    @Experimental(since = "0.1.24")
     public static void blend(Blend mode, Runnable draw) {
         session();
         Blend before = blend;
@@ -425,18 +448,34 @@ public final class Render {
 
     // --- transform and clip ---
 
+    /**
+     * Saves the current transform ({@link #translate}, {@link #scale}, {@link #rotate}); {@link
+     * #pop} brings it back. Every push needs its pop in the same drawing event.
+     */
     public static void push() {
         Host.INSTANCE.drawPush();
     }
 
+    /** Restores the transform saved by the last {@link #push}. */
     public static void pop() {
         Host.INSTANCE.drawPop();
     }
 
+    /**
+     * Moves the origin of what is drawn next.
+     *
+     * @param x offset in GUI units
+     * @param y offset in GUI units
+     */
     public static void translate(float x, float y) {
         Host.INSTANCE.drawTranslate(x, y);
     }
 
+    /**
+     * Scales what is drawn next, around the current origin.
+     *
+     * @param s factor (1 = unchanged)
+     */
     public static void scale(float s) {
         Host.INSTANCE.drawScale(s);
     }
@@ -451,6 +490,7 @@ public final class Render {
         Host.INSTANCE.drawClip(x, y, w, h);
     }
 
+    /** Ends the clip started by {@link #clip}. */
     public static void unclip() {
         Host.INSTANCE.drawUnclip();
     }
@@ -502,8 +542,12 @@ public final class Render {
      * memory.
      */
     public static final class Texture {
+        /** Width in pixels. */
         public final int width;
+
+        /** Height in pixels. */
         public final int height;
+
         private int handle;
 
         Texture(int handle, int width, int height) {
@@ -558,13 +602,14 @@ public final class Render {
          * Smooth (linear) or pixelated (nearest, the default) when the texture is drawn bigger or
          * smaller than its pixels.
          */
-        @Experimental(since = "0.1.23")
+        @Experimental(since = "0.1.24")
         public void smooth(boolean smooth) {
             if (handle != 0) {
                 Geometry.R.textureSmooth(handle, smooth);
             }
         }
 
+        /** Frees the texture's video memory; drawing it afterwards draws nothing. */
         public void release() {
             if (handle != 0) {
                 Host.INSTANCE.textureRelease(handle);

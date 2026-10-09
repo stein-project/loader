@@ -11,7 +11,7 @@ package dev.xavier.stein.loader.api;
  * How a drawing mixes with what is already on the screen ({@link Render#blend}, {@link
  * WorldRender#blend}).
  */
-@Experimental(since = "0.1.23")
+@Experimental(since = "0.1.24")
 public enum Blend {
 
     /** The usual: the color's alpha decides how much of it covers what is behind. */

@@ -14,6 +14,8 @@ import com.google.gson.JsonParser;
 import com.mojang.authlib.GameProfile;
 import com.mojang.authlib.minecraft.MinecraftProfileTexture;
 
+import dev.xavier.stein.bridge.core.Log;
+
 import net.minecraft.client.Minecraft;
 import net.minecraft.util.ResourceLocation;
 
@@ -128,8 +130,7 @@ final class SkinLookup {
             HttpResponse<String> response =
                     http.send(request, HttpResponse.BodyHandlers.ofString());
             if (response.statusCode() != 200) {
-                System.out.println(
-                        "[loader] skins by nick: Mojang answered " + response.statusCode());
+                Log.info("loader", "skins by nick: Mojang answered " + response.statusCode());
                 free(batch, true);
                 return;
             }
@@ -152,7 +153,7 @@ final class SkinLookup {
                 }
             }
         } catch (Exception e) {
-            System.out.println("[loader] skins by nick: " + e);
+            Log.info("loader", "skins by nick: " + e);
             free(batch, false);
         } finally {
             running = false;

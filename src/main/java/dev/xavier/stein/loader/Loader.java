@@ -9,6 +9,7 @@
 package dev.xavier.stein.loader;
 
 import dev.xavier.stein.bridge.SteinBridge;
+import dev.xavier.stein.bridge.core.Log;
 import dev.xavier.stein.bridge.core.SteinLog;
 import dev.xavier.stein.bridge.hooks.HookSink;
 import dev.xavier.stein.gfx.SteinEntityDeferred;
@@ -17,7 +18,6 @@ import dev.xavier.stein.loader.api.SteinMod;
 import dev.xavier.stein.loader.font.GameText;
 import dev.xavier.stein.loader.gui.Discord;
 import dev.xavier.stein.loader.gui.News;
-import dev.xavier.stein.loader.gui.Recommended;
 import dev.xavier.stein.loader.gui.Tab;
 import dev.xavier.stein.loader.hud.HudGrid;
 import dev.xavier.stein.loader.render.LoaderRender;
@@ -50,7 +50,7 @@ import java.util.List;
  */
 public final class Loader implements HookSink {
 
-    public static final String VERSION = "0.1.23";
+    public static final String VERSION = "0.1.24";
 
     /**
      * Minimum bridge version. The Loader uses what the bridge provides (the events, the Graphics,
@@ -58,11 +58,11 @@ public final class Loader implements HookSink {
      * in the middle of a session, it loads no mod at all and writes the reason in the list.
      *
      * <p>It is the same agreement the mods have with it: each one asks for the minimum version of
-     * what is below it. There is no longer an "API level" separate from the version — it was one
+     * what is below it. There is no longer an "API level" separate from the version: it was one
      * more number to remember to bump, and when it was not bumped the new mod got into the old
      * Loader and only broke later, while running.
      */
-    public static final String MIN_BRIDGE = "0.1.12";
+    public static final String MIN_BRIDGE = "0.1.20";
 
     private static Loader instance;
 
@@ -82,10 +82,164 @@ public final class Loader implements HookSink {
         return instance;
     }
 
+    // ---- dispatch ----
+
+    // The shapes of the per-mod events. The hot ones (every frame, every entity) are called with
+    // method references that capture nothing (SteinMod::onOverlay), so a dispatch allocates
+    // nothing.
+
+    /** An event with nothing but the mod. */
+    @FunctionalInterface
+    private interface Call {
+        void on(SteinMod m);
+    }
+
+    /** A frame event with the partial ticks. */
+    @FunctionalInterface
+    private interface FrameCall {
+        void on(SteinMod m, float partialTicks);
+    }
+
+    /** A screen drawing event. */
+    @FunctionalInterface
+    private interface ScreenCall {
+        void on(SteinMod m, Object screen, int mouseX, int mouseY, float partialTicks);
+    }
+
+    /** An event a mod can claim: the first one that answers true stops it. */
+    @FunctionalInterface
+    private interface Claim {
+        boolean on(SteinMod m, Object arg);
+    }
+
+    /** An event that passes a value through every mod; a null answer keeps the current value. */
+    @FunctionalInterface
+    private interface Swap {
+        Object on(SteinMod m, Object key, Object value);
+    }
+
+    /** Every mod, in order; an error is logged and the next mod still gets the event. */
+    private void each(String event, Call c) {
+        for (SteinMod m : mods) {
+            try {
+                c.on(m);
+            } catch (Throwable e) {
+                fail(m, event, e);
+            }
+        }
+    }
+
+    /**
+     * Like {@link #each}, while each mod's registrations (a HUD element) are attributed to it, for
+     * the per-mod times.
+     */
+    private void registering(String event, Call c) {
+        for (int i = 0; i < mods.length; i++) {
+            ModTimes.current = i;
+            try {
+                c.on(mods[i]);
+            } catch (Throwable e) {
+                fail(mods[i], event, e);
+            }
+        }
+        ModTimes.current = -1;
+    }
+
+    /** Like {@link #each}, adding each mod's time to its own count (ModTimes). */
+    private void timed(String event, Call c) {
+        for (int i = 0; i < mods.length; i++) {
+            long t = System.nanoTime();
+            try {
+                c.on(mods[i]);
+            } catch (Throwable e) {
+                fail(mods[i], event, e);
+            }
+            ModTimes.add(i, System.nanoTime() - t);
+        }
+    }
+
+    /**
+     * A timed drawing event: each mod draws in a render session of its own (LoaderRender), and the
+     * last one is closed after the loop.
+     */
+    private void frame(String event, FrameCall c, float partialTicks) {
+        LoaderRender r = LoaderRender.INSTANCE;
+        for (int i = 0; i < mods.length; i++) {
+            long t = System.nanoTime();
+            r.nextSession();
+            try {
+                c.on(mods[i], partialTicks);
+            } catch (Throwable e) {
+                fail(mods[i], event, e);
+            }
+            ModTimes.add(i, System.nanoTime() - t);
+        }
+        r.nextSession();
+    }
+
+    /** A timed screen event. */
+    private void screen(
+            String event, ScreenCall c, Object screen, int mouseX, int mouseY, float partialTicks) {
+        for (int i = 0; i < mods.length; i++) {
+            long t = System.nanoTime();
+            try {
+                c.on(mods[i], screen, mouseX, mouseY, partialTicks);
+            } catch (Throwable e) {
+                fail(mods[i], event, e);
+            }
+            ModTimes.add(i, System.nanoTime() - t);
+        }
+    }
+
+    /** True as soon as one mod claims the event; the mods after it do not see it. */
+    private boolean claim(String event, Claim c, Object arg) {
+        for (SteinMod m : mods) {
+            try {
+                if (c.on(m, arg)) {
+                    return true;
+                }
+            } catch (Throwable e) {
+                fail(m, event, e);
+            }
+        }
+        return false;
+    }
+
+    /** The value after every mod had its say; a mod that answers null leaves it as it was. */
+    private Object swap(String event, Swap c, Object key, Object value) {
+        Object r = value;
+        for (SteinMod m : mods) {
+            try {
+                Object x = c.on(m, key, r);
+                if (x != null) {
+                    r = x;
+                }
+            } catch (Throwable e) {
+                fail(m, event, e);
+            }
+        }
+        return r;
+    }
+
     // ---- startup ----
 
     @Override
     public void beforeStartGame() {
+        // Before anything else: the Loader itself logs and reads its options through the Bridge's
+        // core.Log and core.Opt, which an older Bridge does not have. Without this the game would
+        // die later on a NoClassDefFoundError that says nothing about versions.
+        if (!Versions.atLeast(SteinBridge.VERSION, MIN_BRIDGE)) {
+            throw new IllegalStateException(
+                    "Stein Loader "
+                            + VERSION
+                            + " needs "
+                            + SteinBridge.NAME
+                            + " "
+                            + MIN_BRIDGE
+                            + " or newer (found "
+                            + SteinBridge.VERSION
+                            + "): reinstall Stein Loader");
+        }
         File gameDir = Minecraft.getMinecraft().mcDataDir;
         config = new LoaderConfig(new File(gameDir, "config/steinloader.json"));
         config.read();
@@ -115,8 +269,9 @@ public final class Loader implements HookSink {
         mods = loaded.instances().toArray(new SteinMod[0]);
         ModTimes.init(loaded.owners().toArray(new ModInfo[0]));
         ModLoading.addResourcePacks(loaded.packs());
-        System.out.println(
-                "[loader] Stein Loader "
+        Log.info(
+                "loader",
+                "Stein Loader "
                         + VERSION
                         + ": "
                         + activeCount()
@@ -126,15 +281,7 @@ public final class Loader implements HookSink {
                         + dir
                         + ")");
 
-        for (int i = 0; i < mods.length; i++) {
-            ModTimes.current = i; // whatever it registers here (HUD element) is its own
-            try {
-                mods[i].beforeStartGame();
-            } catch (Throwable e) {
-                fail(mods[i], "beforeStartGame", e);
-            }
-        }
-        ModTimes.current = -1;
+        registering("beforeStartGame", SteinMod::beforeStartGame);
     }
 
     // ---- for the menu ----
@@ -157,8 +304,7 @@ public final class Loader implements HookSink {
     public void setEnabled(ModInfo m, boolean on) {
         if (!m.builtIn() && (on ? config.disabled.remove(m.id) : config.disabled.add(m.id))) {
             config.save();
-            System.out.println(
-                    "[loader] " + m.id + (on ? " enabled" : " disabled") + " from the next start");
+            Log.info("loader", m.id + (on ? " enabled" : " disabled") + " from the next start");
         }
     }
 
@@ -251,10 +397,10 @@ public final class Loader implements HookSink {
 
     /**
      * The Panel's pages: one per mod that filled in its own. What belongs to the screen does not go
-     * in — enabling, moving and configuring an element is done by looking at the screen, in the
+     * in: enabling, moving and configuring an element is done by looking at the screen, in the
      * editor (right Shift), and not in a list of names.
      *
-     * <p>Built on every opening — the mod describes on the spot, so the values are fresh.
+     * <p>Built on every opening: the mod describes on the spot, so the values are fresh.
      */
     public List<Page> pages() {
         List<Page> out = new ArrayList<>();
@@ -293,28 +439,24 @@ public final class Loader implements HookSink {
 
     void failLoader(String where, Throwable e) {
         if (failures++ < 20) {
-            System.out.println("[loader] error in " + where + ": " + e);
-            e.printStackTrace(System.out);
+            Log.error("loader", "error in " + where, e);
         }
     }
 
     @Override
     public void afterStartGame() {
-        // The network thread group is born on the first connection, without a lock (LazyLoadBase):
-        // the server list sends the
-        // ping of all of them at the same time, and all but the first got the group still empty
-        // ("Can't connect to
-        // server" the first time the list opens). Created here, on the game thread, it already
-        // exists. It used to live in Connect:
-        // with it disabled, the defect came back.
+        // The network thread group is created on the first connection, without a lock
+        // (LazyLoadBase). The server list pings every server at the same time, and all but the
+        // first found the group still empty ("Can't connect to server" the first time the list
+        // opened). Created here, on the game thread, it already exists. This used to live in the
+        // Connect mod, and with that mod disabled the defect came back.
         try {
             NetworkManager.CLIENT_NIO_EVENTLOOP.getValue();
         } catch (Throwable e) {
             failLoader("network", e);
         }
         Accounts.start();
-        // onShutdown: a single hook, for all the mods (each one used to open its own). On a
-        // shutdown thread.
+        // onShutdown: a single shutdown hook (thread) for all the mods; each used to add its own.
         Runtime.getRuntime()
                 .addShutdownHook(
                         new Thread(
@@ -323,11 +465,9 @@ public final class Loader implements HookSink {
                                         try {
                                             m.onShutdown();
                                         } catch (Throwable e) {
-                                            System.out.println(
-                                                    "[loader] "
-                                                            + m.getClass().getName()
-                                                            + ".onShutdown: "
-                                                            + e);
+                                            Log.info(
+                                                    "loader",
+                                                    m.getClass().getName() + ".onShutdown: " + e);
                                         }
                                     }
                                 },
@@ -344,15 +484,7 @@ public final class Loader implements HookSink {
         } catch (Throwable e) {
             failLoader("HUD grid", e);
         }
-        for (int i = 0; i < mods.length; i++) {
-            ModTimes.current = i;
-            try {
-                mods[i].afterStartGame();
-            } catch (Throwable e) {
-                fail(mods[i], "afterStartGame", e);
-            }
-        }
-        ModTimes.current = -1;
+        registering("afterStartGame", SteinMod::afterStartGame);
         // A mod that fell halfway may have left a key created without registration: the Controls
         // screen would break.
         try {
@@ -377,25 +509,12 @@ public final class Loader implements HookSink {
 
     @Override
     public void tickEnd() {
-        for (int i = 0; i < mods.length; i++) {
-            long t = System.nanoTime();
-            try {
-                mods[i].onTickEnd();
-            } catch (Throwable e) {
-                fail(mods[i], "onTickEnd", e);
-            }
-            ModTimes.add(i, System.nanoTime() - t);
-        }
+        timed("onTickEnd", SteinMod::onTickEnd);
         GameTasks.run(this, mods);
         try {
             HudGrid.tick();
         } catch (Throwable e) {
             failLoader("HUD grid", e);
-        }
-        try {
-            Remote.tick();
-        } catch (Throwable e) {
-            failLoader("Stein Labs data", e);
         }
         try {
             Latency.tick();
@@ -407,24 +526,12 @@ public final class Loader implements HookSink {
 
     @Override
     public void keyInput() {
-        for (SteinMod m : mods) {
-            try {
-                m.onKeyInput();
-            } catch (Throwable e) {
-                fail(m, "onKeyInput", e);
-            }
-        }
+        each("onKeyInput", SteinMod::onKeyInput);
     }
 
     @Override
     public void mouseInput() {
-        for (SteinMod m : mods) {
-            try {
-                m.onMouseInput();
-            } catch (Throwable e) {
-                fail(m, "onMouseInput", e);
-            }
-        }
+        each("onMouseInput", SteinMod::onMouseInput);
     }
 
     /** Does any mod draw in onOverlayTop? (Seen once per mod list: with none, nothing to clear.) */
@@ -452,77 +559,38 @@ public final class Loader implements HookSink {
     @Override
     public void overlay(float partialTicks) {
         ModTimes.frame();
-        for (int i = 0; i < mods.length; i++) {
-            long t = System.nanoTime();
-            LoaderRender.INSTANCE.nextSession();
-            try {
-                mods[i].onOverlay(partialTicks);
-            } catch (Throwable e) {
-                fail(mods[i], "onOverlay", e);
-            }
-            ModTimes.add(i, System.nanoTime() - t);
-        }
-        LoaderRender.INSTANCE.nextSession();
+        frame("onOverlay", SteinMod::onOverlay, partialTicks);
         // The HUD grid: the mods' elements and the game's HUD parts that the Loader takes over.
         HudGrid.render(partialTicks);
-        // And, last, what goes over even the grid's elements (the Tab list). Truly on top: the
-        // grid's
-        // items
-        // (hotbar, armor, inventory) are drawn in front, with depth, and whatever came after
-        // lost the depth test right where they are — the icons showed up sharp
-        // over the Tab. The
-        // depth restarts here, as the game does before drawing a screen.
+        // And, last, what goes over even the grid's elements (the Tab list), truly on top. The
+        // grid's items (hotbar, armor, inventory) are drawn with depth, and whatever came after
+        // them failed the depth test right where they are: the icons showed through the Tab list.
+        // The depth is cleared here, as the game does before drawing a screen.
         if (hasOverlayTop()) {
             GlStateManager.clear(GL11.GL_DEPTH_BUFFER_BIT);
         }
-        for (int i = 0; i < mods.length; i++) {
-            long t = System.nanoTime();
-            LoaderRender.INSTANCE.nextSession();
-            try {
-                mods[i].onOverlayTop(partialTicks);
-            } catch (Throwable e) {
-                fail(mods[i], "onOverlayTop", e);
-            }
-            ModTimes.add(i, System.nanoTime() - t);
-        }
-        LoaderRender.INSTANCE.nextSession();
+        frame("onOverlayTop", SteinMod::onOverlayTop, partialTicks);
     }
 
     @Override
     public void beforeDrawScreen(Object screen, int mouseX, int mouseY, float partialTicks) {
-        try {
-            Recommended.beforeDrawScreen(screen);
-        } catch (Throwable e) {
-            failLoader("server list slack", e);
-        }
-        for (int i = 0; i < mods.length; i++) {
-            long t = System.nanoTime();
-            try {
-                mods[i].beforeDrawScreen(screen, mouseX, mouseY, partialTicks);
-            } catch (Throwable e) {
-                fail(mods[i], "beforeDrawScreen", e);
-            }
-            ModTimes.add(i, System.nanoTime() - t);
-        }
+        screen(
+                "beforeDrawScreen",
+                SteinMod::beforeDrawScreen,
+                screen,
+                mouseX,
+                mouseY,
+                partialTicks);
     }
 
     @Override
     public void afterDrawScreen(Object screen, int mouseX, int mouseY, float partialTicks) {
-        for (int i = 0; i < mods.length; i++) {
-            long t = System.nanoTime();
-            try {
-                mods[i].afterDrawScreen(screen, mouseX, mouseY, partialTicks);
-            } catch (Throwable e) {
-                fail(mods[i], "afterDrawScreen", e);
-            }
-            ModTimes.add(i, System.nanoTime() - t);
-        }
+        screen("afterDrawScreen", SteinMod::afterDrawScreen, screen, mouseX, mouseY, partialTicks);
         // The tab, the invite and the mark over everything.
         try {
             Tab.afterDrawScreen(this, screen, mouseX, mouseY);
             Discord.afterDrawScreen(screen, mouseX, mouseY);
             News.afterDrawScreen(screen, mouseX, mouseY);
-            Recommended.afterDrawScreen(screen);
         } catch (Throwable e) {
             failLoader("menu tab", e);
         }
@@ -539,16 +607,7 @@ public final class Loader implements HookSink {
         } catch (Throwable e) {
             failLoader("menu tab", e);
         }
-        for (SteinMod m : mods) {
-            try {
-                if (m.onGuiMouseInput(screen)) {
-                    return true;
-                }
-            } catch (Throwable e) {
-                fail(m, "onGuiMouseInput", e);
-            }
-        }
-        return false;
+        return claim("onGuiMouseInput", SteinMod::onGuiMouseInput, screen);
     }
 
     @Override
@@ -580,36 +639,18 @@ public final class Loader implements HookSink {
         } catch (Throwable e) {
             failLoader("server notice", e);
         }
-        for (SteinMod m : mods) {
-            try {
-                m.onJoinGame();
-            } catch (Throwable e) {
-                fail(m, "onJoinGame", e);
-            }
-        }
+        each("onJoinGame", SteinMod::onJoinGame);
     }
 
     @Override
     public void guiInit(Object screen, List<Object> buttons) {
         GameOps.guiInit(this, screen);
-        for (SteinMod m : mods) {
-            try {
-                m.onGuiInit(screen, buttons);
-            } catch (Throwable e) {
-                fail(m, "onGuiInit", e);
-            }
-        }
+        each("onGuiInit", m -> m.onGuiInit(screen, buttons));
     }
 
     /** The disconnect screen opened (GameOps.guiInit, before its onGuiInit). */
     void disconnected(String address, String reason) {
-        for (SteinMod m : mods) {
-            try {
-                m.onDisconnected(address, reason);
-            } catch (Throwable e) {
-                fail(m, "onDisconnected", e);
-            }
-        }
+        each("onDisconnected", m -> m.onDisconnected(address, reason));
     }
 
     @Override
@@ -654,41 +695,18 @@ public final class Loader implements HookSink {
 
     @Override
     public void textureStitch(Object textureMap) {
-        for (SteinMod m : mods) {
-            try {
-                m.onTextureStitch(textureMap);
-            } catch (Throwable e) {
-                fail(m, "onTextureStitch", e);
-            }
-        }
+        each("onTextureStitch", m -> m.onTextureStitch(textureMap));
     }
 
     @Override
     public void modelsReloaded() {
         TerrainOps.reset(); // the block colors come from the new textures
-        for (SteinMod m : mods) {
-            try {
-                m.onModelsReloaded();
-            } catch (Throwable e) {
-                fail(m, "onModelsReloaded", e);
-            }
-        }
+        each("onModelsReloaded", SteinMod::onModelsReloaded);
     }
 
     @Override
     public Object itemModel(Object stack, Object model) {
-        Object r = model;
-        for (SteinMod m : mods) {
-            try {
-                Object x = m.onItemModel(stack, r);
-                if (x != null) {
-                    r = x;
-                }
-            } catch (Throwable e) {
-                fail(m, "onItemModel", e);
-            }
-        }
-        return r;
+        return swap("onItemModel", SteinMod::onItemModel, stack, model);
     }
 
     /** On the chunk build threads, only for marked blocks (Game.watchBlockModel). */
@@ -726,30 +744,12 @@ public final class Loader implements HookSink {
 
     @Override
     public boolean attackEntity(Object target) {
-        for (SteinMod m : mods) {
-            try {
-                if (m.onAttackEntity(target)) {
-                    return true;
-                }
-            } catch (Throwable e) {
-                fail(m, "onAttackEntity", e);
-            }
-        }
-        return false;
+        return claim("onAttackEntity", SteinMod::onAttackEntity, target);
     }
 
     @Override
     public boolean interactEntity(Object target) {
-        for (SteinMod m : mods) {
-            try {
-                if (m.onInteractEntity(target)) {
-                    return true;
-                }
-            } catch (Throwable e) {
-                fail(m, "onInteractEntity", e);
-            }
-        }
-        return false;
+        return claim("onInteractEntity", SteinMod::onInteractEntity, target);
     }
 
     @Override
@@ -768,24 +768,12 @@ public final class Loader implements HookSink {
 
     @Override
     public void slotChanged(int windowId, int slot, Object stack) {
-        for (SteinMod m : mods) {
-            try {
-                m.onSlotChanged(windowId, slot, stack);
-            } catch (Throwable e) {
-                fail(m, "onSlotChanged", e);
-            }
-        }
+        each("onSlotChanged", m -> m.onSlotChanged(windowId, slot, stack));
     }
 
     @Override
     public void windowItems(int windowId) {
-        for (SteinMod m : mods) {
-            try {
-                m.onWindowItems(windowId);
-            } catch (Throwable e) {
-                fail(m, "onWindowItems", e);
-            }
-        }
+        each("onWindowItems", m -> m.onWindowItems(windowId));
     }
 
     @Override
@@ -805,13 +793,7 @@ public final class Loader implements HookSink {
 
     @Override
     public void entityDeath(Object entity) {
-        for (SteinMod m : mods) {
-            try {
-                m.onEntityDeath(entity);
-            } catch (Throwable e) {
-                fail(m, "onEntityDeath", e);
-            }
-        }
+        each("onEntityDeath", m -> m.onEntityDeath(entity));
     }
 
     @Override
@@ -821,41 +803,19 @@ public final class Loader implements HookSink {
             float newHealth,
             float oldAbsorption,
             float newAbsorption) {
-        for (SteinMod m : mods) {
-            try {
-                m.onHealthChanged(entity, oldHealth, newHealth, oldAbsorption, newAbsorption);
-            } catch (Throwable e) {
-                fail(m, "onHealthChanged", e);
-            }
-        }
+        each(
+                "onHealthChanged",
+                m -> m.onHealthChanged(entity, oldHealth, newHealth, oldAbsorption, newAbsorption));
     }
 
     @Override
     public boolean hideEntity(Object entity) {
-        for (SteinMod m : mods) {
-            try {
-                if (m.onHideEntity(entity)) {
-                    return true;
-                }
-            } catch (Throwable e) {
-                fail(m, "onHideEntity", e);
-            }
-        }
-        return false;
+        return claim("onHideEntity", SteinMod::onHideEntity, entity);
     }
 
     @Override
     public boolean ghostEntity(Object entity) {
-        for (SteinMod m : mods) {
-            try {
-                if (m.onGhostEntity(entity)) {
-                    return true;
-                }
-            } catch (Throwable e) {
-                fail(m, "onGhostEntity", e);
-            }
-        }
-        return false;
+        return claim("onGhostEntity", SteinMod::onGhostEntity, entity);
     }
 
     @Override
@@ -874,34 +834,17 @@ public final class Loader implements HookSink {
 
     @Override
     public String playerListName(Object playerInfo, String name) {
-        String r = name;
-        for (SteinMod m : mods) {
-            try {
-                String x = m.onPlayerListName(playerInfo, r);
-                if (x != null) {
-                    r = x;
-                }
-            } catch (Throwable e) {
-                fail(m, "onPlayerListName", e);
-            }
-        }
-        return r;
+        return (String)
+                swap(
+                        "onPlayerListName",
+                        (m, info, value) -> m.onPlayerListName(info, (String) value),
+                        playerInfo,
+                        name);
     }
 
     @Override
     public Object nametag(Object entity, Object name) {
-        Object r = name;
-        for (SteinMod m : mods) {
-            try {
-                Object x = m.onNametag(entity, r);
-                if (x != null) {
-                    r = x;
-                }
-            } catch (Throwable e) {
-                fail(m, "onNametag", e);
-            }
-        }
-        return r;
+        return swap("onNametag", SteinMod::onNametag, entity, name);
     }
 
     @Override
@@ -912,17 +855,7 @@ public final class Loader implements HookSink {
         // pass, with the text cache) instead of one pass per draw; a no-op on the fixed pipeline.
         SteinEntityDeferred.worldBegin();
         try {
-            for (int i = 0; i < mods.length; i++) {
-                long t = System.nanoTime();
-                r.nextSession();
-                try {
-                    mods[i].onRenderWorld(partialTicks);
-                } catch (Throwable e) {
-                    fail(mods[i], "onRenderWorld", e);
-                }
-                ModTimes.add(i, System.nanoTime() - t);
-            }
-            r.nextSession();
+            frame("onRenderWorld", SteinMod::onRenderWorld, partialTicks);
         } finally {
             SteinEntityDeferred.worldEnd();
             r.world(false, partialTicks);
@@ -931,13 +864,7 @@ public final class Loader implements HookSink {
 
     @Override
     public void customPayload(String channel, byte[] data) {
-        for (SteinMod m : mods) {
-            try {
-                m.onCustomPayload(channel, data);
-            } catch (Throwable e) {
-                fail(m, "onCustomPayload", e);
-            }
-        }
+        each("onCustomPayload", m -> m.onCustomPayload(channel, data));
     }
 
     @Override

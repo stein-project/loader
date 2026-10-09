@@ -13,6 +13,7 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 
+import dev.xavier.stein.bridge.core.Log;
 import dev.xavier.stein.bridge.hooks.VanillaHud;
 import dev.xavier.stein.loader.api.HudPlacement;
 import dev.xavier.stein.loader.gui.Ui;
@@ -87,12 +88,11 @@ final class HudPersistence {
             if (in != null) {
                 try (Reader r = new InputStreamReader(in, StandardCharsets.UTF_8)) {
                     read(r);
-                    System.out.println(
-                            "[loader] HUD: default layout ("
-                                    + HudRegistry.placements.size()
-                                    + " elements)");
+                    Log.info(
+                            "loader",
+                            "HUD: default layout (" + HudRegistry.placements.size() + " elements)");
                 } catch (Exception e) {
-                    System.out.println("[loader] HUD: default layout unreadable: " + e);
+                    Log.info("loader", "HUD: default layout unreadable: " + e);
                 }
             }
             return;
@@ -100,7 +100,7 @@ final class HudPersistence {
         try (Reader r = new InputStreamReader(new FileInputStream(file), StandardCharsets.UTF_8)) {
             read(r);
         } catch (Exception e) {
-            System.out.println("[loader] HUD: " + file + " unreadable, using defaults: " + e);
+            Log.info("loader", "HUD: " + file + " unreadable, using defaults: " + e);
         }
     }
 
@@ -134,15 +134,47 @@ final class HudPersistence {
         if (o.has("minecraft") && o.get("minecraft").isJsonObject()) {
             JsonObject mcOptions = o.getAsJsonObject("minecraft");
             VanillaOptions.load(mcOptions);
+            // The own backgrounds of older versions (the action bar box, the sidebar and chat ones)
+            // became the standard background. These keys are no longer written: the next save drops
+            // them.
+            if (bool(mcOptions, "actionBackground", false)) {
+                legacyBackground("minecraft.actionbar", 0.4F);
+            }
+            if (mcOptions.has("sideBackground") && integer(mcOptions, "sideBackground", 2) != 2) {
+                legacyBackground("minecraft.sidebar", 0.4F);
+            }
+            if (bool(mcOptions, "chatBackground", false)) {
+                legacyBackground("minecraft.chat", 0.4F);
+            }
         }
     }
 
-    /** The saved opacity (0 to 1); anything else means the default background (-1). */
+    /**
+     * The saved opacity (0 to 1); the tone names of a test version (stein, dark, light, none)
+     * become an opacity, and anything else means the default background (-1).
+     */
     private static float backgroundOf(JsonElement v) {
-        if (v == null || !v.isJsonPrimitive() || !v.getAsJsonPrimitive().isNumber()) {
+        if (v == null || !v.isJsonPrimitive()) {
             return -1.0F;
         }
-        return Ui.clamp01(v.getAsFloat());
+        if (v.getAsJsonPrimitive().isNumber()) {
+            return Ui.clamp01(v.getAsFloat());
+        }
+        return switch (v.getAsString()) {
+            case "stein" -> 0.8F;
+            case "dark" -> 0.5F;
+            case "light" -> 0.3F;
+            case "none" -> 0.0F;
+            default -> -1.0F;
+        };
+    }
+
+    /** Gives an element that still has the default background the opacity of its old one. */
+    private static void legacyBackground(String id, float opacity) {
+        Placement p = HudRegistry.placements.get(id);
+        if (p != null && p.background < 0.0F) {
+            p.background = opacity;
+        }
     }
 
     static void save() {
@@ -184,7 +216,7 @@ final class HudPersistence {
                 new OutputStreamWriter(new FileOutputStream(file), StandardCharsets.UTF_8)) {
             new GsonBuilder().setPrettyPrinting().create().toJson(o, w);
         } catch (Exception e) {
-            System.out.println("[loader] HUD: could not write " + file + ": " + e);
+            Log.info("loader", "HUD: could not write " + file + ": " + e);
         }
     }
 

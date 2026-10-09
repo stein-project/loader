@@ -46,8 +46,7 @@ final class ItemNamePart extends VanillaPart {
             sample = s;
         }
         int tw = mc.fontRendererObj.getStringWidth(s);
-        // The game moves the name down 14 px without the bars (creative): the box covers
-        // both places.
+        // The game moves the name down 14 px without the bars (creative): the box covers both.
         defLeft = (sw - tw) / 2;
         defTop = sh - 59;
         w = tw + 1;

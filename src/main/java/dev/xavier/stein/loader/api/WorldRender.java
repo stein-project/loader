@@ -36,7 +36,7 @@ import dev.xavier.stein.loader.api.spi.RenderBackend;
  * draws it through the game's own path. Drawing with OpenGL, {@code GlStateManager} or the {@code
  * Tessellator} directly is not supported.
  */
-@Experimental(since = "0.1.23")
+@Experimental(since = "0.1.24")
 public final class WorldRender {
 
     private static final double[] CAMERA = new double[9];
@@ -85,10 +85,20 @@ public final class WorldRender {
         return camera()[3];
     }
 
+    /**
+     * The camera's interpolated position this frame (y).
+     *
+     * @return the camera's y, in world coordinates
+     */
     public static double cameraY() {
         return camera()[4];
     }
 
+    /**
+     * The camera's interpolated position this frame (z).
+     *
+     * @return the camera's z, in world coordinates
+     */
     public static double cameraZ() {
         return camera()[5];
     }
@@ -131,6 +141,11 @@ public final class WorldRender {
         local++;
     }
 
+    /**
+     * Restores the transform saved by the matching push.
+     *
+     * @throws IllegalStateException without a push
+     */
     public static void pop() {
         if (local == 0) {
             throw new IllegalStateException("pop() without push");
@@ -139,6 +154,13 @@ public final class WorldRender {
         local--;
     }
 
+    /**
+     * Moves the origin, relative to the current one (only inside a push).
+     *
+     * @param x offset in blocks
+     * @param y offset in blocks
+     * @param z offset in blocks
+     */
     public static void translate(double x, double y, double z) {
         local();
         R.translate(x, y, z);
@@ -150,10 +172,22 @@ public final class WorldRender {
         R.rotate(degrees, x, y, z);
     }
 
+    /**
+     * Scales evenly around the current origin (only inside a push).
+     *
+     * @param s factor (1 = unchanged)
+     */
     public static void scale(float s) {
         scale(s, s, s);
     }
 
+    /**
+     * Scales around the current origin, per axis (only inside a push).
+     *
+     * @param x factor along x
+     * @param y factor along y
+     * @param z factor along z
+     */
     public static void scale(float x, float y, float z) {
         local();
         R.scale(x, y, z);
@@ -264,6 +298,20 @@ public final class WorldRender {
         end(RenderBackend.QUADS);
     }
 
+    /**
+     * A filled triangle.
+     *
+     * @param x1 first corner x
+     * @param y1 first corner y
+     * @param z1 first corner z
+     * @param x2 second corner x
+     * @param y2 second corner y
+     * @param z2 second corner z
+     * @param x3 third corner x
+     * @param y3 third corner y
+     * @param z3 third corner z
+     * @param argb color, {@code 0xAARRGGBB}
+     */
     public static void triangle(
             double x1,
             double y1,

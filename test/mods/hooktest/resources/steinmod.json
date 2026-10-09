@@ -3,7 +3,7 @@
   "name": "Hook Test",
   "version": "1.0.0",
   "author": "X4vieer",
-  "description": "Teste dos ganchos da 0.1.14 (so para a bancada).",
+  "description": "Test of the Loader's hooks (bench only).",
   "entry": "dev.xavier.stein.hooktest.HookTest",
-  "loader": "0.1.14"
+  "loader": "0.1.24"
 }

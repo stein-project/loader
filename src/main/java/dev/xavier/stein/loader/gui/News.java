@@ -89,8 +89,7 @@ public final class News {
         GuiScreen gui = (GuiScreen) screen;
         float p = Ui.ease(Math.min(1.0F, (Ui.now() - shownAt) / (float) ANIM_MS));
         // Top corner, on the right: the menu buttons are at the bottom, and a bubble over them
-        // would get in the
-        // way of clicks from someone who just wants to play.
+        // would get in the way of clicks from someone who just wants to play.
         int x = gui.width - W - 6;
         int y = 6 - Math.round((1.0F - p) * 12);
         if (update != null) {

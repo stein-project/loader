@@ -68,12 +68,11 @@ public final class Discord {
         int cy = centerY(gui.height);
         boolean over = hit(cx, cy, mx, my);
         float e = Ui.ease(hover.update(over));
-        // At rest, it is barely there — it is a corner mark, not a menu button: just the mark,
-        // faded, no background.
-        // With the mouse over it, the Discord circle appears behind and the mark turns white.
+        // At rest it is barely there (a corner mark, not a menu button): just the mark, faded, with
+        // no background. With the mouse over it, the Discord circle appears behind and the mark
+        // turns white.
         Ui.circle(cx, cy, RADIUS, Ui.alpha(BLURPLE, e));
-        // 16 GUI points: the texture size, so each of its pixels becomes a whole pixel on
-        // screen.
+        // 16 GUI points, the texture size: each of its pixels becomes a whole pixel on screen.
         Ui.tinted(MARK, cx - 8, cy - 8, 16, 16, Ui.mix(0x7FE6E8F5, 0xFFFFFFFF, e));
         if (e > 0.85F) {
             String label = I18n.format("steinloader.discord");

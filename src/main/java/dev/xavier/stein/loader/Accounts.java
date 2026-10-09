@@ -11,6 +11,7 @@ package dev.xavier.stein.loader;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 
+import dev.xavier.stein.bridge.core.Log;
 import dev.xavier.stein.bridge.hooks.GameHooks;
 
 import net.minecraft.client.Minecraft;
@@ -187,8 +188,9 @@ final class Accounts {
     }
 
     private static void log(String name, int verdict) {
-        System.out.println(
-                "[loader] account "
+        Log.info(
+                "loader",
+                "account "
                         + name
                         + ": "
                         + (verdict == MICROSOFT

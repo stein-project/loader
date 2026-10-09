@@ -12,6 +12,8 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 
+import dev.xavier.stein.bridge.core.Log;
+
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.IOException;
@@ -70,6 +72,9 @@ final class ModScanner {
      */
     static final String RUNTIME_PATCH = "0.1.14";
 
+    /** The last API level that existed, before mods started asking for the Loader version. */
+    private static final int LAST_API = 18;
+
     private static final String SERVICES = "META-INF/services/dev.xavier.stein.loader.api.SteinMod";
 
     private ModScanner() {}
@@ -114,8 +119,7 @@ final class ModScanner {
         }
         for (ModInfo m : out) {
             if (m.state() == ModInfo.State.REJECTED) {
-                System.out.println(
-                        "[loader] " + m.file.getName() + " was not accepted: " + m.reason());
+                Log.info("loader", m.file.getName() + " was not accepted: " + m.reason());
             }
         }
         return out;
@@ -185,16 +189,33 @@ final class ModScanner {
      * Does the mod fit this Loader? Returns null if it fits, or the already-rejected mod, with the
      * reason.
      *
-     * <p>{@code "loader"} is the minimum Stein Loader version ("0.1.3"); empty means any.
+     * <p>{@code "loader"} is the minimum Stein Loader version ("0.1.3"); empty means any. Up to
+     * Loader 0.1.2 it held a number without a dot, the old API level, which stopped at {@link
+     * #LAST_API}. Such a mod still gets in: this Loader has everything that existed up to then. A
+     * greater number would be from a Loader that never existed, and then the mod is refused, with
+     * the reason.
      */
     private static ModInfo refuse(File f, JsonObject o, String id, String loaderVersion) {
         String needs = text(o, "loader", "").trim();
         if (needs.isEmpty()) {
             return null;
         }
+        if (needs.indexOf('.') < 0) {
+            return number(needs) > LAST_API
+                    ? ModInfo.rejected(f, id, "steinloader.reject.api", needs)
+                    : null;
+        }
         return Versions.atLeast(loaderVersion, needs)
                 ? null
                 : ModInfo.rejected(f, id, "steinloader.reject.loader", needs, loaderVersion);
+    }
+
+    private static int number(String s) {
+        try {
+            return Integer.parseInt(s);
+        } catch (NumberFormatException e) {
+            return 0;
+        }
     }
 
     private static String author(JsonObject o) {

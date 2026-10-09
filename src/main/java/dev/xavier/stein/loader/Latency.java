@@ -98,9 +98,8 @@ final class Latency {
         ServerData d = mc.getCurrentServerData();
         ServerData p =
                 new ServerData("", d != null && d.serverIP != null ? d.serverIP : current, false);
-        p.pingToServer =
-                -1; // ServerData is born with 0, which would pass as a measurement before the
-        // thread starts
+        // ServerData starts with 0, which would pass as a measurement before the thread starts.
+        p.pingToServer = -1;
         probe = p;
         sentAt = now;
         nextAt = now + EVERY_MS;

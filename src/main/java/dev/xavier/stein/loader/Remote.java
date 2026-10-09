@@ -12,6 +12,8 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 
+import dev.xavier.stein.bridge.core.Log;
+
 import net.minecraft.client.Minecraft;
 
 import java.io.File;
@@ -22,30 +24,32 @@ import java.net.http.HttpResponse;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.time.Duration;
-import java.util.ArrayList;
-import java.util.Collections;
 import java.util.LinkedHashMap;
-import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 
 /**
- * What Stein Labs publishes and the Loader reads at startup: the server list and the Discord
- * invite.
+ * What the project publishes and the Loader reads at startup: the Discord invite, the latest pack
+ * version and a message for the main menu.
  *
- * <p>A JSON in a public repository (github.com/x4vieer/stein-loader), and not inside the jar: that
- * way a new server or a changed invite takes effect on the next start of anyone who already has the
- * Loader installed, with no new version or new installer.
+ * <p>The file is {@code stein.json} at the root of the Loader's repository ({@link #REPO}), edited
+ * by hand, and not inside the jar: a changed invite or a new message takes effect on the next start
+ * of anyone who already has the Loader installed, with no new version or new installer. {@code
+ * latest.version} is bumped by hand when a pack release goes out.
  *
  * <pre>
  * { "discord": "https://discord.gg/xxxxxxx",
- *   "servers": [ { "name": "Stein Labs", "ip": "play.example.com" } ] }
+ *   "latest": { "version": "0.1.29", "url": "https://github.com/.../releases/latest" },
+ *   "news": { "id": "discord", "title": { "en_US": "..." }, "text": { "en_US": "..." },
+ *             "url": "https://discord.gg/xxxxxxx" } }
  * </pre>
  *
- * <p>The fetch runs on another thread with a short timeout — the game starts the same without
+ * <p>The fetch runs on another thread with a short timeout: the game starts the same without
  * internet. What arrives is stored in {@code config/steinloader-remoto.json} and is what applies
- * next time, even before the fetch answers: the server stays in the list and the Discord button
- * stays there, offline.
+ * next time, even before the fetch answers. Any answer other than 200 (the repository unreachable
+ * or still private, a missing file) and any unreadable file keep the stored copy, so the Discord
+ * button and the message stay there, offline too. Keys this version does not read (older files also
+ * had {@code servers} and {@code mods}) are ignored.
  *
  * <p>{@code -Dsteinloader.remote=<url>} changes the address (empty fetches nothing) and {@code
  * -Dsteinloader.noRemote=true} turns everything off, including the stored copy.
@@ -53,49 +57,33 @@ import java.util.Map;
 public final class Remote {
 
     /**
-     * The project's public account and repository: <b>the only place</b> where they appear in the
-     * code. {@code stein.json} comes from there and so do the versions (CI publishes both in the
-     * same repository, {@code .github/workflows/release.yml}).
+     * The project's repository, where {@code stein.json} lives: <b>the only place</b> where it
+     * appears in the code.
      *
-     * <p>When changing accounts, change it here and publish a new Loader — and <b>leave the old
-     * file up</b>, pointing to the new versions, as long as there are people with the earlier
-     * Loader installed: it is through it that those people learn there is a new version.
+     * <p>When the file moves, change it here and publish a new Loader, and <b>leave the old file
+     * up</b> as long as there are people with the earlier Loader installed: it is through it that
+     * those people learn there is a new version.
      */
-    private static final String REPO = "x4vieer/stein-loader";
+    static final String REPO = "Stein-Project/loader";
 
-    /** The project's public file. */
-    private static final String URL =
-            System.getProperty(
-                    "steinloader.remote",
-                    "https://raw.githubusercontent.com/" + REPO + "/main/stein.json");
+    /** The default address of the project's file: {@code stein.json} on the default branch. */
+    static final String DEFAULT_URL =
+            "https://raw.githubusercontent.com/" + REPO + "/main/stein.json";
 
     /**
      * Cap on what is accepted for reading: it is a handful of lines, and there is no reason to
      * download more than that.
      */
-    private static final String DEFAULT_PORT_SUFFIX = ":25565";
-
     private static final int LIMIT = 64 * 1024;
-
-    /** A server from the public list. */
-    static final class Server {
-        final String name;
-        final String ip;
-
-        Server(String name, String ip) {
-            this.name = name;
-            this.ip = ip;
-        }
-    }
 
     /**
      * A message from the project for the main menu.
      *
      * <p>Title and text can come in a single language (a string, which applies to everyone) or in
      * an object with one entry per game language ({@code {"en_US": "...", "pt_BR": "..."}}).
-     * Whoever plays in another language reads the {@code en_US} one — English is what everyone can
-     * reach —, and the languages are chosen at draw time, so that changing the game language
-     * changes the message without restarting.
+     * Whoever plays in another language reads the {@code en_US} one (English is what everyone can
+     * reach), and the language is chosen at draw time, so that changing the game language changes
+     * the message without restarting.
      */
     public static final class News {
         public final String id;
@@ -177,21 +165,13 @@ public final class Remote {
 
     private static volatile News news;
 
-    private static volatile List<Server> servers = Collections.emptyList();
-
-    /**
-     * Whether there is something new to apply on the game thread (changing the server list is its
-     * job).
-     */
-    private static volatile boolean fresh;
-
     private static File cache;
 
     private Remote() {}
 
     /** Reads the last copy and goes after the new one. Called at game start. */
     static void start(File gameDir) {
-        if (Boolean.getBoolean("steinloader.noRemote")) {
+        if (LoaderOptions.NO_REMOTE) {
             return;
         }
         cache = new File(gameDir, "config/steinloader-remoto.json");
@@ -201,10 +181,10 @@ public final class Remote {
             try {
                 parse(new String(Files.readAllBytes(cache.toPath()), StandardCharsets.UTF_8));
             } catch (Exception e) {
-                System.out.println("[loader] stored Stein Labs copy unreadable: " + e);
+                Log.info("loader", "stored Stein Labs copy unreadable: " + e);
             }
         }
-        if (URL.isEmpty()) {
+        if (LoaderOptions.REMOTE == null || LoaderOptions.REMOTE.isEmpty()) {
             return;
         }
         Thread t = new Thread(Remote::fetch, "stein-remote");
@@ -215,7 +195,7 @@ public final class Remote {
     /**
      * The version the installer recorded in this .minecraft ({@code
      * versions/1.8.9-SteinLoader/stein-loader-install.json}). It is what gets compared with what
-     * Stein Labs publishes: the release number is the pack's, not that of one of its parts.
+     * the project publishes: the release number is the pack's, not that of one of its parts.
      */
     private static String installedVersion(File gameDir) {
         File manifest = new File(gameDir, "versions/1.8.9-SteinLoader/stein-loader-install.json");
@@ -235,24 +215,15 @@ public final class Remote {
         }
     }
 
-    /** On the game thread: applies what arrived. */
-    static void tick() {
-        if (!fresh) {
-            return;
-        }
-        fresh = false;
-        Servers.apply(servers);
-    }
-
-    /** Stein Labs' Discord invite, or empty — it decides whether the button appears. */
+    /** The project's Discord invite, or empty: it decides whether the button appears. */
     public static String discord() {
         return discord;
     }
 
     /**
      * The update to announce, or null: there is only something to announce when this .minecraft was
-     * installed by the installer (and its version can be known) and what Stein Labs published is
-     * greater. Without the installer's file — development build, manual installation — nothing is
+     * installed by the installer (and its version can be known) and what the project published is
+     * greater. Without the installer's file (development build, manual installation) nothing is
      * said: warning about a version without knowing which one is installed would be a guess.
      */
     public static Update update() {
@@ -276,31 +247,6 @@ public final class Remote {
         return news;
     }
 
-    /**
-     * Is the address a server published by Stein Labs? The multiplayer screen uses it to know where
-     * the recommended part of the list ends and the player's own begins.
-     */
-    public static boolean recommends(String ip) {
-        String h = host(ip);
-        for (Server s : servers) {
-            if (host(s.ip).equals(h)) {
-                return true;
-            }
-        }
-        return false;
-    }
-
-    /**
-     * The address as the game compares it: lowercase and without the default port ("home.com" and
-     * "home.com:25565" are the same).
-     */
-    static String host(String ip) {
-        String s = (ip == null ? "" : ip).trim().toLowerCase(Locale.ROOT);
-        return s.endsWith(DEFAULT_PORT_SUFFIX)
-                ? s.substring(0, s.length() - DEFAULT_PORT_SUFFIX.length())
-                : s;
-    }
-
     private static void fetch() {
         try {
             HttpClient http =
@@ -309,7 +255,7 @@ public final class Remote {
                             .followRedirects(HttpClient.Redirect.NORMAL)
                             .build();
             HttpRequest req =
-                    HttpRequest.newBuilder(URI.create(URL))
+                    HttpRequest.newBuilder(URI.create(LoaderOptions.REMOTE))
                             .timeout(Duration.ofSeconds(8))
                             .header("User-Agent", "SteinLoader/" + Loader.VERSION)
                             .GET()
@@ -317,19 +263,23 @@ public final class Remote {
             HttpResponse<String> res =
                     http.send(req, HttpResponse.BodyHandlers.ofString(StandardCharsets.UTF_8));
             if (res.statusCode() != 200) {
-                System.out.println(
-                        "[loader] Stein Labs answered "
-                                + res.statusCode()
-                                + ": keeping the stored copy");
+                Log.info(
+                        "loader",
+                        "Stein Labs answered " + res.statusCode() + ": keeping the stored copy");
                 return;
             }
             String body = res.body();
             if (body.length() > LIMIT) {
-                System.out.println(
-                        "[loader] Stein Labs: response too large (" + body.length() + "), ignored");
+                Log.info(
+                        "loader",
+                        "Stein Labs: response too large (" + body.length() + "), ignored");
                 return;
             }
-            parse(body);
+            // Only a file that parses replaces the stored copy (bad JSON throws, below).
+            if (!parse(body)) {
+                Log.info("loader", "Stein Labs: not a JSON object, keeping the stored copy");
+                return;
+            }
             if (cache != null) {
                 cache.getParentFile().mkdirs();
                 Files.write(cache.toPath(), body.getBytes(StandardCharsets.UTF_8));
@@ -337,32 +287,22 @@ public final class Remote {
         } catch (Exception | LinkageError e) {
             // No network, DNS down, proxy: not the player's error, and the stored copy is already
             // in effect.
-            System.out.println("[loader] Stein Labs unavailable (keeping the stored copy): " + e);
+            Log.info("loader", "Stein Labs unavailable (keeping the stored copy): " + e);
         }
     }
 
-    private static void parse(String json) {
+    /**
+     * Reads the file and publishes what it says. Returns false, changing nothing, when the root is
+     * not a JSON object; throws on JSON that does not parse, also changing nothing.
+     */
+    private static boolean parse(String json) {
         JsonElement root = new JsonParser().parse(json);
         if (!root.isJsonObject()) {
-            return;
+            return false;
         }
         JsonObject o = root.getAsJsonObject();
+        // Only the keys below are read: older files also had "servers" and "mods", ignored now.
         String newDiscord = link(text(o, "discord"), "discord.gg", "discord.com", "discordapp.com");
-        List<Server> list = new ArrayList<>();
-        JsonElement raw = o.get("servers");
-        if (raw != null && raw.isJsonArray()) {
-            for (JsonElement e : raw.getAsJsonArray()) {
-                if (!e.isJsonObject()) {
-                    continue;
-                }
-                JsonObject s = e.getAsJsonObject();
-                String ip = text(s, "ip").trim();
-                String name = text(s, "name").trim();
-                if (!ip.isEmpty()) {
-                    list.add(new Server(name.isEmpty() ? ip : name, ip));
-                }
-            }
-        }
         Update newLatest = null;
         JsonElement pub = o.get("latest");
         if (pub != null && pub.isJsonObject()) {
@@ -375,10 +315,9 @@ public final class Remote {
 
         // Everything parsed: only now publish, so bad JSON never leaves half-applied state.
         discord = newDiscord;
-        servers = Collections.unmodifiableList(list);
         latest = newLatest;
         news = newNews;
-        fresh = true;
+        return true;
     }
 
     /**
@@ -435,7 +374,7 @@ public final class Remote {
     /**
      * An address the Loader accepts to open: https, and only for the project's places that the
      * caller lists. The file lives outside the game, and a button that opens the browser must not
-     * lead to just any place that appears there — neither by our mistake nor by a hijacked account.
+     * lead to just any place that appears there, neither by our mistake nor by a hijacked account.
      */
     private static String link(String url, String... hosts) {
         if (url == null || url.trim().isEmpty()) {
@@ -452,11 +391,11 @@ public final class Remote {
                     return u.toString();
                 }
             }
-            System.out.println(
-                    "[loader] address refused (https only, and only for the project's own hosts): "
-                            + url);
+            Log.info(
+                    "loader",
+                    "address refused (https only, and only for the project's own hosts): " + url);
         } catch (RuntimeException e) {
-            System.out.println("[loader] unreadable address: " + url);
+            Log.info("loader", "unreadable address: " + url);
         }
         return "";
     }

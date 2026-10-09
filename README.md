@@ -11,8 +11,10 @@ panel.
   event.
 - **Java 25.** Mods are written with modern Java and readable game names (`Minecraft.getMinecraft()`), like Forge
   mods, and are translated to the game's names at build time.
-- **Your GL calls get the engine's batching for free:** the Loader adapts each mod to Stein Bridge when it loads
-  it (`ModPatch`).
+- **Drawing goes through the API.** `Render` (screen), `WorldRender` (world) and `Mesh` draw the same on Stein GFX
+  and on the game's fixed-function pipeline. The Loader adapts each mod to Stein Bridge when it loads it (`ModPatch`),
+  but a mod that calls old fixed-function OpenGL directly (`glBegin`, `glNewList`...) is left out on Stein GFX and
+  listed as incompatible, instead of closing the game.
 
 Want to write a mod? Start with the **[Stein SDK](https://github.com/Stein-Project/sdk)**.
 
@@ -29,9 +31,18 @@ stein/
 └── sdk/      github.com/Stein-Project/sdk
 ```
 
-You need a **JDK 17 or newer** to start Gradle (`JAVA_HOME`; Gradle finds or downloads the **JDK 25** the Loader is
-compiled with) and Minecraft 1.8.9 installed (or `./gradlew fetchMinecraft` in the Bridge). It builds on Windows, Linux
-and macOS. Then:
+You need a **JDK 17 or newer** to start Gradle (`JAVA_HOME`). The build itself runs on **JDK 25**: Gradle uses one
+already installed or downloads it (`gradle/gradle-daemon-jvm.properties`). It builds on Windows, Linux and macOS.
+
+The game comes from a Minecraft 1.8.9 installation: the launcher's usual folder by default. Without one, download it
+from Mojang in the Bridge and point the build at it (this is what CI does):
+
+```sh
+(cd ../bridge && ./gradlew fetchMinecraft)          # Minecraft 1.8.9 into bridge/build/mc, sha1-checked
+./gradlew build -Pstein.mcDir=../bridge/build/mc    # every command below takes it too
+```
+
+Then:
 
 ```sh
 # in loader/ (the Bridge and the SDK are included as composite builds)
@@ -55,7 +66,33 @@ list.
 | `src/main/java/dev/xavier/stein/loader` | The loader, `ModPatch`, menus, HUD and the in-game panel |
 | `api/stein-api.txt` | The API signature list the build checks against |
 | `test/` | Access and dependency tests, and a hook test mod |
-| `changelog/` | Release notes, in English and Portuguese |
+| `changelog/` | Release notes of the **pack** (see below), in English and Portuguese |
+| `stein.json` | What the Loader fetches at startup: the Discord invite, the latest pack version, the main menu message |
+| `tools/` | Build tools: the API check, the API reference check, the `-D` option list, the Discord mark |
+| `docs/OPTIONS.md` | Every `-D` option the Loader reads (generated) |
+
+## Release notes (`changelog/`)
+
+`changelog/<version>.en_US.md` and `<version>.pt_BR.md` are the notes of a **pack release**, the version players see
+in the installer (not the Loader's own `Loader.VERSION`). They live here, but the [installer](https://github.com/Stein-Project/installer)'s
+release workflow is what reads them: it checks out this repository and puts `changelog/<tag version>.*.md` in the
+release notes. Write both files before tagging an installer release; the Loader's build does not use them.
+
+## The project file (`stein.json`)
+
+At startup the Loader fetches `stein.json` from this repository's default branch
+(`https://raw.githubusercontent.com/Stein-Project/loader/main/stein.json`, see `Remote.java`): the Discord invite
+(the button on the main menu), the latest pack version (the update warning) and a message for the main menu, with
+one text per language. It is edited **by hand**, here, and takes effect on the next start of everyone who has the
+Loader, with no new release:
+
+- bump `latest.version` (and `latest.url` if it moved) when a pack release goes out;
+- give `news` a new `id` to show a new message (a player who closed a message does not see the same `id` again);
+- only https links to the project's hosts are accepted (Discord, GitHub).
+
+The last copy that arrived is kept in `config/steinloader-remoto.json` and is what applies offline, and also when the
+fetch gets anything other than 200 (while this repository is private, for instance). Keys the Loader does not read
+are ignored; older files also had `servers` and `mods`, which are no longer used.
 
 ## Contributing
 

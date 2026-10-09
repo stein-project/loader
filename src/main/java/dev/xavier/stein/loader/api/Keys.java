@@ -35,60 +35,144 @@ public final class Keys {
     /** No key. */
     public static final int KEY_NONE = 0;
 
+    /** Escape. */
     public static final int KEY_ESCAPE = 1;
+
+    /** Tab. */
     public static final int KEY_TAB = 15;
+
+    /** The Q key. */
     public static final int KEY_Q = 16;
+
+    /** The E key. */
     public static final int KEY_E = 18;
+
+    /** The R key. */
     public static final int KEY_R = 19;
+
+    /** The T key. */
     public static final int KEY_T = 20;
+
+    /** The Y key. */
     public static final int KEY_Y = 21;
+
+    /** The U key. */
     public static final int KEY_U = 22;
+
+    /** The I key. */
     public static final int KEY_I = 23;
+
+    /** The O key. */
     public static final int KEY_O = 24;
+
+    /** The P key. */
     public static final int KEY_P = 25;
+
+    /** Enter (Return). */
     public static final int KEY_RETURN = 28;
+
+    /** Left Control. */
     public static final int KEY_LCONTROL = 29;
+
+    /** The F key. */
     public static final int KEY_F = 33;
+
+    /** The G key. */
     public static final int KEY_G = 34;
+
+    /** The H key. */
     public static final int KEY_H = 35;
+
+    /** The J key. */
     public static final int KEY_J = 36;
+
+    /** The K key. */
     public static final int KEY_K = 37;
+
+    /** The L key. */
     public static final int KEY_L = 38;
+
+    /** Left Shift. */
     public static final int KEY_LSHIFT = 42;
+
+    /** The Z key. */
     public static final int KEY_Z = 44;
+
+    /** The X key. */
     public static final int KEY_X = 45;
+
+    /** The C key. */
     public static final int KEY_C = 46;
+
+    /** The V key. */
     public static final int KEY_V = 47;
+
+    /** The B key. */
     public static final int KEY_B = 48;
+
+    /** The N key. */
     public static final int KEY_N = 49;
+
+    /** The M key. */
     public static final int KEY_M = 50;
+
+    /** Right Shift. */
     public static final int KEY_RSHIFT = 54;
+
+    /** Left Alt. */
     public static final int KEY_LMENU = 56;
+
+    /** Space. */
     public static final int KEY_SPACE = 57;
+
+    /** The F1 key. */
     public static final int KEY_F1 = 59;
+
+    /** Right Control. */
     public static final int KEY_RCONTROL = 157;
+
+    /** Right Alt (AltGr). */
     public static final int KEY_RMENU = 184;
+
+    /** Insert. */
     public static final int KEY_INSERT = 210;
 
     /** Game keys (those on Minecraft's own Controls screen). */
     @Experimental(since = "0.1.16")
     public enum GameKey {
+        /** Walk forward. */
         FORWARD,
+        /** Walk backwards. */
         BACK,
+        /** Strafe left. */
         LEFT,
+        /** Strafe right. */
         RIGHT,
+        /** Jump. */
         JUMP,
+        /** Sneak. */
         SNEAK,
+        /** Sprint. */
         SPRINT,
+        /** Attack/destroy. */
         ATTACK,
+        /** Use item/place block. */
         USE,
+        /** Pick block. */
         PICK_BLOCK,
+        /** Drop item. */
         DROP,
+        /** Open/close the inventory. */
         INVENTORY,
+        /** Open chat. */
         CHAT,
+        /** Open command (chat with /). */
         COMMAND,
+        /** List players (Tab). */
         PLAYER_LIST,
+        /** Toggle perspective. */
         PERSPECTIVE,
+        /** Take screenshot. */
         SCREENSHOT
     }
 
@@ -173,7 +257,8 @@ public final class Keys {
     }
 
     /**
-     * Is the key (keyboard code; negative = mouse button, as in {@link #key}) pressed right now?
+     * Is the key (keyboard code; negative = mouse button, as in {@link Binding#key}) pressed right
+     * now?
      */
     @Experimental(since = "0.1.16")
     public static boolean isDown(int key) {

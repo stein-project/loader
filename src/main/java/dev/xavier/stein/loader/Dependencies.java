@@ -8,6 +8,8 @@
 
 package dev.xavier.stein.loader;
 
+import dev.xavier.stein.bridge.core.Log;
+
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.LinkedHashSet;
@@ -107,7 +109,7 @@ final class Dependencies {
             return;
         }
         if (!visiting.add(m)) {
-            System.out.println("[loader] circular dependency in " + m.id + ": keeps folder order");
+            Log.info("loader", "circular dependency in " + m.id + ": keeps folder order");
             return;
         }
         visitAll(m.depends.keySet(), byId, out, visiting);

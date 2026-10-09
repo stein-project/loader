@@ -10,6 +10,7 @@ package dev.xavier.stein.loader;
 
 import dev.xavier.stein.bridge.SteinBridge;
 import dev.xavier.stein.bridge.core.CoreOptions;
+import dev.xavier.stein.bridge.core.Log;
 import dev.xavier.stein.loader.api.SteinMod;
 
 import net.minecraft.client.Minecraft;
@@ -19,7 +20,6 @@ import net.minecraft.client.resources.IResourcePack;
 
 import java.io.File;
 import java.io.IOException;
-import java.lang.reflect.Field;
 import java.net.URISyntaxException;
 import java.net.URL;
 import java.net.URLClassLoader;
@@ -53,9 +53,9 @@ final class ModLoading {
 
         boolean oldBridge = !Versions.atLeast(SteinBridge.VERSION, Loader.MIN_BRIDGE);
         if (oldBridge) {
-            System.out.println(
-                    "[loader] "
-                            + SteinBridge.NAME
+            Log.info(
+                    "loader",
+                    SteinBridge.NAME
                             + " "
                             + SteinBridge.VERSION
                             + " is older than the "
@@ -67,12 +67,10 @@ final class ModLoading {
         List<ModInfo> enabled = new ArrayList<>();
         for (ModInfo m : ModScanner.scan(dir, loaderVersion)) {
             if ("steinaltmanager".equals(m.id) || "steinreconnect".equals(m.id)) {
-                // Both became Connect in 0.1.0; each one's configuration is read once by
-                // it.
+                // Both became Connect in 0.1.0, which reads each one's configuration once.
                 m.reject("steinloader.reject.merged", "Connect");
             } else if ("steinlens".equals(m.id)) {
-                // Up to 0.0.12 Lens was a mod; now it belongs to the bridge itself (Video
-                // settings).
+                // Up to 0.0.12 Lens was a mod; now it belongs to the Bridge (Video settings).
                 m.reject("steinloader.reject.merged", SteinBridge.NAME);
             } else if (!m.rejected() && !ids.add(m.id)) {
                 m.reject("steinloader.reject.duplicate", m.id);
@@ -85,7 +83,7 @@ final class ModLoading {
             }
             if (disabled.contains(m.id)) {
                 m.state = ModInfo.State.DISABLED;
-                System.out.println("[loader] disabled: " + m.id);
+                Log.info("loader", "disabled: " + m.id);
             } else {
                 enabled.add(m);
             }
@@ -112,18 +110,17 @@ final class ModLoading {
             try {
                 if (m.entries.isEmpty()) {
                     m.fail("steinloader.fail.noentry");
-                    System.out.println(
-                            "[loader] " + m.id + " failed to load: no entry in steinmod.json");
+                    Log.info("loader", m.id + " failed to load: no entry in steinmod.json");
                     continue;
                 }
                 String missing = unloadedDependency(m, all);
                 if (missing != null) {
-                    // It started earlier (the order follows the dependencies) and fell: this
-                    // one cannot run without it.
+                    // The dependency started earlier (the order follows the dependencies) and
+                    // failed: this one cannot run without it.
                     m.fail("steinloader.fail.dependency", missing);
-                    System.out.println(
-                            "[loader] "
-                                    + m.id
+                    Log.info(
+                            "loader",
+                            m.id
                                     + " failed to load: depends on "
                                     + missing
                                     + ", which did not load");
@@ -144,20 +141,14 @@ final class ModLoading {
                 if (m.assets) {
                     packs.add(m.file);
                 }
-                System.out.println(
-                        "[loader] loaded: "
-                                + m.id
-                                + " "
-                                + m.version
-                                + " ("
-                                + m.file.getName()
-                                + ")");
+                Log.info(
+                        "loader",
+                        "loaded: " + m.id + " " + m.version + " (" + m.file.getName() + ")");
             } catch (ReflectiveOperationException | LinkageError | RuntimeException e) {
                 m.instances.clear();
                 m.state = ModInfo.State.FAILED;
                 m.error = e.toString();
-                System.out.println("[loader] " + m.id + " failed to load: " + e);
-                e.printStackTrace(System.out);
+                Log.error("loader", m.id + " failed to load", e);
             }
         }
         return new Loaded(instances, owners, packs);
@@ -201,9 +192,9 @@ final class ModLoading {
                 String old = CoreOptions.GFX ? LegacyGl.firstMissing(new File(url.toURI())) : null;
                 if (old != null) {
                     m.reject("steinloader.reject.legacyGl", old);
-                    System.out.println(
-                            "[loader] "
-                                    + m.id
+                    Log.info(
+                            "loader",
+                            m.id
                                     + " left out: it calls old OpenGL ("
                                     + old
                                     + "), which Stein GFX does not have");
@@ -212,7 +203,7 @@ final class ModLoading {
                 }
                 urls.add(url);
             } catch (IOException | URISyntaxException | RuntimeException e) {
-                System.out.println("[loader] " + m.id + " failed to load: " + e);
+                Log.info("loader", m.id + " failed to load: " + e);
                 if (m.patch) {
                     m.state = ModInfo.State.FAILED;
                     m.error = e.toString();
@@ -233,7 +224,7 @@ final class ModLoading {
             return new File(
                     Loader.class.getProtectionDomain().getCodeSource().getLocation().toURI());
         } catch (URISyntaxException | RuntimeException e) {
-            System.out.println("[loader] Loader resources unavailable: " + e);
+            Log.info("loader", "Loader resources unavailable: " + e);
             return null;
         }
     }
@@ -244,17 +235,15 @@ final class ModLoading {
     @SuppressWarnings("unchecked")
     static void addResourcePacks(List<File> files) {
         try {
-            Field f = Minecraft.class.getDeclaredField("field_110449_ao");
-            f.setAccessible(true);
-            List<IResourcePack> packs = (List<IResourcePack>) f.get(Minecraft.getMinecraft());
+            List<IResourcePack> packs = Minecraft.getMinecraft().defaultResourcePacks;
             for (File file : files) {
                 packs.add(
                         file.isDirectory()
                                 ? new FolderResourcePack(file)
                                 : new FileResourcePack(file));
             }
-        } catch (ReflectiveOperationException | RuntimeException e) {
-            System.out.println("[loader] mod resource packs: " + e);
+        } catch (RuntimeException | LinkageError e) {
+            Log.info("loader", "mod resource packs: " + e);
         }
     }
 }

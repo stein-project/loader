@@ -137,7 +137,9 @@ val openGame = tasks.register<JavaExec>("openGame") {
 }
 
 dependencies {
-    compileOnly(files(namedGameJar))
+    // The Loader compiles against the opened jar too: it reads what the game keeps closed as if it were public, and
+    // loaderAccess binds those accesses in the game (see below).
+    compileOnly(files(openGame.map { it.outputs.files.singleFile }))
     compileOnly(files(asmCore))
     compileOnly(gameClasspath())
     "hooktestCompileOnly"(files(openGame.map { it.outputs.files.singleFile }))
@@ -218,6 +220,7 @@ val loaderRemap = modSteps("steinloader", tasks.compileJava, tasks.processResour
 }
 val loaderSrgClasses = work.map { it.dir("steinloader/classes") }
 
+
 // The Loader goes through the Patcher with the Bridge's game rules and its own batch hooks.
 val patchLoader = tasks.register<JavaExec>("patchLoader") {
     description = "Patches the Loader with the game rules (LWJGL 3, matrix stack, batching)."
@@ -246,14 +249,27 @@ val rules = tasks.register<Sync>("rules") {
 
 val modPatchClasspath = files(loaderSrgClasses, asmCore, provider { if (gameProperties.isFile) listOf(gameJar()) else emptyList() })
 
-// ModPatch (the Loader's Patcher, for mods) must do exactly what the Patcher does: the Loader itself, passed through
-// ModPatch with the same rules, must come out identical, class by class.
+// The Loader is compiled against the opened game jar, like a mod: what the real game keeps closed (a private field,
+// a protected method from outside its hierarchy) is written as if it were public. After the Patcher, ModPatch
+// --access turns each of those accesses into an invokedynamic bound once by internal.Access, as it does for mods.
+val loaderAccess = tasks.register<JavaExec>("loaderAccess") {
+    description = "Binds the game members the real game keeps closed (ModPatch --access)."
+    val out = work.map { it.file("steinloader/access.jar") }
+    inputs.files(patchLoader)
+    outputs.file(out)
+    tool("dev.xavier.stein.loader.ModPatch", modPatchClasspath)
+    argumentProviders.add { listOf("--access", patchLoader.get().outputs.files.singleFile.path, out.get().asFile.path) }
+}
+
+// ModPatch (the Loader's Patcher, for mods) must do exactly what the build does to the Loader: the Loader itself,
+// passed through ModPatch with the same rules, must come out identical to the Patcher's result plus the access step,
+// class by class.
 val modPatchCheck = tasks.register<JavaExec>("modPatchCheck") {
     group = "verification"
     description = "Checks that ModPatch and the Patcher produce identical classes."
     val obf = work.map { it.file("steinloader/obf.jar") }
     val out = work.map { it.file("steinloader/modpatch.jar") }
-    inputs.files(patchLoader, rules)
+    inputs.files(loaderAccess, rules)
     outputs.file(out)
     tool("dev.xavier.stein.loader.ModPatch", modPatchClasspath)
     argumentProviders.add { listOf(rules.get().destinationDir.path, obf.get().asFile.path, out.get().asFile.path) }
@@ -263,7 +279,7 @@ val modPatchCheck = tasks.register<JavaExec>("modPatchCheck") {
                 .associate { it.name to z.getInputStream(it).readBytes() }
         }
         val a = classes(out.get().asFile)
-        val b = classes(patchLoader.get().outputs.files.singleFile)
+        val b = classes(loaderAccess.get().outputs.files.singleFile)
         val differ = a.keys.filter { !b.containsKey(it) || !a[it].contentEquals(b[it]) }
         check(differ.isEmpty()) {
             "ModPatch and Patcher disagree (the Loader would apply something different to mods than the build " +
@@ -274,19 +290,20 @@ val modPatchCheck = tasks.register<JavaExec>("modPatchCheck") {
 }
 
 // Inside the Loader: the rules and ASM, which ModPatch uses and the game does not ship. ASM goes in whole and under
-// its usual name (BSD, licence alongside).
+// its usual name (BSD, licence alongside); the Loader's own licence and notices go in META-INF.
 val loaderJar = tasks.register<Jar>("loaderJar") {
     group = "build"
     description = "Builds build/libs/steinloader.jar."
     destinationDirectory = layout.buildDirectory.dir("libs")
     archiveFileName = "steinloader.jar"
-    from(patchLoader.map { zipTree(it.outputs.files.singleFile) }) { exclude("META-INF/MANIFEST.MF") }
+    from(loaderAccess.map { zipTree(it.outputs.files.singleFile) }) { exclude("META-INF/MANIFEST.MF") }
     from(rules) { into("steinloader/rules") }
     from(asmCore.elements.map { it.map { f -> zipTree(f) } }) { exclude("module-info.class", "META-INF/MANIFEST.MF") }
     from("tools/asm-license.txt") {
         into("META-INF")
         rename { "ASM-LICENSE.txt" }
     }
+    from(listOf("LICENSE", "LICENSE-API", "NOTICE")) { into("META-INF") }
     duplicatesStrategy = DuplicatesStrategy.FAIL
     isPreserveFileTimestamps = false
     isReproducibleFileOrder = true
@@ -303,11 +320,11 @@ val loaderClasses = tasks.register<Sync>("loaderClasses") {
 val coverage = tasks.register<JavaExec>("coverage") {
     group = "verification"
     description = "Checks that every LWJGL/Stein reference of the patched Loader is served."
-    inputs.files(patchLoader)
+    inputs.files(loaderAccess)
     outputs.upToDateWhen { true }
     tool("CoverageCheck", bridgeTools + asm)
     argumentProviders.add {
-        listOf(patchLoader.get().outputs.files.singleFile.path, bridgeDir.resolve("scan/lwjgl3-index.txt").path,
+        listOf(loaderAccess.get().outputs.files.singleFile.path, bridgeDir.resolve("scan/lwjgl3-index.txt").path,
             bridgeShim.path)
     }
 }
@@ -351,6 +368,8 @@ val apiJar = tasks.register<Jar>("apiJar") {
     destinationDirectory = layout.buildDirectory.dir("libs")
     archiveFileName = "stein-api.jar"
     from(apiClasses)
+    // MIT, unlike the rest of the Loader: mods that compile against it may use any licence.
+    from("LICENSE-API") { into("META-INF") }
     isPreserveFileTimestamps = false
     isReproducibleFileOrder = true
 }
@@ -360,6 +379,7 @@ val apiSourcesJar = tasks.register<Jar>("apiSourcesJar") {
     destinationDirectory = layout.buildDirectory.dir("libs")
     archiveFileName = "stein-api-sources.jar"
     from("src/main/java") { include("$apiPackage/**") }
+    from("LICENSE-API") { into("META-INF") }
     isPreserveFileTimestamps = false
     isReproducibleFileOrder = true
 }
@@ -526,46 +546,121 @@ tasks.register("verify") {
             "retainTiles", "segment", "textCache").map { "-Dsteinbridge.gfx.${it}Check=true" }
         val problems = Regex("""Exception|divergences [1-9]|[^0-9.,][1-9][0-9]* (different|differ from|differing)""" +
             """| [1-9][0-9]* failed""")
+        // The JVM itself died (a native crash, or LWJGL aborting on a GL call without a context): the log stops there,
+        // with no exception and no divergence, so the problem regex alone would pass it.
+        val fatal = Regex("""FATAL ERROR|hs_err|A fatal error has been detected""")
+        // The check lines each run must produce: without them the run checked nothing.
+        val engineLine = "an engine check line" to Regex("""\] check: [0-9]|\] checked [0-9]""")
+        val gfxLine = "a Stein GFX check line" to Regex("""^\[gfx\] .*check.*[0-9]""")
+        val gpuLine = "the GPU pose check line" to Regex("""GPU pose check""")
         val failed = mutableListOf<String>()
 
-        fun run(name: String, seconds: Long, jvm: List<String>, bad: Regex): String {
+        fun run(name: String, seconds: Long, jvm: List<String>, bad: Regex,
+                expected: List<Pair<String, Regex>>): String {
             val log = layout.buildDirectory.file("verify-$name.log").get().asFile
             logger.lifecycle("== $name (about ${seconds / 60 + 1} minutes)")
             val p = ProcessBuilder(gameCommand(gameDir, scene + jvm)).directory(gameDir).redirectErrorStream(true)
                 .redirectOutput(log).start()
-            if (!p.waitFor(seconds, TimeUnit.SECONDS)) {
+            // The game runs until the timeout ends it: exiting earlier with an error code is a crash.
+            val exitedEarly = p.waitFor(seconds, TimeUnit.SECONDS)
+            if (!exitedEarly) {
                 p.descendants().forEach { it.destroyForcibly() }
                 p.destroyForcibly().waitFor()
             }
             val text = log.readText()
-            text.lines().filter { Regex("""\] (check|.* check)""").containsMatchIn(it) && it.any(Char::isDigit) }
+            val lines = text.lines()
+            lines.filter { Regex("""\] (check|.* check)""").containsMatchIn(it) && it.any(Char::isDigit) }
                 .map { "   " + it.replace(Regex("[0-9]+"), "N") }.distinct().sorted().take(30).forEach { logger.lifecycle(it) }
-            val found = text.lines().filter { bad.containsMatchIn(it) }
-            if (found.isEmpty()) {
+            val found = lines.filter { bad.containsMatchIn(it) || fatal.containsMatchIn(it) }
+            val reasons = mutableListOf<String>()
+            if (exitedEarly && p.exitValue() != 0) {
+                reasons += "the game exited with ${p.exitValue()} before the timeout"
+            }
+            for ((what, line) in expected) {
+                if (lines.none { line.containsMatchIn(it) }) reasons += "no $what in ${log.name}"
+            }
+            if (found.isEmpty() && reasons.isEmpty()) {
                 logger.lifecycle("ok: $name — no divergence, no exception")
             } else {
                 logger.lifecycle("FAILED: $name")
+                reasons.forEach { logger.lifecycle("   $it") }
                 found.groupingBy { it }.eachCount().entries.take(20).forEach { logger.lifecycle("   ${it.value} ${it.key}") }
                 failed += name
             }
             return text
         }
 
-        run("gfx", 110, walk + engineChecks + gfxChecks, problems)
+        run("gfx", 110, walk + engineChecks + gfxChecks, problems, listOf(engineLine, gfxLine))
         // The GPU and the CPU may round the right arm's last bit differently (a known 1-ulp difference); what fails is
         // a wrong command or a wrong rest pose.
-        val gpu = run("gpu", 75, listOf("-Dsteinbridge.diag.holdKeyAtSec=25", "-Dsteinbridge.diag.holdKey=17",
+        run("gpu", 75, listOf("-Dsteinbridge.diag.holdKeyAtSec=25", "-Dsteinbridge.diag.holdKey=17",
             "-Dsteinbridge.diag.holdKeyMs=20000", "-Dsteinbridge.gfx.gpuPoseCheck=true"),
-            Regex("Exception|wrong commands [1-9]|wrong rest [1-9]"))
-        if (!gpu.contains("GPU pose check")) {
-            logger.lifecycle("FAILED: gpu — no GPU pose check line in build/verify-gpu.log")
-            failed += "gpu"
-        }
+            Regex("Exception|wrong commands [1-9]|wrong rest [1-9]"), listOf(gpuLine))
         run("fixed", 110, walk + "-Dsteinbridge.gfx=false" + engineChecks + "-Dsteinbridge.opt.checkMatrix=true" +
-            "-Dsteinbridge.opt.checkHudBatch=true", problems)
+            "-Dsteinbridge.opt.checkHudBatch=true", problems, listOf(engineLine))
         if (failed.isNotEmpty()) throw GradleException("verification failed: ${failed.distinct().joinToString()}")
     }
 }
+
+// ---- API documentation ----
+
+// The mod API's Javadoc with doclint on (-Xdoclint:all): bad HTML, a broken {@link} or a public member of the api
+// package without a comment fails the build. Not required: an @param/@return/@throws on every member (most of the
+// API documents them in the sentence), nor comments on api.spi (the Loader implements it; mods never call it).
+// Only the api package, against the game (it references nothing else). Output: build/docs/api.
+val apiJavadoc = tasks.register("apiJavadoc") {
+    group = "verification"
+    description = "Builds the mod API's Javadoc with doclint and fails on any problem."
+    val sources = fileTree("src/main/java") { include("$apiPackage/**/*.java") }
+    val classpath = files(namedGameJar) + gameClasspath()
+    val out = layout.buildDirectory.dir("docs/api")
+    val argFile = layout.buildDirectory.file("tmp/apiJavadoc/args.txt")
+    val javadoc = javaToolchains.javadocToolFor { languageVersion = JavaLanguageVersion.of(25) }
+    inputs.files(sources)
+    outputs.dir(out)
+    dependsOn(bridgeReady)
+    doLast {
+        val dir = out.get().asFile.apply { deleteRecursively(); mkdirs() }
+        // An argument file (the command line would be too long on Windows), with forward slashes: javadoc reads a
+        // backslash in a quoted argument as an escape.
+        fun quoted(path: String) = "\"" + path.replace(File.separatorChar, '/') + "\""
+        val args = listOf("-quiet", "-encoding", "UTF-8", "-notimestamp", "-Xdoclint:all", "-Xmaxwarns", "100000",
+            "-Xmaxerrs", "100000", "-d", quoted(dir.path), "-cp", quoted(classpath.asPath)) +
+            sources.files.sorted().map { quoted(it.path) }
+        val file = argFile.get().asFile.apply { parentFile.mkdirs(); writeText(args.joinToString("\n")) }
+        val p = ProcessBuilder(javadoc.get().executablePath.asFile.path, "@" + file.path).redirectErrorStream(true)
+            .start()
+        val text = p.inputStream.bufferedReader().readText()
+        val exit = p.waitFor()
+        val problems = text.lines().filter { Regex("""(warning|error):""").containsMatchIn(it) }
+            .filterNot { Regex("""warning: no @(param|return|throws)\b""").containsMatchIn(it) }
+            .filterNot { Regex("""[\\/]api[\\/]spi[\\/][^:]*:\d+: warning: no comment""").containsMatchIn(it) }
+        if (problems.isNotEmpty() || exit != 0) {
+            throw GradleException("the API Javadoc has problems:\n  " +
+                problems.ifEmpty { text.lines().filter(String::isNotBlank).take(20) }.joinToString("\n  "))
+        }
+        logger.lifecycle("API Javadoc: clean (build/docs/api)")
+    }
+}
+tasks.check { dependsOn(apiJavadoc) }
+
+// ---- the -D options ----
+
+// docs/OPTIONS.md lists every -D option of the Loader, from the Javadoc of the *Options classes (tools/Options.java).
+for ((name, check) in listOf("options" to false, "optionsCheck" to true)) {
+    tasks.register<JavaExec>(name) {
+        group = if (check) "verification" else "documentation"
+        description = if (check) "Checks that docs/OPTIONS.md is up to date." else "Writes docs/OPTIONS.md."
+        classpath = toolsSet.runtimeClasspath
+        mainClass = "Options"
+        args(listOf(file("src/main/java").path, file("docs/OPTIONS.md").path) + if (check) listOf("--check") else emptyList())
+        if (check) {
+            inputs.files(fileTree("src/main/java") { include("**/*Options.java") }, "docs/OPTIONS.md")
+            outputs.upToDateWhen { true }
+        }
+    }
+}
+tasks.check { dependsOn("optionsCheck") }
 
 // ---- formatting ----
 

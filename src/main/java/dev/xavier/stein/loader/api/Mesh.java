@@ -28,10 +28,11 @@ import java.util.Arrays;
  * the mod starts, or when what it shows changes), not every frame. Call {@link #release} when it is
  * no longer needed.
  */
-@Experimental(since = "0.1.23")
+@Experimental(since = "0.1.24")
 public final class Mesh {
 
     /** How the vertices are joined. */
+    @Experimental(since = "0.1.24")
     public enum Primitive {
         /**
          * Each pair of vertices is a line, one pixel wide. For thick lines see {@link Render#line}.
@@ -60,6 +61,7 @@ public final class Mesh {
     }
 
     /** What each vertex carries besides its position. */
+    @Experimental(since = "0.1.24")
     public enum Format {
         /** A color per vertex. */
         COLOR(RenderBackend.POSITION_COLOR, 4),
@@ -98,19 +100,40 @@ public final class Mesh {
         this.count = count;
     }
 
-    /** Starts a mesh of {@code primitive}, with vertices in {@code format}. */
+    /**
+     * Starts a mesh of {@code primitive}, with vertices in {@code format}.
+     *
+     * @param primitive how the vertices are joined
+     * @param format what each vertex carries besides its position
+     * @return a builder with no vertices yet
+     */
     public static Builder builder(Primitive primitive, Format format) {
         return new Builder(primitive, format);
     }
 
+    /**
+     * How the vertices are joined.
+     *
+     * @return the primitive the mesh was built with
+     */
     public Primitive primitive() {
         return primitive;
     }
 
+    /**
+     * What each vertex carries besides its position.
+     *
+     * @return the format the mesh was built with
+     */
     public Format format() {
         return format;
     }
 
+    /**
+     * How many vertices the mesh has.
+     *
+     * @return the vertex count
+     */
     public int vertexCount() {
         return count;
     }
@@ -120,6 +143,11 @@ public final class Mesh {
         released = true;
     }
 
+    /**
+     * Whether {@link #release} was called (the mesh then draws nothing).
+     *
+     * @return true once released
+     */
     public boolean isReleased() {
         return released;
     }
@@ -135,6 +163,7 @@ public final class Mesh {
      * Builds a {@link Mesh} vertex by vertex: {@link #vertex} starts a vertex, and {@link #color}
      * and {@link #uv} set it (a vertex without a color is white, without a coordinate is at 0, 0).
      */
+    @Experimental(since = "0.1.24")
     public static final class Builder {
         private final Primitive primitive;
         private final Format format;

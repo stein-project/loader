@@ -44,9 +44,21 @@ public final class Targeting {
         /** Where the ray enters the box (the eye, if it is inside). */
         public final double x;
 
+        /** See {@link #x}. */
         public final double y;
+
+        /** See {@link #x}. */
         public final double z;
 
+        /**
+         * A hit (made by the Loader; mods only read it).
+         *
+         * @param entity the entity
+         * @param distance from the eye to where the ray enters its box
+         * @param x where the ray enters the box
+         * @param y where the ray enters the box
+         * @param z where the ray enters the box
+         */
         public Hit(Object entity, double distance, double x, double y, double z) {
             this.entity = entity;
             this.distance = distance;
@@ -82,16 +94,36 @@ public final class Targeting {
         @Experimental(since = "0.1.16")
         public final int blockX;
 
+        /** See {@link #blockX}. */
         @Experimental(since = "0.1.16")
         public final int blockY;
 
+        /** See {@link #blockX}. */
         @Experimental(since = "0.1.16")
         public final int blockZ;
 
+        /**
+         * A ray with no block information (made by the Loader; mods only read it).
+         *
+         * @param hits the entities on the ray, nearest first
+         * @param blockDistance the distance to the first block, or infinity
+         * @param reach the reach used
+         */
         public Ray(List<Hit> hits, double blockDistance, double reach) {
             this(hits, blockDistance, reach, null, 0, 0, 0);
         }
 
+        /**
+         * A ray (made by the Loader; mods only read it).
+         *
+         * @param hits the entities on the ray, nearest first
+         * @param blockDistance the distance to the first block, or infinity
+         * @param reach the reach used
+         * @param blockId the block that stopped the ray, or null
+         * @param blockX the block's x
+         * @param blockY the block's y
+         * @param blockZ the block's z
+         */
         @Experimental(since = "0.1.16")
         public Ray(
                 List<Hit> hits,
@@ -124,8 +156,20 @@ public final class Targeting {
     @Experimental(since = "0.1.16")
     @FunctionalInterface
     public interface BlockFilter {
+        /**
+         * Whether the ray goes through this block.
+         *
+         * @param blockId the block id ({@code "minecraft:leaves"})
+         * @return true to pass through, false to stop there
+         */
         boolean passes(String blockId);
 
+        /**
+         * A filter that passes what this one or {@code other} passes.
+         *
+         * @param other the other filter
+         * @return the combined filter
+         */
         default BlockFilter or(BlockFilter other) {
             return id -> passes(id) || other.passes(id);
         }
@@ -209,36 +253,79 @@ public final class Targeting {
         /** Never included (the camera is always outside). */
         public final List<Object> excluded = new ArrayList<>();
 
+        /** A query with the game's defaults; {@link Targeting#query()} does the same. */
+        public Query() {}
+
+        /**
+         * Sets {@link #reach}.
+         *
+         * @param blocks reach in blocks from the eye
+         * @return this query, for chaining
+         */
         public Query reach(double blocks) {
             reach = blocks;
             return this;
         }
 
+        /**
+         * Sets {@link #living}.
+         *
+         * @return this query, for chaining
+         */
         public Query living() {
             living = true;
             return this;
         }
 
+        /**
+         * Sets {@link #visibleOnly}.
+         *
+         * @return this query, for chaining
+         */
         public Query visibleOnly() {
             visibleOnly = true;
             return this;
         }
 
+        /**
+         * Sets {@link #margin}.
+         *
+         * @param blocks how much each box grows on every side
+         * @return this query, for chaining
+         */
         public Query margin(double blocks) {
             margin = blocks;
             return this;
         }
 
+        /**
+         * Adds blocks the ray passes through ({@link #passThrough}, combined with {@link
+         * BlockFilter#or}).
+         *
+         * @param filter the blocks to pass through
+         * @return this query, for chaining
+         */
         public Query passThrough(BlockFilter filter) {
             passThrough = passThrough == null ? filter : passThrough.or(filter);
             return this;
         }
 
+        /**
+         * Sets {@link #cutAtBlock}.
+         *
+         * @return this query, for chaining
+         */
         public Query cutAtBlock() {
             cutAtBlock = true;
             return this;
         }
 
+        /**
+         * Adds an entity that is never included ({@link #excluded}); null is ignored.
+         *
+         * @param entity the entity to leave out
+         * @return this query, for chaining
+         */
         public Query exclude(Object entity) {
             if (entity != null) {
                 excluded.add(entity);

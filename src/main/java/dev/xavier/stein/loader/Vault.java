@@ -8,6 +8,8 @@
 
 package dev.xavier.stein.loader;
 
+import dev.xavier.stein.bridge.core.Log;
+
 import java.io.File;
 import java.lang.foreign.Arena;
 import java.lang.foreign.FunctionDescriptor;
@@ -79,8 +81,7 @@ final class Vault {
                                 FunctionDescriptor.of(ValueLayout.ADDRESS, ValueLayout.ADDRESS));
                 nativeReady = true;
             } catch (Throwable e) {
-                System.out.println(
-                        "[loader] Windows vault unavailable, secrets only scrambled: " + e);
+                Log.info("loader", "Windows vault unavailable, secrets only scrambled: " + e);
             }
         }
     }

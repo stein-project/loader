@@ -8,6 +8,7 @@
 
 package dev.xavier.stein.loader.hud;
 
+import dev.xavier.stein.bridge.core.Log;
 import dev.xavier.stein.loader.ModTimes;
 import dev.xavier.stein.loader.api.HudElement;
 import dev.xavier.stein.loader.api.HudPlacement;
@@ -63,7 +64,7 @@ final class HudRegistry {
     private static void add(HudElement e, boolean builtin) {
         for (HudElement o : elements) {
             if (o.id().equals(e.id())) {
-                System.out.println("[loader] HUD: duplicate element ignored: " + e.id());
+                Log.info("loader", "HUD: duplicate element ignored: " + e.id());
                 return;
             }
         }

@@ -37,14 +37,12 @@ import net.minecraft.potion.Potion;
 import net.minecraft.potion.PotionEffect;
 import net.minecraft.scoreboard.ScoreObjective;
 import net.minecraft.scoreboard.Scoreboard;
-import net.minecraft.util.ChatComponentText;
 import net.minecraft.util.IChatComponent;
 import net.minecraft.util.StringUtils;
 import net.minecraft.world.WorldSettings;
 
 import org.lwjgl.opengl.Display;
 
-import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -265,56 +263,18 @@ final class HudOps {
         return net == null ? 0 : net.getPlayerInfoMap().size();
     }
 
-    /**
-     * The Tab list's top and bottom texts, which the game keeps in two private fields and reads out
-     * to nobody. Found by type (the only two text fields in the class), with no name at all; which
-     * one is the bottom, the game itself tells: its public setFooter writes to one of them, and the
-     * earlier value is restored right away.
-     */
-    private static Field header;
-
-    private static Field footer;
-
+    /** The Tab list's top or bottom text (private in the game, which only writes it), or null. */
     static String tabText(boolean top) {
         GuiPlayerTabOverlay tab = mc().ingameGUI == null ? null : mc().ingameGUI.getTabList();
         if (tab == null) {
             return null;
         }
         try {
-            if (header == null && !findTabFields(tab)) {
-                return null;
-            }
-            Object c = (top ? header : footer).get(tab);
-            return c instanceof IChatComponent t ? t.getFormattedText() : null;
-        } catch (ReflectiveOperationException | RuntimeException e) {
+            IChatComponent c = top ? tab.header : tab.footer;
+            return c == null ? null : c.getFormattedText();
+        } catch (RuntimeException | LinkageError e) {
             return null;
         }
-    }
-
-    private static boolean findTabFields(GuiPlayerTabOverlay tab)
-            throws ReflectiveOperationException {
-        List<Field> texts = new ArrayList<>();
-        for (Field f : GuiPlayerTabOverlay.class.getDeclaredFields()) {
-            if (f.getType() == IChatComponent.class) {
-                f.setAccessible(true);
-                texts.add(f);
-            }
-        }
-        if (texts.size() != 2) {
-            return false;
-        }
-        Field a = texts.get(0);
-        Field b = texts.get(1);
-        Object oldA = a.get(tab);
-        Object oldB = b.get(tab);
-        IChatComponent mark = new ChatComponentText("");
-        tab.setFooter(mark);
-        boolean aIsFooter = a.get(tab) == mark;
-        a.set(tab, oldA);
-        b.set(tab, oldB);
-        footer = aIsFooter ? a : b;
-        header = aIsFooter ? b : a;
-        return true;
     }
 
     static String listScore(String nick) {

@@ -9,6 +9,7 @@
 package dev.xavier.stein.loader;
 
 import dev.xavier.stein.bridge.core.Input;
+import dev.xavier.stein.bridge.core.Log;
 import dev.xavier.stein.bridge.engine.KeyBindings;
 import dev.xavier.stein.loader.api.Screens;
 
@@ -45,7 +46,6 @@ import net.minecraft.util.IChatComponent;
 import org.lwjgl.input.Keyboard;
 import org.lwjgl.input.Mouse;
 
-import java.lang.reflect.Field;
 import java.util.Collections;
 import java.util.List;
 
@@ -196,8 +196,6 @@ final class GameOps {
      */
     private static Object disconnectedSeen;
 
-    private static Field disconnectMessage;
-
     /**
      * Before the mods' onGuiInit: saves the server from the connect screen and announces the
      * disconnect one.
@@ -206,7 +204,7 @@ final class GameOps {
         if (screen instanceof GuiConnecting) {
             ServerData d = mc().getCurrentServerData();
             if (d != null && d.serverIP != null) {
-                connecting = Remote.host(d.serverIP);
+                connecting = ServerOps.host(d.serverIP);
             }
         } else if (screen instanceof GuiDisconnected g && g != disconnectedSeen) {
             disconnectedSeen = g;
@@ -214,21 +212,12 @@ final class GameOps {
         }
     }
 
-    /** The disconnect screen's reason: its only text field, found by type and not by name. */
+    /** The disconnect screen's reason (GuiDisconnected.message, private in the game). */
     private static String reason(GuiDisconnected g) {
         try {
-            if (disconnectMessage == null) {
-                for (Field f : GuiDisconnected.class.getDeclaredFields()) {
-                    if (IChatComponent.class.isAssignableFrom(f.getType())) {
-                        f.setAccessible(true);
-                        disconnectMessage = f;
-                        break;
-                    }
-                }
-            }
-            Object m = disconnectMessage == null ? null : disconnectMessage.get(g);
-            return m instanceof IChatComponent c ? c.getUnformattedText() : "";
-        } catch (ReflectiveOperationException | RuntimeException e) {
+            IChatComponent m = g.message;
+            return m == null ? "" : m.getUnformattedText();
+        } catch (RuntimeException | LinkageError e) {
             return "";
         }
     }
@@ -303,9 +292,7 @@ final class GameOps {
         }
     }
 
-    /** Minecraft.rightClickDelayTimer (private; in the obfuscated game, "ap"). */
-    private static Field rightClickDelay;
-
+    /** Minecraft.rightClickDelayTimer is private in the game: if binding it fails, no retry. */
     private static boolean rightClickDelayMissing;
 
     private static void setRightClickDelay(int ticks) {
@@ -313,29 +300,11 @@ final class GameOps {
             return;
         }
         try {
-            if (rightClickDelay == null) {
-                for (String name : new String[] {"ap", "rightClickDelayTimer"}) {
-                    try {
-                        Field f = Minecraft.class.getDeclaredField(name);
-                        if (f.getType() == int.class) {
-                            f.setAccessible(true);
-                            rightClickDelay = f;
-                            break;
-                        }
-                    } catch (NoSuchFieldException ignored) {
-                        // the other name
-                    }
-                }
-                if (rightClickDelay == null) {
-                    rightClickDelayMissing = true;
-                    System.out.println("[loader] rightClickDelayTimer not found");
-                    return;
-                }
-            }
-            rightClickDelay.setInt(mc(), Math.max(ticks, rightClickDelay.getInt(mc())));
-        } catch (ReflectiveOperationException | RuntimeException e) {
+            Minecraft mc = mc();
+            mc.rightClickDelayTimer = Math.max(ticks, mc.rightClickDelayTimer);
+        } catch (RuntimeException | LinkageError e) {
             rightClickDelayMissing = true;
-            System.out.println("[loader] rightClickDelayTimer: " + e);
+            Log.info("loader", "rightClickDelayTimer: " + e);
         }
     }
 

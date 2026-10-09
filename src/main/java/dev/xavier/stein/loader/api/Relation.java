@@ -19,7 +19,9 @@ public enum Relation {
      * Relations#setGroup}).
      */
     GROUP,
+    /** An ally. */
     ALLY,
+    /** An enemy. */
     ENEMY,
     /** Known to be neither ally nor enemy. */
     NEUTRAL;

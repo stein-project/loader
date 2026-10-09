@@ -30,6 +30,7 @@ public final class Effects {
      * remaining.
      */
     public static final class Effect {
+        /** The game's effect id (1 speed, 5 strength, 12 fire resistance...). */
         public final int id;
 
         /** 0 = level I. */
@@ -43,6 +44,14 @@ public final class Effects {
          */
         public final boolean permanent;
 
+        /**
+         * An effect as the game reports it.
+         *
+         * @param id the game's effect id
+         * @param amplifier 0 = level I
+         * @param duration ticks remaining (20 per second)
+         * @param permanent true for an endless effect
+         */
         public Effect(int id, int amplifier, int duration, boolean permanent) {
             this.id = id;
             this.amplifier = amplifier;

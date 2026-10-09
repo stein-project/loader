@@ -13,6 +13,7 @@ import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 
 import dev.xavier.stein.bridge.SteinBridge;
+import dev.xavier.stein.bridge.core.Log;
 import dev.xavier.stein.bridge.core.SteinLog;
 
 import io.netty.buffer.Unpooled;
@@ -66,13 +67,14 @@ final class ServerReport {
     static void announce(Loader loader) {
         Minecraft mc = Minecraft.getMinecraft();
         NetHandlerPlayClient net = mc.getNetHandler();
-        if (net == null || mc.isSingleplayer() || Boolean.getBoolean("steinloader.noAnnounce")) {
+        if (net == null || mc.isSingleplayer() || LoaderOptions.NO_ANNOUNCE) {
             return;
         }
         String json = json(loader);
         if (json.length() > LIMIT) {
-            System.out.println(
-                    "[loader] mod list too large for the server (" + json.length() + "): not sent");
+            Log.info(
+                    "loader",
+                    "mod list too large for the server (" + json.length() + "): not sent");
             return;
         }
         net.addToSendQueue(
@@ -95,8 +97,9 @@ final class ServerReport {
         JsonArray mods = new JsonArray();
         for (ModInfo m : loader.mods()) {
             if (m.builtIn() || !m.announce) {
-                continue; // bridge and Loader are already on top; "announce": false mods are not
-                // sent
+                // The Bridge and the Loader are already on top; "announce": false mods are not
+                // sent.
+                continue;
             }
             JsonObject o = new JsonObject();
             o.addProperty("id", m.id);

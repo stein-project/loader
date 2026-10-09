@@ -74,9 +74,8 @@ public final class Access {
         Class<?> c = Class.forName(owner.replace('/', '.'), false, cl);
         MethodHandle h;
         if (kind <= PUT_STATIC) {
-            // By name AND type: the obfuscated game has fields that share a name (Vec3i.a is both x
-            // and
-            // a static constant).
+            // By name AND type: the obfuscated game has fields that share a name (Vec3i.a is both
+            // x and a static constant).
             Field f =
                     field(
                             c,

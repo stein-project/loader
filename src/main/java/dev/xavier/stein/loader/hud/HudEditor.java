@@ -8,12 +8,12 @@
 
 package dev.xavier.stein.loader.hud;
 
+import dev.xavier.stein.loader.LoaderOptions;
 import dev.xavier.stein.loader.api.HudElement;
 import dev.xavier.stein.loader.api.Option;
 import dev.xavier.stein.loader.gui.Draw2D;
 import dev.xavier.stein.loader.gui.Icons;
 import dev.xavier.stein.loader.gui.KeyCodes;
-import dev.xavier.stein.loader.gui.SliderDrag;
 import dev.xavier.stein.loader.gui.Theme;
 import dev.xavier.stein.loader.gui.Ui;
 import dev.xavier.stein.loader.gui.Widgets;
@@ -55,13 +55,10 @@ final class HudEditor extends GuiScreen {
     private static final int FLIP = 18;
     private static final int[] GRIDS = {0, 4, 8, 16};
 
-    /** Options card: in the middle of the screen, like the Panel. */
-    private static final int CARD_W = 300;
+    /** The options card and the list of elements. */
+    private final HudEditorCard card = new HudEditorCard();
 
-    private static final int CARD_H = 260;
-    private static final int ROW = Widgets.ROW;
-    private static final int HEAD_H = 26;
-    private static final int ANIM_MS = 160;
+    private long lastFrame;
 
     private HudElement dragging;
     private HudElement selected;
@@ -73,29 +70,13 @@ final class HudEditor extends GuiScreen {
     private int barY;
     private Set<HudElement> overlaps = Collections.emptySet();
 
-    /** The places when the editor opened. */
+    /** The screen the editor was opened from. */
     private final GuiScreen parent;
-
-    /** The open card: an element's options, the list of everything, or nothing. */
-    private HudElement options;
-
-    private boolean listing;
-    private List<Option> optionRows = new ArrayList<>();
-
-    /** The slider being dragged in the element's options. */
-    private final SliderDrag slider = new SliderDrag();
-
-    private int cardScroll;
-    private long lastFrame;
-    private long cardOpenedAt;
 
     /**
      * The whole-screen "Reset to default", kept so the confirmation question lasts across frames.
      */
     private final Option restoreAll = Option.restore(HudOptions::restoreAll);
-
-    /** Where each card line ended up, for clicks: y, height and the option index (or -1). */
-    private final List<int[]> cardRows = new ArrayList<>();
 
     private final List<int[]> barRows = new ArrayList<>();
 
@@ -107,12 +88,12 @@ final class HudEditor extends GuiScreen {
     public void initGui() {
         barY = 4;
         // Test: -Dsteinloader.diag.editorOptions=<id> opens that element's options directly.
-        String diag = System.getProperty("steinloader.diag.editorOptions");
-        if (diag != null && options == null) {
+        String diag = LoaderOptions.EDITOR_OPTIONS;
+        if (diag != null && !card.showsOptions()) {
             for (HudElement e : HudRegistry.elements) {
                 if (e.id().equals(diag)) {
                     selected = e;
-                    openOptions(e);
+                    card.openOptions(e);
                 }
             }
         }
@@ -153,8 +134,8 @@ final class HudEditor extends GuiScreen {
             toolbarLeft = covered(false) && !covered(true);
         }
 
-        boolean card = options != null || listing;
-        HudElement hover = card ? null : dragging != null ? dragging : pick(mx, my);
+        boolean open = card.isOpen();
+        HudElement hover = open ? null : dragging != null ? dragging : pick(mx, my);
         for (HudElement e : HudRegistry.elements) {
             int[] b = HudRegistry.box(e);
             if (b[2] == 0) {
@@ -192,11 +173,11 @@ final class HudEditor extends GuiScreen {
         // The bar and the card go in front of the elements' items (drawn with depth).
         GlStateManager.clear(GL11.GL_DEPTH_BUFFER_BIT);
         toolbar(mx, my, delta);
-        if (card) {
+        if (open) {
             // The elements' items (armour, inventory) are drawn with depth, in front of the
             // interface plane: without clearing, they showed up over the options card.
             GlStateManager.clear(GL11.GL_DEPTH_BUFFER_BIT);
-            card(mx, my, delta);
+            card.draw(width, height, mx, my, delta);
         }
     }
 
@@ -257,81 +238,6 @@ final class HudEditor extends GuiScreen {
         barRows.add(new int[] {barY, BAR_ROW, 5, fx});
     }
 
-    /** The middle card: an element's options, or the list of everything that exists. */
-    private void card(int mx, int my, long delta) {
-        cardRows.clear();
-        float p = Ui.ease(Math.min(1.0F, (Ui.now() - cardOpenedAt) / (float) ANIM_MS));
-        int w = Math.min(this.width - 20, CARD_W);
-        int h = Math.min(this.height - 20, CARD_H);
-        int x = (this.width - w) / 2;
-        int y = (this.height - h) / 2 + Math.round((1.0F - p) * 8);
-        Ui.rect(0, 0, this.width, this.height, Math.round(0x50 * p) << 24);
-        Widgets.card(x, y, w, h, p);
-        String title = listing ? I18n.format("steinloader.hud.elementsTitle") : options.name();
-        Widgets.title(Ui.trim(title, w - 40), x + 10, y + 9, p);
-        boolean closeHover = Widgets.closeHit(mx, my, x + w - 14, y + 13);
-        if (closeHover) {
-            Ui.circle(x + w - 14, y + 13, 9.0F, Widgets.SURFACE_HOVER);
-        }
-        Icons.close(x + w - 14, y + 13, 9.0F, Ui.alpha(closeHover ? Theme.INK : Theme.MUTED, p));
-
-        int listY = y + HEAD_H;
-        int listH = h - HEAD_H - 8;
-        Ui.clip(x, listY, w, listH);
-        int ry = listY - cardScroll;
-        if (listing) {
-            for (int i = 0; i < HudRegistry.elements.size(); i++) {
-                HudElement e = HudRegistry.elements.get(i);
-                boolean on = HudRegistry.placement(e).enabled;
-                boolean hover =
-                        mx >= x + 8
-                                && mx < x + w - 8
-                                && my >= ry
-                                && my < ry + ROW
-                                && my >= listY
-                                && my < listY + listH;
-                if (hover) {
-                    Draw2D.rect(x + 6, ry, w - 12, ROW - 2, Ui.alpha(Widgets.SURFACE_HOVER, p));
-                }
-                Ui.text(
-                        Ui.trim(e.name(), w - 70),
-                        x + 10,
-                        ry + 7,
-                        Ui.alpha(on ? Widgets.TEXT : Widgets.TEXT_DIM, p));
-                Widgets.knob("list|" + e.id(), x + w - 30, ry + ROW / 2 - 4, on, p, delta);
-                cardRows.add(new int[] {ry, ROW, i});
-                ry += ROW;
-            }
-        } else {
-            for (int i = 0; i < optionRows.size(); i++) {
-                Option o = optionRows.get(i);
-                Widgets.option(
-                        o,
-                        "editor|" + options.id(),
-                        new Widgets.Row(x + 10, ry, w - 20, ROW),
-                        new Widgets.Pointer(mx, my, my >= listY && my < listY + listH),
-                        p,
-                        delta);
-                cardRows.add(new int[] {ry, ROW, i});
-                ry += ROW;
-            }
-        }
-        Ui.unclip();
-        int contentH = ry + cardScroll - listY;
-        int max = Math.max(0, contentH - listH);
-        cardScroll = Math.max(0, Math.min(max, cardScroll));
-        if (max > 0) {
-            int bh = Math.max(20, listH * listH / contentH);
-            Draw2D.rect(
-                    x + w - 4,
-                    listY + (listH - bh) * cardScroll / max,
-                    1.0F,
-                    bh,
-                    Ui.alpha(Theme.RULE_STRONG, p));
-        }
-        cardRows.add(new int[] {y, h, -1, x, w}); // the whole box, to tell what is a click outside
-    }
-
     private static String fmtScale(float s) {
         return HudOptions.decimal(String.format(java.util.Locale.ROOT, "%.1fx", s));
     }
@@ -388,49 +294,6 @@ final class HudEditor extends GuiScreen {
     }
 
     /**
-     * Tells the element's owner that one of its options changed, so it can save the configuration.
-     *
-     * <p>This was missing: the Loader only notified on "restore defaults", so <b>every</b> mod
-     * element option changed here — armour laid out horizontally, the minimap style, what the Tab
-     * list shows — held until the game closed and then vanished. Whoever reported it thought it was
-     * only the armour; it was everyone, and the mod's file never even came to exist.
-     *
-     * <p>It also applies to the common options (scale, with chat): they already save themselves in
-     * the grid file, and notifying again only makes the mod rewrite what was already right.
-     */
-    private void changedOptions() {
-        if (options == null) {
-            return;
-        }
-        try {
-            options.optionsChanged();
-        } catch (Throwable t) {
-            System.out.println("[loader] HUD: " + options.id() + " could not save options: " + t);
-        }
-    }
-
-    private void openOptions(HudElement e) {
-        options = e;
-        listing = false;
-        optionRows = HudOptions.options(e);
-        cardScroll = 0;
-        cardOpenedAt = Ui.now();
-    }
-
-    private void openList() {
-        listing = true;
-        options = null;
-        cardScroll = 0;
-        cardOpenedAt = Ui.now();
-    }
-
-    private void closeCard() {
-        options = null;
-        listing = false;
-        optionRows = new ArrayList<>();
-    }
-
-    /**
      * Leaves saving, <b>always</b>.
      *
      * <p>Before, with something on top of something, leaving put everything back to how it was when
@@ -454,8 +317,11 @@ final class HudEditor extends GuiScreen {
 
     @Override
     protected void mouseClicked(int mx, int my, int button) {
-        if (options != null || listing) {
-            cardClick(mx, my, button);
+        if (card.isOpen()) {
+            HudElement picked = card.click(mx, my, button);
+            if (picked != null) {
+                selected = picked;
+            }
             return;
         }
         for (int[] r : barRows) {
@@ -479,14 +345,14 @@ final class HudEditor extends GuiScreen {
             grabY = my - b[1];
         } else if (button == 1) {
             dragging = null;
-            openOptions(e); // the element's options, right here
+            card.openOptions(e); // the element's options, right here
         }
     }
 
     private void barClick(int which) {
         Ui.click();
         switch (which) {
-            case 0 -> openList();
+            case 0 -> card.openList();
             case 1 -> {
                 int i = 0;
                 while (i < GRIDS.length && GRIDS[i] != HudRegistry.grid) {
@@ -503,60 +369,12 @@ final class HudEditor extends GuiScreen {
         }
     }
 
-    private void cardClick(int mx, int my, int button) {
-        int[] box = cardRows.isEmpty() ? null : cardRows.get(cardRows.size() - 1);
-        if (box == null || box[2] != -1) {
-            return;
-        }
-        int x = box[3];
-        int w = box[4];
-        if (mx < x || mx >= x + w || my < box[0] || my >= box[0] + box[1]) {
-            closeCard(); // a click outside closes it
-            return;
-        }
-        if (Widgets.closeHit(mx, my, x + w - 14, box[0] + 13)) {
-            Ui.click();
-            closeCard();
-            return;
-        }
-        for (int i = 0; i < cardRows.size() - 1; i++) {
-            int[] r = cardRows.get(i);
-            if (my < r[0] || my >= r[0] + r[1]) {
-                continue;
-            }
-            Ui.click();
-            if (listing) {
-                HudElement e = HudRegistry.elements.get(r[2]);
-                boolean on = HudRegistry.placement(e).enabled;
-                // Clicking the switch turns it on and off; clicking the name opens the element's
-                // options.
-                if (mx >= x + w - 40) {
-                    HudGrid.toggle(e, !on);
-                } else if (on) {
-                    selected = e;
-                    openOptions(e);
-                }
-            } else {
-                Option o = optionRows.get(r[2]);
-                // On the track: the value goes where the mouse is, and follows the drag; saves on
-                // release.
-                if (slider.press(o, button, mx, x + 10, w - 20)) {
-                    return;
-                }
-                boolean back = button == 1 || Widgets.backArrow(o, x + 10, w - 20, mx);
-                o.click(!back);
-                changedOptions();
-            }
-            return;
-        }
-    }
-
     @Override
     protected void mouseClickMove(int mx, int my, int button, long held) {
-        if (slider.drag(mx)) {
+        if (card.drag(mx)) {
             return;
         }
-        if (dragging == null || button != 0 || options != null || listing) {
+        if (dragging == null || button != 0 || card.isOpen()) {
             return;
         }
         move(dragging, mx - grabX, my - grabY, HudRegistry.snap && !shift());
@@ -565,9 +383,7 @@ final class HudEditor extends GuiScreen {
     @Override
     protected void mouseReleased(int mx, int my, int state) {
         dragging = null;
-        if (slider.release()) {
-            changedOptions();
-        }
+        card.release();
     }
 
     /**
@@ -659,8 +475,8 @@ final class HudEditor extends GuiScreen {
         if (wheel == 0) {
             return;
         }
-        if (options != null || listing) {
-            cardScroll = Math.max(0, cardScroll + (wheel > 0 ? -20 : 20));
+        if (card.isOpen()) {
+            card.scroll(wheel);
             return;
         }
         int mx = Ui.mouseX(this);
@@ -702,23 +518,19 @@ final class HudEditor extends GuiScreen {
     protected void keyTyped(char c, int key) {
         // A key option on the card is waiting: it takes the key (Esc gives up, without closing the
         // card).
-        if (options != null) {
-            for (Option o : optionRows) {
-                if (o instanceof Option.Key k && k.keyPressed(key)) {
-                    return;
-                }
-            }
+        if (card.keyPressed(key)) {
+            return;
         }
         int editKey = HudGrid.key != null ? HudGrid.key.getKeyCode() : 0;
         if (key == Keyboard.KEY_ESCAPE || (key == editKey && key != 0)) {
-            if (options != null || listing) { // the first Esc closes only the card
-                closeCard();
+            if (card.isOpen()) { // the first Esc closes only the card
+                card.close();
                 return;
             }
             close();
             return;
         }
-        if (options == null && !listing && selected != null && HudRegistry.box(selected)[2] > 0) {
+        if (!card.isOpen() && selected != null && HudRegistry.box(selected)[2] > 0) {
             int step = shift() ? Math.max(1, HudRegistry.grid) : 1;
             int dx = key == KeyCodes.LEFT ? -step : key == KeyCodes.RIGHT ? step : 0;
             int dy = key == KeyCodes.UP ? -step : key == KeyCodes.DOWN ? step : 0;

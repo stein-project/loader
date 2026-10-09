@@ -8,7 +8,9 @@
 
 package dev.xavier.stein.loader.gui;
 
+import dev.xavier.stein.bridge.core.Log;
 import dev.xavier.stein.gfx.SteinGlTrack;
+import dev.xavier.stein.loader.LoaderOptions;
 import dev.xavier.stein.loader.font.SteinFont;
 
 import net.minecraft.client.Minecraft;
@@ -163,7 +165,7 @@ public final class Ui {
      * font files. The caller passes the y of an 8-high text (the game font's): each role centers
      * itself in that strip.
      */
-    private static final boolean STEIN_FONT = !Boolean.getBoolean("steinloader.vanillaFont");
+    private static final boolean STEIN_FONT = !LoaderOptions.VANILLA_FONT;
 
     private static boolean steinFont() {
         return STEIN_FONT
@@ -419,7 +421,7 @@ public final class Ui {
                             try {
                                 task.run();
                             } catch (Throwable e) {
-                                System.out.println("[loader] could not open " + target + ": " + e);
+                                Log.info("loader", "could not open " + target + ": " + e);
                             }
                         },
                         threadName);

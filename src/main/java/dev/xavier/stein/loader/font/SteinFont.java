@@ -8,6 +8,9 @@
 
 package dev.xavier.stein.loader.font;
 
+import dev.xavier.stein.bridge.core.Log;
+import dev.xavier.stein.loader.LoaderOptions;
+
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.ScaledResolution;
 import net.minecraft.client.renderer.GlStateManager;
@@ -72,7 +75,7 @@ public final class SteinFont {
          * exactly that reason). {@code -Dsteinloader.hudWeight} changes the weight (SemiBold, Bold,
          * ExtraBold) for comparison.
          */
-        HUD("JetBrainsMono-" + System.getProperty("steinloader.hudWeight", "Bold") + ".ttf");
+        HUD("JetBrainsMono-" + LoaderOptions.HUD_WEIGHT + ".ttf");
 
         final String file;
         private Font base;
@@ -94,7 +97,7 @@ public final class SteinFont {
                     base = Font.createFont(Font.TRUETYPE_FONT, in).deriveFont(attrs);
                 } catch (Exception e) {
                     failed = true;
-                    System.out.println("[loader] font " + file + " failed to load: " + e);
+                    Log.info("loader", "font " + file + " failed to load: " + e);
                 }
             }
             return base;
@@ -349,8 +352,7 @@ public final class SteinFont {
      * widths (scoreboards, tables in chat, centered text) barely moves out of place, and the game's
      * measurements, which are in whole units, stay exact.
      */
-    public static final float GAME_SIZE =
-            Float.parseFloat(System.getProperty("steinloader.hudFontSize", "8.6"));
+    public static final float GAME_SIZE = LoaderOptions.HUD_FONT_SIZE;
 
     public static final int GAME_ADVANCE = 5;
 

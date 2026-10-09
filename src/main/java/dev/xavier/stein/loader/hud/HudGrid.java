@@ -8,6 +8,7 @@
 
 package dev.xavier.stein.loader.hud;
 
+import dev.xavier.stein.bridge.core.Log;
 import dev.xavier.stein.bridge.hooks.VanillaHud;
 import dev.xavier.stein.loader.Loader;
 import dev.xavier.stein.loader.ModTimes;
@@ -81,11 +82,10 @@ public final class HudGrid {
         started = true;
         Minecraft mc = Minecraft.getMinecraft();
         HudPersistence.open(new File(mc.mcDataDir, "config/steinloader-hud.json"));
-        // The usual key ("key.steinloader.hud", right Shift by default) opens the screen editor: it
-        // is
-        // what the player uses the most, and where the things on screen are. The Panel (the mods'
-        // options, which are not on screen) has its own key, on Insert: both are in the controls
-        // menu, and one does not depend on the other.
+        // The usual key ("key.steinloader.hud", right Shift by default) opens the screen editor:
+        // it is what the player uses the most, and where the things on screen are. The Panel (the
+        // mods' options, which are not on screen) has its own key, on Insert: both are in the
+        // controls menu, and one does not depend on the other.
         key = new KeyBinding("key.steinloader.hud", KEY_RSHIFT, "key.categories.steinloader");
         Keys.register(key);
         panelKey =
@@ -162,9 +162,9 @@ public final class HudGrid {
         Minecraft.getMinecraft()
                 .gameSettings
                 .saveOptions(); // saved, otherwise the next start reads the previous one
-        System.out.println(
-                "[loader] Panel key: Insert (first run; change it in Controls if you want"
-                        + " another)");
+        Log.info(
+                "loader",
+                "Panel key: Insert (first run; change it in Controls if you want" + " another)");
     }
 
     /** Turns an element on (finding a free place) or off, as the editor's list does. */
@@ -248,8 +248,9 @@ public final class HudGrid {
                     continue;
                 }
                 if (covered(e)) {
-                    continue; // under the Tab: not drawn (the box stays as of the last frame, to
-                    // come back in place)
+                    // Under the Tab list: not drawn. The box stays as of the last frame, so the
+                    // element comes back in place.
+                    continue;
                 }
                 long t = System.nanoTime();
                 draw(e, p, w, h, false, partialTicks);
@@ -260,8 +261,7 @@ public final class HudGrid {
             // The game goes back to drawing its parts.
             VanillaHud.setTakeover(false, false, false);
             VanillaHud.setTakeoverParts(false, false, false, false, false);
-            System.out.println("[loader] HUD disabled: " + t);
-            t.printStackTrace(System.out);
+            Log.error("loader", "HUD disabled", t);
         } finally {
             resetState();
         }
@@ -305,9 +305,7 @@ public final class HudGrid {
                     a *= bar.opacity(); // fades together with the message
                 }
                 // A game part that does not fill the box (chat with few lines): the background
-                // covers
-                // only what is occupied, and fades
-                // together with the lines.
+                // covers only what is occupied, and fades together with the lines.
                 float shown = box[3] - in * 2;
                 if (e instanceof VanillaPart part) {
                     shown = part.shownHeight() * s;
@@ -339,8 +337,7 @@ public final class HudGrid {
             }
             failed.put(e, Boolean.TRUE);
             box[2] = 0;
-            System.out.println("[loader] HUD: element " + e.id() + " disabled: " + ex);
-            ex.printStackTrace(System.out);
+            Log.error("loader", "HUD: element " + e.id() + " disabled", ex);
             return false;
         } finally {
             HudText.exit(gameFont);

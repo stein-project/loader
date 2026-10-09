@@ -11,6 +11,7 @@ package dev.xavier.stein.loader;
 import static dev.xavier.stein.loader.GameOps.mc;
 import static dev.xavier.stein.loader.PlayerOps.player;
 
+import dev.xavier.stein.bridge.core.Log;
 import dev.xavier.stein.bridge.hooks.GameHooks;
 
 import net.minecraft.client.Minecraft;
@@ -222,9 +223,10 @@ final class InventoryOps {
     static {
         GameHooks.chestScreen =
                 screen -> {
-                    if (Boolean.getBoolean("steinloader.debugChest")) {
-                        System.out.println(
-                                "[chest] the server opened a chest; virtual requested: "
+                    if (LoaderOptions.DEBUG_CHEST) {
+                        Log.info(
+                                "chest",
+                                "the server opened a chest; virtual requested: "
                                         + (virtualUntil != 0L && System.nanoTime() <= virtualUntil)
                                         + ", screen "
                                         + screen.getClass().getSimpleName());

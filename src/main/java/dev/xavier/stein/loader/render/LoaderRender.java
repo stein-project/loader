@@ -317,8 +317,8 @@ public final class LoaderRender implements RenderBackend {
         if (box == null) {
             return false;
         }
-        // Where the entity is drawn this frame: the box moved from its position to the
-        // interpolated one.
+        // Where the entity is drawn this frame: the box moves from its position to the
+        // interpolated position.
         double dx = e.lastTickPosX + (e.posX - e.lastTickPosX) * partialTicks - e.posX;
         double dy = e.lastTickPosY + (e.posY - e.lastTickPosY) * partialTicks - e.posY;
         double dz = e.lastTickPosZ + (e.posZ - e.lastTickPosZ) * partialTicks - e.posZ;
