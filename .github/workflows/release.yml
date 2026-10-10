@@ -1,6 +1,11 @@
-# Publishes a Loader release (the Loader, the mod API and its sources) when a v<version> tag is pushed; the tag must
-# match Loader.VERSION. Run by hand (Actions > release > Run workflow) it only builds and keeps the files as a
-# workflow artifact, publishing nothing.
+# Builds a Loader version and keeps the files (steinloader.jar, stein-api.jar and its sources, the licences,
+# SHA256SUMS) as a workflow artifact. It publishes nothing: the Loader is an internal component, and players get it
+# inside the installer, whose release workflow (Stein-Project/installer) builds it from source and publishes the pack
+# to the public distribution repository Stein-Project/stein-loader. Mod authors get stein-api from the SDK's Maven
+# repository (the "maven" branch of Stein-Project/stein-sdk, published by the SDK's release workflow).
+#
+# Triggers: a v<version> tag (the tag must match Loader.VERSION: it marks the commit of that version, and a mismatch
+# fails the run) or by hand (Actions > release > Run workflow). Both do the same: build, check, artifact.
 name: release
 
 on:
@@ -9,7 +14,7 @@ on:
   workflow_dispatch:
 
 permissions:
-  contents: write
+  contents: read
 
 jobs:
   release:
@@ -62,11 +67,3 @@ jobs:
         with:
           name: stein-loader-${{ steps.version.outputs.version }}
           path: dist/
-      - name: Publish
-        if: startsWith(github.ref, 'refs/tags/')
-        env:
-          GH_TOKEN: ${{ github.token }}
-        run: |
-          pre=; [[ "$GITHUB_REF_NAME" == *-* ]] && pre=--prerelease
-          gh release create "$GITHUB_REF_NAME" dist/* -R "$GITHUB_REPOSITORY" $pre \
-            --title "Stein Loader ${{ steps.version.outputs.version }}" --generate-notes

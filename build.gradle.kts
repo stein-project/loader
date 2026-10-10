@@ -6,6 +6,8 @@
 //   ./gradlew runClient       plays the game through the Stein Bridge with this Loader (and -Pstein.mods=<folder>)
 //   ./gradlew verify -Pstein.world=<world>
 //                             plays a singleplayer world with every verification mode on, in both pipelines
+//   ./gradlew dist            build/dist/steinloader.jar, the obfuscated Loader for the installer (mapping in
+//                             build/dist-mapping, never distributed); -Pstein.dist makes runClient and verify play it
 //   ./gradlew spotlessApply   formats the Java code (google-java-format, AOSP style)
 //
 // Written with MCP's readable names (the same as the SDK's: Minecraft.getMinecraft()), the Loader goes through:
@@ -454,7 +456,240 @@ tasks.check {
         preflight)
 }
 
+// ---- the obfuscated build: what reaches players ----
+//
+// The Loader is proprietary (its API is MIT) and reaches players only as a jar, through the installer: that jar is
+// obfuscated. stein-api.jar stays as it is (mods compile against it), and so does what the API names.
+//   ./gradlew dist   build/dist/steinloader.jar   the Loader renamed by ProGuard on top of the Bridge's mapping
+//                                                 (../bridge ./gradlew dist runs first), with the Bridge's rules
+//                                                 translated inside (steinloader/rules, for ModPatch)
+//                    build/dist-mapping/          the mapping of the Loader and the Bridge (steinloader.txt), the
+//                                                 option-name codes (codes.txt) and the ProGuard configuration. NEVER
+//                                                 distributed: it is what retraces a player's stack trace.
+// The Loader calls the Bridge by the Bridge's names, so it is obfuscated together with it: the plain Bridge jar goes in
+// as a second input with -applymapping (the Bridge's own run), which gives every Bridge class and member the name it
+// has in ../bridge/build/dist/steinbridge.jar; that second output is thrown away. A Loader from build/dist only runs
+// with the Bridge of the same dist build (the installer ships the two together).
+//
+// -Pstein.dist makes runClient and verify play the obfuscated game: the Bridge and the game patched with the
+// translated rules (../bridge/build/dist-work/run/game.properties), this Loader, and the -Dsteinbridge.* names
+// translated through the codes table.
+
+val distEnabled = providers.gradleProperty("stein.dist").map { it.isEmpty() || it.toBoolean() }.getOrElse(false)
+
+val proguard: Configuration = configurations.create("proguard")
+dependencies { proguard(libs.proguard) }
+
+val bridgeDist = bridgeBuild.task(":dist")
+val bridgeDistDir = bridgeDir.resolve("build/dist")
+val bridgeDistMapping = bridgeDir.resolve("build/dist-mapping")
+val bridgeDistProperties = bridgeDir.resolve("build/dist-work/run/game.properties")
+val distDir = layout.buildDirectory.dir("dist")
+val distMapping = layout.buildDirectory.dir("dist-mapping")
+val distWork = layout.buildDirectory.dir("dist-work")
+
+/** The rules ModPatch reads from inside the Loader (the `rules` task above), translated by the Bridge's dist. */
+val modPatchRules = listOf("name-mapping.txt", "redirects-mc.tsv", "redirects-opt.tsv", "redirects-modgl.tsv")
+
+/** What keeps its name in the Loader, besides what the Bridge keeps (../bridge/build/dist-mapping/steinbridge-keep.pro). */
+val loaderKeeps = """
+    # The mod API: mods compile against stein-api.jar (never obfuscated) and call it by name.
+    -keep class dev.xavier.stein.loader.api.** { public protected *; }
+    # What only the official mods call (outside stein-api.jar), by the names written in their bytecode, including the
+    # access bootstrap ModPatch writes into mods (internal.Access).
+    -keep class dev.xavier.stein.loader.internal.** { public *; }
+    # ASM inside the Loader (ModPatch adapts mods with it): a third-party library (BSD), shipped as it is.
+    -keep class org.objectweb.asm.** { *; }
+    # The Bridge's Loader-menu diagnostic scene (bridge/diag/DiagScreenScenes) reaches these by name.
+    -keep class dev.xavier.stein.loader.Loader { public static ** get(); }
+    -keep class dev.xavier.stein.loader.gui.LoaderScreen { public <init>(...); int page; int selected; }
+""".trimIndent()
+
+/** A path for a ProGuard configuration file: forward slashes, quoted. */
+fun proguardPath(f: File) = "'" + f.absolutePath.replace('\\', '/') + "'"
+
+val distProguard = tasks.register<JavaExec>("distProguard") {
+    description = "Renames the Loader with ProGuard on top of the Bridge's mapping (build/dist-work/proguard)."
+    dependsOn(bridgeDist, bridgeReady)
+    val loader = loaderJar.flatMap { it.archiveFile }
+    val bridgePlain = bridgeDir.resolve("build/libs/steinbridge.jar")
+    val bridgeOut = distWork.map { it.file("proguard/steinbridge-thrown-away.jar") }
+    val out = distWork.map { it.file("proguard/steinloader.jar") }
+    val mapping = distMapping.map { it.file("steinloader.txt") }
+    val config = distMapping.map { it.file("steinloader.pro") }
+    inputs.file(loader)
+    inputs.files(bridgePlain, bridgeDistMapping.resolve("steinbridge.txt"),
+        bridgeDistMapping.resolve("steinbridge-keep.pro"))
+    inputs.property("rules", loaderKeeps)
+    outputs.files(bridgeOut, out, mapping, config)
+    classpath = proguard
+    mainClass = "proguard.ProGuard"
+    argumentProviders.add { listOf("@" + config.get().asFile.path) }
+    doFirst {
+        out.get().asFile.delete()
+        bridgeOut.get().asFile.delete()
+        // The game, its libraries and LWJGL 3 as the Bridge's build has them (without the Bridge, which is an input
+        // here), and the JDK classes the Bridge's dist wrote.
+        val libraries = game("classpath").split(File.pathSeparator).map(::File)
+            .filter { it.isFile && it.canonicalFile != bridgePlain.canonicalFile } +
+            bridgeDir.resolve("build/dist-work/jdk-classes.jar")
+        config.get().asFile.apply { parentFile.mkdirs() }.writeText((listOf(
+            "-injars ${proguardPath(bridgePlain)}",
+            "-outjars ${proguardPath(bridgeOut.get().asFile)}",
+            "-injars ${proguardPath(loader.get().asFile)}",
+            "-outjars ${proguardPath(out.get().asFile)}",
+        ) + libraries.map { "-libraryjars ${proguardPath(it)}" } + listOf(
+            "-include ${proguardPath(bridgeDistMapping.resolve("steinbridge-keep.pro"))}",
+            "-applymapping ${proguardPath(bridgeDistMapping.resolve("steinbridge.txt"))}",
+            loaderKeeps,
+            "-printmapping ${proguardPath(mapping.get().asFile)}",
+        )).joinToString("\n", postfix = "\n"))
+    }
+    // The Bridge must come out of this run with exactly the names of its own run: same classes, same members.
+    doLast {
+        // Rename only: every class that went in comes out (and a Loader jar without its classes is not a Loader).
+        fun classes(f: File) = ZipFile(f).use { z -> z.entries().toList().count { it.name.endsWith(".class") } }
+        for ((input, output) in listOf(loader.get().asFile to out.get().asFile, bridgePlain to bridgeOut.get().asFile)) {
+            val n = classes(input)
+            check(n > 100 && classes(output) == n) {
+                "ProGuard took ${input.name} ($n classes) to ${output.name} (${classes(output)} classes)"
+            }
+        }
+        fun entries(f: File): Map<String, Set<String>> {
+            val m = linkedMapOf<String, MutableSet<String>>()
+            var cur: MutableSet<String>? = null
+            f.forEachLine { line ->
+                val t = line.trim()
+                when {
+                    t.isEmpty() || t.startsWith("#") -> {}
+                    !line.startsWith(" ") && t.endsWith(":") -> cur = m.getOrPut(t) { mutableSetOf() }
+                    // "10:12:void a(int) -> b": the line numbers are not part of the name.
+                    else -> cur?.add(t.replace(Regex("""^[0-9]+:[0-9]+:"""), ""))
+                }
+            }
+            return m
+        }
+        val bridge = entries(bridgeDistMapping.resolve("steinbridge.txt"))
+        val joint = entries(mapping.get().asFile)
+        val differ = bridge.filter { (cls, members) -> joint[cls] != members }.keys
+        check(differ.isEmpty()) {
+            "the Loader's run named the Bridge differently from the Bridge's dist:\n  " +
+                differ.take(20).joinToString("\n  ")
+        }
+        logger.lifecycle("Bridge names in the Loader's run: identical to ../bridge/build/dist (${bridge.size} classes)")
+    }
+}
+
+// The renamed Loader with the Bridge's translated rules in place of the ones the build put in (ProGuard does not touch
+// resources: they would still have the real names).
+val distLoaderJar = tasks.register<Jar>("distLoaderJar") {
+    description = "The renamed Loader with the translated ModPatch rules (build/dist-work/jar)."
+    destinationDirectory = distWork.map { it.dir("jar") }
+    archiveFileName = "steinloader.jar"
+    from(distProguard.map { zipTree(it.outputs.files.first { f -> f.name == "steinloader.jar" }) }) {
+        exclude("steinloader/rules/**", "META-INF/MANIFEST.MF")
+    }
+    from(bridgeDistDir.resolve("rules")) {
+        include(modPatchRules)
+        into("steinloader/rules")
+    }
+    inputs.files(bridgeDistDir.resolve("rules"))
+    duplicatesStrategy = DuplicatesStrategy.FAIL
+    isPreserveFileTimestamps = false
+    isReproducibleFileOrder = true
+    doLast {
+        ZipFile(archiveFile.get().asFile).use { z ->
+            for (r in modPatchRules) {
+                val inside = z.getEntry("steinloader/rules/$r")?.let { e -> z.getInputStream(e).readBytes() }
+                check(inside != null && inside.contentEquals(bridgeDistDir.resolve("rules/$r").readBytes())) {
+                    "steinloader.jar does not carry the translated rule $r"
+                }
+            }
+        }
+    }
+}
+
+// The -Dsteinbridge.* names as codes, with the Bridge's table: an option read by both has one code.
+val distJar = tasks.register<JavaExec>("distJar") {
+    group = "distribution"
+    description = "Builds build/dist/steinloader.jar: the obfuscated Loader, with the option names as codes."
+    val out = distDir.map { it.file("steinloader.jar") }
+    val codes = distMapping.map { it.file("codes.txt") }
+    val base = bridgeDistMapping.resolve("codes.txt")
+    inputs.files(distLoaderJar, base)
+    outputs.files(out, codes)
+    tool("Codes", bridgeTools + asm)
+    argumentProviders.add { listOf(codes.get().asFile.path, "--base", base.path, out.get().asFile.path) }
+    doFirst { distLoaderJar.get().archiveFile.get().asFile.copyTo(out.get().asFile, overwrite = true) }
+}
+
+// Every reference between our classes, in the Bridge and the Loader as they reach the player, resolves.
+val distCheck = tasks.register<JavaExec>("distCheck") {
+    group = "verification"
+    description = "Checks that every reference of the obfuscated Bridge and Loader to our classes and members resolves."
+    inputs.files(distJar)
+    outputs.upToDateWhen { true }
+    tool("DistCheck", bridgeTools + asm)
+    argumentProviders.add {
+        listOf(bridgeDistDir.resolve("steinbridge.jar").path, distDir.get().file("steinloader.jar").asFile.path)
+    }
+}
+
+val dist = tasks.register("dist") {
+    group = "distribution"
+    description = "The obfuscated Loader for the installer (build/dist/steinloader.jar, mapping in build/dist-mapping)."
+    dependsOn(bridgeDist, distJar, distCheck)
+    doLast {
+        logger.lifecycle("ok: build/dist/steinloader.jar (mapping in build/dist-mapping: never distribute it)")
+    }
+}
+
 // ---- running the game ----
+
+/** What the game runs with: the Bridge build's game.properties, or the obfuscated game's with -Pstein.dist. */
+fun runGame(key: String): String =
+    Properties().apply { (if (distEnabled) bridgeDistProperties else gameProperties).reader().use { load(it) } }
+        .getProperty(key)
+
+/** The Loader jar the game runs with. */
+fun runLoaderJar(): File =
+    if (distEnabled) distDir.get().file("steinloader.jar").asFile else loaderJar.get().archiveFile.get().asFile
+
+/** What runClient and verify build first. */
+val runReady: List<Any> = if (distEnabled) listOf(dist) else listOf(loaderJar, bridgeReady)
+
+/**
+ * With -Pstein.dist the -Dsteinbridge.* names are codes in the jars (../bridge/tools/Codes.java): each name is
+ * translated through build/dist-mapping/codes.txt (an exact name, or the prefix of an area read as prefix + name). A
+ * name the table does not have is not read by the jars; it goes as it is, with a warning.
+ */
+fun runFlags(args: List<String>): List<String> {
+    if (!distEnabled) return args
+    val exact = mutableMapOf<String, String>()
+    val plain = mutableMapOf<String, String>()
+    distMapping.get().file("codes.txt").asFile.readLines().filter { it.isNotBlank() && !it.startsWith("#") }
+        .map { it.split("\t") }.forEach { c ->
+            when (c.getOrNull(2)) {
+                "prefix-plain" -> plain[c[1]] = c[0]
+                "prefix" -> {}
+                else -> exact[c[1]] = c[0]
+            }
+        }
+    return args.map { a ->
+        if (!a.startsWith("-Dsteinbridge.")) return@map a
+        val name = a.removePrefix("-D").substringBefore('=')
+        val value = if ('=' in a) "=" + a.substringAfter('=') else ""
+        val code = exact[name] ?: plain.entries.firstOrNull { name.startsWith(it.key) }
+            ?.let { it.value + name.removePrefix(it.key) }
+        if (code == null) {
+            // steinbridge.gfx, steinbridge.oldAnimations: names with no area are not coded (Codes.java).
+            if (name.indexOf('.', "steinbridge.".length) >= 0) logger.warn("warning: $name is not in the obfuscated jars (passed as it is)")
+            a
+        } else {
+            "-D$code$value"
+        }
+    }
+}
 
 /** A stream that writes to two others: the console and the run log. */
 class Tee(private val a: OutputStream, private val b: OutputStream) : OutputStream() {
@@ -469,11 +704,11 @@ fun gameCommand(gameDir: File, jvmArgs: List<String>): List<String> {
     val mem = providers.gradleProperty("stein.mem").getOrElse("2")
     return listOf(java.executablePath.asFile.path, "-Xmx${mem}G", "-Xms256M", "-XX:SoftMaxHeapSize=768M",
         "-XX:+UseZGC", "-XX:-ZProactive", "--enable-native-access=ALL-UNNAMED",
-        "-Djava.library.path=${game("natives")}") + jvmArgs +
-        listOf("-cp", game("classpath") + File.pathSeparator + loaderJar.get().archiveFile.get().asFile.path,
+        "-Djava.library.path=${runGame("natives")}") + runFlags(jvmArgs) +
+        listOf("-cp", runGame("classpath") + File.pathSeparator + runLoaderJar().path,
             "dev.xavier.stein.bridge.launch.Main", "--username", providers.gradleProperty("stein.user")
                 .getOrElse("SteinBridge"), "--version", "1.8.9", "--gameDir", gameDir.path,
-            "--assetsDir", game("assets"), "--assetIndex", "1.8", "--uuid", "00000000000000000000000000000000",
+            "--assetsDir", runGame("assets"), "--assetIndex", "1.8", "--uuid", "00000000000000000000000000000000",
             "--accessToken", "0", "--userProperties", "{}", "--userType", "legacy")
 }
 
@@ -489,8 +724,8 @@ fun installMods(gameDir: File) {
  */
 tasks.register("runClient") {
     group = "application"
-    description = "Plays the game with this Loader."
-    dependsOn(loaderJar, bridgeReady)
+    description = "Plays the game with this Loader (-Pstein.dist: the obfuscated build)."
+    dependsOn(runReady)
     doLast {
         val gameDir = file(providers.gradleProperty("stein.gameDir").getOrElse("build/gamedir")).apply { mkdirs() }
         val runLog = file(providers.gradleProperty("stein.runLog").getOrElse("build/run.log"))
@@ -521,7 +756,7 @@ tasks.register("runClient") {
 tasks.register("verify") {
     group = "verification"
     description = "Plays a world with every verification mode on, in both pipelines (-Pstein.world=<world>)."
-    dependsOn(loaderJar, bridgeReady)
+    dependsOn(runReady)
     doLast {
         val world = providers.gradleProperty("stein.world").orNull
             ?: throw GradleException("pass the world: -Pstein.world=<folder in build/gamedir/saves>")

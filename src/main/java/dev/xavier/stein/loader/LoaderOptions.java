@@ -29,7 +29,7 @@ public final class LoaderOptions {
     /**
      * {@code -Dsteinloader.remote=url}: reads the project's file (Discord invite, latest version,
      * main menu message) from another address; empty fetches nothing and keeps the stored copy
-     * (default: {@code stein.json} in the Loader's repository).
+     * (default: {@code stein.json} in the distribution repository).
      */
     public static final String REMOTE = Opt.text("steinloader.remote", Remote.DEFAULT_URL);
 

@@ -67,7 +67,6 @@ list.
 | `api/stein-api.txt` | The API signature list the build checks against |
 | `test/` | Access and dependency tests, and a hook test mod |
 | `changelog/` | Release notes of the **pack** (see below), in English and Portuguese |
-| `stein.json` | What the Loader fetches at startup: the Discord invite, the latest pack version, the main menu message |
 | `tools/` | Build tools: the API check, the API reference check, the `-D` option list, the Discord mark |
 | `docs/OPTIONS.md` | Every `-D` option the Loader reads (generated) |
 
@@ -80,19 +79,23 @@ release notes. Write both files before tagging an installer release; the Loader'
 
 ## The project file (`stein.json`)
 
-At startup the Loader fetches `stein.json` from this repository's default branch
-(`https://raw.githubusercontent.com/Stein-Project/loader/main/stein.json`, see `Remote.java`): the Discord invite
-(the button on the main menu), the latest pack version (the update warning) and a message for the main menu, with
-one text per language. It is edited **by hand**, here, and takes effect on the next start of everyone who has the
-Loader, with no new release:
+At startup the Loader fetches `stein.json` from the default branch of the public distribution repository
+[Stein-Project/stein-loader](https://github.com/Stein-Project/stein-loader)
+(`https://raw.githubusercontent.com/Stein-Project/stein-loader/main/stein.json`, see `Remote.java`), not from this
+repository, which is private: the Discord invite (the button on the main menu), the latest pack version (the update
+warning) and a message for the main menu, with one text per language. The same file carries the installer's mod
+index (`mods`), which the Loader ignores. It takes effect on the next start of everyone who has the Loader, with no
+new release:
 
-- bump `latest.version` (and `latest.url` if it moved) when a pack release goes out;
-- give `news` a new `id` to show a new message (a player who closed a message does not see the same `id` again);
+- `discord` and `news` are edited **by hand**, in that repository; give `news` a new `id` to show a new message (a
+  player who closed a message does not see the same `id` again);
+- `latest.version` and `latest.url` are written by the installer's release workflow when a pack release goes out;
+- `mods` is written by the mods' release workflows; do not edit it by hand;
 - only https links to the project's hosts are accepted (Discord, GitHub).
 
 The last copy that arrived is kept in `config/steinloader-remoto.json` and is what applies offline, and also when the
-fetch gets anything other than 200 (while this repository is private, for instance). Keys the Loader does not read
-are ignored; older files also had `servers` and `mods`, which are no longer used.
+fetch gets anything other than 200. Keys the Loader does not read are ignored (older files also had `servers`, which
+is no longer used).
 
 ## Development
 

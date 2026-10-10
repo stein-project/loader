@@ -9,7 +9,7 @@ The Bridge's options are in its own `docs/OPTIONS.md`; the mod API reads one mor
 `dev.xavier.stein.loader.LoaderOptions`
 
 - `-Dsteinloader.disable=id1,id2`: disables these mods for this run only, without changing config/steinloader.json (default: unset).
-- `-Dsteinloader.remote=url`: reads the project's file (Discord invite, latest version, main menu message) from another address; empty fetches nothing and keeps the stored copy (default: `stein.json` in the Loader's repository).
+- `-Dsteinloader.remote=url`: reads the project's file (Discord invite, latest version, main menu message) from another address; empty fetches nothing and keeps the stored copy (default: `stein.json` in the distribution repository).
 - `-Dsteinloader.noRemote=true`: turns the project's file off entirely, including the stored copy: no Discord button, no update warning, no message (default: off).
 - `-Dsteinloader.noAnnounce=true`: does not tell the server which mods are loaded when joining (default: off, the list is sent on the `SteinLoader` channel).
 - `-Dsteinloader.vanillaFont=true`: the Loader's menus use Minecraft's font instead of Stein's (default: off).

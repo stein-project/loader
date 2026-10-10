@@ -29,10 +29,11 @@ import java.util.Map;
  * What the project publishes and the Loader reads at startup: the Discord invite, the latest pack
  * version and a message for the main menu.
  *
- * <p>The file is {@code stein.json} at the root of the Loader's repository ({@link #REPO}), edited
- * by hand, and not inside the jar: a changed invite or a new message takes effect on the next start
+ * <p>The file is {@code stein.json} at the root of the public distribution repository ({@link
+ * #REPO}), and not inside the jar: a changed invite or a new message takes effect on the next start
  * of anyone who already has the Loader installed, with no new version or new installer. {@code
- * latest.version} is bumped by hand when a pack release goes out.
+ * discord} and {@code news} are edited by hand; {@code latest} is written by the installer's
+ * release workflow when a pack release goes out.
  *
  * <pre>
  * { "discord": "https://discord.gg/xxxxxxx",
@@ -45,8 +46,8 @@ import java.util.Map;
  * internet. What arrives is stored in {@code config/steinloader-remoto.json} and is what applies
  * next time, even before the fetch answers. Any answer other than 200 (the repository unreachable
  * or still private, a missing file) and any unreadable file keep the stored copy, so the Discord
- * button and the message stay there, offline too. Keys this version does not read (older files also
- * had {@code servers} and {@code mods}) are ignored.
+ * button and the message stay there, offline too. Keys this version does not read ({@code mods},
+ * the installer's mod index, and {@code servers} in older files) are ignored.
  *
  * <p>{@code -Dsteinloader.remote=<url>} changes the address (empty fetches nothing) and {@code
  * -Dsteinloader.noRemote=true} turns everything off, including the stored copy.
@@ -54,14 +55,14 @@ import java.util.Map;
 public final class Remote {
 
     /**
-     * The project's repository, where {@code stein.json} lives: <b>the only place</b> where it
-     * appears in the code.
+     * The public distribution repository, where {@code stein.json} lives (the Loader's source
+     * repository is private): <b>the only place</b> where it appears in the code.
      *
      * <p>When the file moves, change it here and publish a new Loader, and <b>leave the old file
      * up</b> as long as there are people with the earlier Loader installed: it is through it that
      * those people learn there is a new version.
      */
-    static final String REPO = "Stein-Project/loader";
+    static final String REPO = "Stein-Project/stein-loader";
 
     /** The default address of the project's file: {@code stein.json} on the default branch. */
     static final String DEFAULT_URL =
