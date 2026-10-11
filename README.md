@@ -72,7 +72,7 @@ list.
 
 ## Release notes (`changelog/`)
 
-`changelog/<version>.en_US.md` and `<version>.pt_BR.md` are the notes of a **pack release**, the version players see
+`changelog/<version>.en_US.md` (and the optional `<version>.pt_BR.md`) are the notes of a **pack release**, the version players see
 in the installer (not the Loader's own `Loader.VERSION`). They live here, but the [installer](https://github.com/Stein-Project/installer)'s
 release workflow is what reads them: it checks out this repository and puts `changelog/<tag version>.*.md` in the
 release notes. Write both files before tagging an installer release; the Loader's build does not use them.
