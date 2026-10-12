@@ -12,7 +12,7 @@ import dev.xavier.stein.loader.api.Gameplay;
 
 /**
  * The gameplay switches under their old name, kept only so that mods built before {@link Gameplay}
- * (Combat 0.1.20 and older) still load. It goes away in a later Loader; mods call {@link Gameplay}.
+ * still load. It goes away in a later Loader; mods call {@link Gameplay}.
  *
  * @deprecated use {@link Gameplay}
  */

@@ -21,11 +21,11 @@ import java.util.Set;
  * What each mod requires of the others ({@code depends} and {@code optional} in steinmod.json) and
  * the order in which they start.
  *
- * <p>{@code "depends": {"steincombat": "0.1.12"}} — without Combat 0.1.12 or newer enabled, the mod
- * does not load, with the reason shown in the list (and so do those that depended on it, in
- * cascade). {@code "optional"} has the same format: the mod loads without it, but if it is enabled
- * it must be at that version or newer (an old version that it would call is worse than none), and
- * it starts first.
+ * <p>{@code "depends": {"steinhud": "0.1.11"}} — without HUD 0.1.11 or newer enabled, the mod does
+ * not load, with the reason shown in the list (and so do those that depended on it, in cascade).
+ * {@code "optional"} has the same format: the mod loads without it, but if it is enabled it must be
+ * at that version or newer (an old version that it would call is worse than none), and it starts
+ * first.
  *
  * <p>The order applies to everything: constructor, beforeStartGame, afterStartGame and every event
  * — whoever is required comes before whoever requires it. Otherwise, the folder order

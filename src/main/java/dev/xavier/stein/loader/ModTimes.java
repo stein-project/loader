@@ -114,7 +114,7 @@ public final class ModTimes {
     }
 
     /**
-     * "HUD 0.21 ms, Combat 0.04 ms": those above 0.01 ms per frame, summing each mod's instances.
+     * "HUD 0.21 ms, Replay 0.04 ms": those above 0.01 ms per frame, summing each mod's instances.
      */
     static String summary() {
         Map<ModInfo, Double> byMod = new LinkedHashMap<>();
