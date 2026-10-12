@@ -141,15 +141,6 @@
       "y": 2,
       "scale": 1.0
     },
-    "steincombat.nearest": {
-      "enabled": false,
-      "showInChat": true,
-      "anchorX": 1,
-      "anchorY": 0,
-      "x": 0,
-      "y": 40,
-      "scale": 1.0
-    },
     "steinhud.stats": {
       "enabled": true,
       "showInChat": true,
@@ -223,25 +214,6 @@
       "x": 0,
       "y": -24,
       "scale": 1.0
-    },
-    "steincombat.nearestAlly": {
-      "enabled": false,
-      "showInChat": true,
-      "anchorX": 1,
-      "anchorY": 0,
-      "x": 0,
-      "y": 54,
-      "scale": 1.0
-    },
-    "steincombat.features": {
-      "enabled": true,
-      "showInChat": true,
-      "anchorX": 2,
-      "anchorY": 0,
-      "x": 0,
-      "y": 3,
-      "scale": 1.0,
-      "background": 0.2
     },
     "steinhud.target": {
       "enabled": true,
