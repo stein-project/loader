@@ -8,6 +8,7 @@ C dev/xavier/stein/loader/api/Entities public final super=java/lang/Object itf= 
 C dev/xavier/stein/loader/api/Entities$Kind public final super=java/lang/Enum itf= @Experimental
 C dev/xavier/stein/loader/api/Experimental public interface super=java/lang/Object itf=java/lang/annotation/Annotation
 C dev/xavier/stein/loader/api/Game public final super=java/lang/Object itf=
+C dev/xavier/stein/loader/api/Gameplay public final super=java/lang/Object itf= @Experimental
 C dev/xavier/stein/loader/api/Http public final super=java/lang/Object itf= @Experimental
 C dev/xavier/stein/loader/api/Hud public final super=java/lang/Object itf=
 C dev/xavier/stein/loader/api/HudElement public interface super=java/lang/Object itf=
@@ -308,6 +309,10 @@ M dev/xavier/stein/loader/api/Game.setInventoryEffectsHidden(Z)V public static
 M dev/xavier/stein/loader/api/Game.setItemData(Ljava/lang/Object;Ljava/lang/Object;)V public static
 M dev/xavier/stein/loader/api/Game.spriteAt(FF)Ljava/lang/Object; public static
 M dev/xavier/stein/loader/api/Game.watchBlockModel(Ljava/lang/Object;Z)V public static
+M dev/xavier/stein/loader/api/Gameplay.setNoHitDelay(Z)V public static @Experimental
+M dev/xavier/stein/loader/api/Gameplay.setNoHitSlowdown(Z)V public static @Experimental
+M dev/xavier/stein/loader/api/Gameplay.setSprintAllDirections(Z)V public static @Experimental
+M dev/xavier/stein/loader/api/Gameplay.setSprintOnHit(Z)V public static @Experimental
 M dev/xavier/stein/loader/api/Http.getText(Ljava/lang/String;Ljava/util/function/Consumer;Ljava/util/function/Consumer;)V public static @Experimental
 M dev/xavier/stein/loader/api/Http.getTextNow(Ljava/lang/String;)Ljava/lang/String; public static @Experimental
 M dev/xavier/stein/loader/api/Hud.cover(FFFF)V public static @Experimental

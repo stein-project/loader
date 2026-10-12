@@ -8,6 +8,7 @@
 
 package dev.xavier.stein.loader;
 
+import dev.xavier.stein.bridge.engine.Sprint;
 import dev.xavier.stein.bridge.hooks.GameHooks;
 import dev.xavier.stein.loader.api.Players;
 import dev.xavier.stein.loader.api.Targeting;
@@ -21,8 +22,9 @@ import net.minecraft.entity.EntityLivingBase;
 import java.util.List;
 
 /**
- * The world part of {@link LoaderHost}: targeting, entities, players, relations and terrain. Each
- * method is a one-line delegate, mostly to TargetingOps, PlayerOps, HudOps and TerrainOps.
+ * The world part of {@link LoaderHost}: targeting, gameplay switches, entities, players, relations
+ * and terrain. Each method is a one-line delegate, mostly to TargetingOps, PlayerOps, HudOps and
+ * TerrainOps.
  */
 abstract class HostWorld extends HostInventory {
 
@@ -34,6 +36,26 @@ abstract class HostWorld extends HostInventory {
     @Override
     public Object spriteAt(float u, float v) {
         return GameHooks.spriteAt(u, v);
+    }
+
+    @Override
+    public void setSprintAllDirections(boolean on) {
+        Sprint.setAllDirections(on);
+    }
+
+    @Override
+    public void setNoHitDelay(boolean on) {
+        GameHooks.setMissPenalty(!on);
+    }
+
+    @Override
+    public void setSprintOnHit(boolean on) {
+        Sprint.setOnHit(on);
+    }
+
+    @Override
+    public void setNoHitSlowdown(boolean on) {
+        Sprint.setNoSlow(on);
     }
 
     @Override

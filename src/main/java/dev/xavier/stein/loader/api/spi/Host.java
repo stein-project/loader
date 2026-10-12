@@ -572,4 +572,14 @@ public interface Host {
     String trimText(String text, int width);
 
     String terrainBlockId(int x, int y, int z);
+
+    // Gameplay switches (0.1.25)
+
+    void setSprintAllDirections(boolean on);
+
+    void setNoHitDelay(boolean on);
+
+    void setSprintOnHit(boolean on);
+
+    void setNoHitSlowdown(boolean on);
 }

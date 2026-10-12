@@ -332,7 +332,7 @@ val coverage = tasks.register<JavaExec>("coverage") {
 // ---- the API jar for mod authors ----
 
 // Only the dev.xavier.stein.loader.api package, compiled with the MCP/SRG names — the same ones a mod compiles with.
-// dev.xavier.stein.loader.internal (what only the official Stein mods call) is left out.
+// dev.xavier.stein.loader.internal (what the Loader itself and old mod builds call) is left out.
 val apiPackage = "dev/xavier/stein/loader/api"
 val apiClasses = tasks.register<Sync>("apiClasses") {
     from(loaderSrgClasses) { include("$apiPackage/**") }
