@@ -3,15 +3,12 @@
 [versions]
 asm = "9.10.1"
 google-java-format = "1.36.1"
-proguard = "7.10.0"
 
 [libraries]
 asm = { module = "org.ow2.asm:asm", version.ref = "asm" }
 asm-commons = { module = "org.ow2.asm:asm-commons", version.ref = "asm" }
 asm-tree = { module = "org.ow2.asm:asm-tree", version.ref = "asm" }
 asm-analysis = { module = "org.ow2.asm:asm-analysis", version.ref = "asm" }
-# ProGuard renames the classes of the jar that reaches players (./gradlew dist): rename only, no shrinking.
-proguard = { module = "com.guardsquare:proguard-base", version.ref = "proguard" }
 
 [plugins]
 spotless = { id = "com.diffplug.spotless", version = "8.10.4" }

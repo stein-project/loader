@@ -61,8 +61,9 @@ import java.util.regex.Pattern;
  * invokedynamic to {@code internal.Access}, which binds it to the member once. There is no list to
  * declare: the decision is the same access rule as the JVM's, read from the game classes.
  *
- * <p>The rules come from inside the Loader itself (steinloader/rules/): in the development build,
- * those of patcher/; in the release build, the same ones with the obfuscated names.
+ * <p>The rules come from inside the Bridge jar (steinbridge/rules/), so they always match the
+ * Bridge that is running: the plain ones in the Bridge's development build, the ones with the
+ * obfuscated names in the jar players get.
  */
 public final class ModPatch {
 
@@ -71,7 +72,7 @@ public final class ModPatch {
         "name-mapping.txt", "redirects-mc.tsv", "redirects-opt.tsv", "redirects-modgl.tsv"
     };
 
-    private static final String RESOURCE = "/steinloader/rules/";
+    private static final String RESOURCE = "/steinbridge/rules/";
 
     /**
      * Version of what this class does with the rules: part of the identity of the adapted copies,
@@ -167,14 +168,14 @@ public final class ModPatch {
 
     private static ModPatch instance;
 
-    /** The rules that came inside the Loader. */
+    /** The rules that came inside the Bridge. */
     static synchronized ModPatch get() throws IOException {
         if (instance == null) {
             List<byte[]> files = new ArrayList<>();
             for (String r : RULES) {
                 try (InputStream in = ModPatch.class.getResourceAsStream(RESOURCE + r)) {
                     if (in == null) {
-                        throw new IOException("rules missing from the Loader: " + RESOURCE + r);
+                        throw new IOException("rules missing from the Bridge: " + RESOURCE + r);
                     }
                     files.add(in.readAllBytes());
                 }

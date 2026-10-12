@@ -28,10 +28,7 @@ Without Minecraft 1.8.9 installed in the launcher's folder, run `./gradlew fetch
 ## CI
 
 `.github/workflows/build.yml` (every push and pull request) and `release.yml` (a `v<version>` tag) check out the
-Bridge and the SDK next to this repository. While those repositories are private, the secrets `BRIDGE_DEPLOY_KEY` and
-`SDK_DEPLOY_KEY` hold read-only deploy keys for them. Without the secret, the checkout uses the workflow token, which
-reads public repositories: once the siblings are public the secrets can be deleted, and pull requests from forks
-(which never get secrets) build as soon as the siblings are public. `release.yml` publishes nothing: it keeps
+Bridge and the SDK (both public) next to this repository; a fork needs no secret. `release.yml` publishes nothing: it keeps
 `steinloader.jar`, `stein-api.jar`, `stein-api-sources.jar`, `LICENSE`, `LICENSE-API`, `NOTICE` and `SHA256SUMS` as a
 workflow artifact. Players get the Loader inside the installer (released by the installer's workflow to
 Stein-Project/stein-loader) and mod authors get `stein-api` from the SDK's Maven repository. The jars carry their
@@ -73,34 +70,10 @@ takes effect for every player on their next start, so keep it to what the README
 members get `@Experimental(since = "<that version>")`. Mods ask for a minimum Loader version in `steinmod.json`
 (`"loader": "0.1.24"`).
 
-## The obfuscated build (what reaches players)
+## What reaches players
 
-The Loader reaches players only inside the installer, and that copy is obfuscated (`stein-api.jar` is not: mods
-compile against it):
-
-```sh
-./gradlew dist                                         # build/dist/steinloader.jar, mapping in build/dist-mapping
-./gradlew runClient -Pstein.dist                       # plays the obfuscated Bridge + Loader
-./gradlew verify -Pstein.world=<world> -Pstein.dist    # the in-game verification on the obfuscated build
-```
-
-- `dist` runs `../bridge`'s `dist` first and obfuscates the Loader on top of the Bridge's mapping (`-applymapping`):
-  the Loader calls the Bridge by name, so a `build/dist/steinloader.jar` only works with the `steinbridge.jar` of the
-  same dist build. The build checks that the Bridge came out with the same names and that every reference resolves.
-- What keeps its name is in `loaderKeeps` in `build.gradle.kts`: the mod API (`api`), what the official mods call
-  (`internal`), ASM, and what the Bridge's diagnostics reach by name. The Bridge's translated rules replace the ones
-  in `steinloader/rules` (ModPatch).
-- With `-Pstein.dist` the `-Dsteinbridge.*` names given to `runClient`/`verify` are translated through
-  `build/dist-mapping/codes.txt`.
-- A change that is fine in the plain build can break the obfuscated one (reflection or a string naming one of our
-  classes, a lambda for a Bridge interface): run `verify -Pstein.dist` before a release.
-- Never put anything of `build/dist-mapping` in a release or a commit.
-
-### Reading a player's stack trace
-
-`build/dist-mapping/steinloader.txt` maps both the Loader and the Bridge of that build; keep it for every release.
-With ProGuard's retrace (`bin/retrace.sh` in the ProGuard release zip, or `com.guardsquare:proguard-retrace`):
-
-```sh
-retrace build/dist-mapping/steinloader.txt stacktrace.txt
-```
+Players get `build/libs/steinloader.jar` as it is built, inside the installer, next to the Bridge. The Loader calls
+the Bridge by its real names, and ModPatch reads the patcher rules from the Bridge jar (`steinbridge/rules/`), not
+from this one: a Loader always adapts mods with the rules of the Bridge it runs on. `Loader.MIN_BRIDGE` is the oldest
+Bridge it accepts; read the running Bridge's version through `Loader.bridgeVersion()` (`SteinBridge.VERSION` is a
+constant, and javac would copy the version the Loader was built against).

@@ -234,7 +234,11 @@ public final class LoaderScreen extends GuiScreen {
         Ui.title(brand, x, 13, Theme.HEADING, Theme.INK);
         Ui.mono("v" + Loader.VERSION, x + Ui.titleWidth(brand, Theme.HEADING) + 6, 16, Theme.GOLD);
         Ui.label(SteinBridge.NAME, x, 30, Theme.MUTED);
-        Ui.mono("v" + SteinBridge.VERSION, x + Ui.labelWidth(SteinBridge.NAME) + 5, 30, Theme.GOLD);
+        Ui.mono(
+                "v" + Loader.bridgeVersion(),
+                x + Ui.labelWidth(SteinBridge.NAME) + 5,
+                30,
+                Theme.GOLD);
         Ui.label(I18n.format("steinloader.by", SteinBridge.VENDOR), x, 41, Theme.FAINT);
     }
 
@@ -497,7 +501,7 @@ public final class LoaderScreen extends GuiScreen {
             "§lStein Loader v" + Loader.VERSION,
             I18n.format("steinloader.about.loader"),
             "",
-            "§l" + SteinBridge.NAME + " v" + SteinBridge.VERSION,
+            "§l" + SteinBridge.NAME + " v" + Loader.bridgeVersion(),
             I18n.format("steinloader.about.bridge"),
             "Java " + System.getProperty("java.version"),
             "",

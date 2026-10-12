@@ -64,6 +64,20 @@ public final class Loader implements HookSink {
      */
     public static final String MIN_BRIDGE = "0.1.20";
 
+    /**
+     * The version of the Bridge that is running. {@code SteinBridge.VERSION} is a constant, which
+     * javac copies into this jar: read directly, it would be the version the Loader was built
+     * against. A Bridge older than 0.1.20 has no {@code version()} (and is below {@link
+     * #MIN_BRIDGE} anyway): "0".
+     */
+    public static String bridgeVersion() {
+        try {
+            return SteinBridge.version();
+        } catch (NoSuchMethodError e) {
+            return "0";
+        }
+    }
+
     private static Loader instance;
 
     private final List<ModInfo> all = new ArrayList<>();
@@ -228,7 +242,7 @@ public final class Loader implements HookSink {
         // Before anything else: the Loader itself logs and reads its options through the Bridge's
         // core.Log and core.Opt, which an older Bridge does not have. Without this the game would
         // die later on a NoClassDefFoundError that says nothing about versions.
-        if (!Versions.atLeast(SteinBridge.VERSION, MIN_BRIDGE)) {
+        if (!Versions.atLeast(bridgeVersion(), MIN_BRIDGE)) {
             throw new IllegalStateException(
                     "Stein Loader "
                             + VERSION
@@ -237,7 +251,7 @@ public final class Loader implements HookSink {
                             + " "
                             + MIN_BRIDGE
                             + " or newer (found "
-                            + SteinBridge.VERSION
+                            + bridgeVersion()
                             + "): reinstall Stein Loader");
         }
         File gameDir = Minecraft.getMinecraft().mcDataDir;
@@ -249,7 +263,7 @@ public final class Loader implements HookSink {
                 ModInfo.builtIn(
                         "steinbridge",
                         SteinBridge.NAME,
-                        SteinBridge.VERSION,
+                        bridgeVersion(),
                         SteinBridge.VENDOR,
                         "steinloader.builtin.bridge"));
         all.add(

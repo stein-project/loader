@@ -12,7 +12,6 @@ import com.google.gson.Gson;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 
-import dev.xavier.stein.bridge.SteinBridge;
 import dev.xavier.stein.bridge.core.Log;
 import dev.xavier.stein.bridge.core.SteinLog;
 
@@ -93,7 +92,7 @@ final class ServerReport {
     private static String json(Loader loader) {
         JsonObject root = new JsonObject();
         root.addProperty("loader", Loader.VERSION);
-        root.addProperty("bridge", SteinBridge.VERSION);
+        root.addProperty("bridge", Loader.bridgeVersion());
         JsonArray mods = new JsonArray();
         for (ModInfo m : loader.mods()) {
             if (m.builtIn() || !m.announce) {

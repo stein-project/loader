@@ -51,13 +51,13 @@ final class ModLoading {
             ids.add(m.id);
         }
 
-        boolean oldBridge = !Versions.atLeast(SteinBridge.VERSION, Loader.MIN_BRIDGE);
+        boolean oldBridge = !Versions.atLeast(Loader.bridgeVersion(), Loader.MIN_BRIDGE);
         if (oldBridge) {
             Log.info(
                     "loader",
                     SteinBridge.NAME
                             + " "
-                            + SteinBridge.VERSION
+                            + Loader.bridgeVersion()
                             + " is older than the "
                             + Loader.MIN_BRIDGE
                             + " that Stein Loader "
@@ -75,7 +75,7 @@ final class ModLoading {
             } else if (!m.rejected() && !ids.add(m.id)) {
                 m.reject("steinloader.reject.duplicate", m.id);
             } else if (oldBridge && !m.rejected()) {
-                m.reject("steinloader.reject.bridge", Loader.MIN_BRIDGE, SteinBridge.VERSION);
+                m.reject("steinloader.reject.bridge", Loader.MIN_BRIDGE, Loader.bridgeVersion());
             }
             all.add(m);
             if (m.rejected()) {
