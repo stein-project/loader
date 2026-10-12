@@ -31,8 +31,8 @@ stein/
 └── sdk/      github.com/Stein-Project/sdk
 ```
 
-You need a **JDK 17 or newer** to start Gradle (`JAVA_HOME`). The build itself runs on **JDK 25**: Gradle uses one
-already installed or downloads it (`gradle/gradle-daemon-jvm.properties`). It builds on Windows, Linux and macOS.
+You need a **JDK 25 or newer** (`JAVA_HOME`). The build runs on JDK 25: Gradle uses one already installed or
+downloads it (`gradle/gradle-daemon-jvm.properties`). It builds on Windows, Linux and macOS.
 
 The game comes from a Minecraft 1.8.9 installation: the launcher's usual folder by default. Without one, download it
 from Mojang in the Bridge and point the build at it (this is what CI does):
