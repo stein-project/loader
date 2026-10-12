@@ -84,7 +84,7 @@ public final class Icons {
         // ---- the Loader ones, built the same way ----
         // Screen: the frame with the item bar at the bottom — the HUD.
         put("screen", "r 3 5 18 13.5 1.2", "M8 15h8");
-        // Combat: two crossed blades, each with its guard.
+        // Two crossed blades, each with its guard.
         put("combat", "M5 19L19 5", "M19 19L5 5", "M6 13.5l4.5 4.5", "M18 13.5l-4.5 4.5");
         // Account and connection: two links.
         put(
