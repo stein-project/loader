@@ -4,7 +4,7 @@ Copyright (c) 2026 Breno Xavier
 
 This licence covers the Stein Loader API: the package dev.xavier.stein.loader.api and its subpackages, in
 src/main/java/dev/xavier/stein/loader/api, and the stein-api.jar built from them. The rest of this repository is
-proprietary, all rights reserved (see LICENSE). Mods compiled against the API may use any licence.
+licensed under the Mozilla Public License 2.0 (see LICENSE). Mods compiled against the API may use any licence.
 
 Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated
 documentation files (the "Software"), to deal in the Software without restriction, including without limitation the

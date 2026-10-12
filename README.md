@@ -82,7 +82,7 @@ release notes. Write both files before tagging an installer release; the Loader'
 At startup the Loader fetches `stein.json` from the default branch of the public distribution repository
 [Stein-Project/stein-loader](https://github.com/Stein-Project/stein-loader)
 (`https://raw.githubusercontent.com/Stein-Project/stein-loader/main/stein.json`, see `Remote.java`), not from this
-repository, which is private: the Discord invite (the button on the main menu), the latest pack version (the update
+repository: the Discord invite (the button on the main menu), the latest pack version (the update
 warning) and a message for the main menu, with one text per language. The same file carries the installer's mod
 index (`mods`), which the Loader ignores. It takes effect on the next start of everyone who has the Loader, with no
 new release:
@@ -99,12 +99,15 @@ is no longer used).
 
 ## Development
 
-This repository is private. The development guide is [CONTRIBUTING.md](CONTRIBUTING.md).
+Bug reports, ideas and pull requests are welcome. Read the
+[contributing guide](https://github.com/Stein-Project/.github/blob/main/CONTRIBUTING.md) first; your first pull
+request asks you to sign the [CLA](https://github.com/Stein-Project/.github/blob/main/CLA.md). What is specific to the
+Loader is in [CONTRIBUTING.md](CONTRIBUTING.md).
 
 ## Licence
 
-Stein Loader is proprietary software, all rights reserved (see [LICENSE](LICENSE)), except the mod API
+Stein Loader is licensed under the [Mozilla Public License 2.0](LICENSE), except the mod API
 (`dev.xavier.stein.loader.api`), which is licensed under the [MIT License](LICENSE-API) so mods can use any licence.
-Third-party notices are in [NOTICE](NOTICE). The Stein name and logo are trademarks: see the [trademark policy](https://github.com/Stein-Project/.github/blob/main/TRADEMARK.md).
+Third-party notices are in [NOTICE](NOTICE). The Stein name and logo are not covered by the licences: see the [trademark policy](https://github.com/Stein-Project/.github/blob/main/TRADEMARK.md).
 
 Created by [Breno Xavier](https://github.com/brenoxavier).
