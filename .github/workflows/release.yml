@@ -1,8 +1,8 @@
 # Builds a Loader version and keeps the files (steinloader.jar, stein-api.jar and its sources, the licences,
 # SHA256SUMS) as a workflow artifact. It publishes nothing on its own: players get the Loader
 # inside the installer, whose release workflow (Stein-Project/installer) builds it from source and publishes the pack
-# to the public distribution repository Stein-Project/stein-loader. Mod authors get stein-api from the SDK's Maven
-# repository (the "maven" branch of Stein-Project/stein-sdk, published by the SDK's release workflow).
+# as a release of that repository. Mod authors get stein-api from the SDK's Maven repository (the "maven" branch of
+# Stein-Project/sdk, published by the SDK's release workflow).
 #
 # Triggers: a v<version> tag (the tag must match Loader.VERSION: it marks the commit of that version, and a mismatch
 # fails the run) or by hand (Actions > release > Run workflow). Both do the same: build, check, artifact.

@@ -30,8 +30,8 @@ Without Minecraft 1.8.9 installed in the launcher's folder, run `./gradlew fetch
 `.github/workflows/build.yml` (every push and pull request) and `release.yml` (a `v<version>` tag) check out the
 Bridge and the SDK (both public) next to this repository; a fork needs no secret. `release.yml` publishes nothing: it keeps
 `steinloader.jar`, `stein-api.jar`, `stein-api-sources.jar`, `LICENSE`, `LICENSE-API`, `NOTICE` and `SHA256SUMS` as a
-workflow artifact. Players get the Loader inside the installer (released by the installer's workflow to
-Stein-Project/stein-loader) and mod authors get `stein-api` from the SDK's Maven repository. The jars carry their
+workflow artifact. Players get the Loader inside the installer (released by the installer's workflow on
+Stein-Project/installer) and mod authors get `stein-api` from the SDK's Maven repository. The jars carry their
 licences in `META-INF` too (LICENSE and NOTICE in the Loader, MIT in the API jars).
 
 ## The mod API
@@ -59,9 +59,9 @@ Add new keys instead of renaming existing ones.
 ## The project file and the release notes
 
 `changelog/` (the pack's release notes, read by the installer's release workflow) is edited by hand here: see the
-README. `stein.json` (what every installed Loader fetches at startup) is **not** in this repository: it lives in the
-public distribution repository [Stein-Project/stein-loader](https://github.com/Stein-Project/stein-loader), where
-`discord` and `news` are edited by hand and `latest` and `mods` are written by the release workflows. A change there
+README. `stein.json` (what every installed Loader fetches at startup) is **not** in this repository: it lives in
+[Stein-Project/installer](https://github.com/Stein-Project/installer), where `discord`, `news` and `sources` are edited
+by hand and every installer release carries it with `latest` filled in. A change there
 takes effect for every player on their next start, so keep it to what the README describes.
 
 ## Versions
