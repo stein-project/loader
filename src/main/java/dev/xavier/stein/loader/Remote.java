@@ -32,10 +32,10 @@ import java.util.Map;
  * What the project publishes and the Loader reads at startup: the Discord invite, the latest pack
  * version and a message for the main menu.
  *
- * <p>The file is {@code stein.json} at the root of the public distribution repository ({@link
- * #REPO}), and not inside the jar: a changed invite or a new message takes effect on the next start
- * of anyone who already has the Loader installed, with no new version or new installer. {@code
- * discord} and {@code news} are edited by hand; {@code latest} is written by the installer's
+ * <p>The file is {@code stein.json}, a file of the installer's latest release ({@link #REPO}), and
+ * not inside the jar: a changed invite or a new message takes effect on the next start of anyone
+ * who already has the Loader installed, with no new version or new installer. {@code discord} and
+ * {@code news} are edited by hand in the installer's repository; {@code latest} is filled in by its
  * release workflow when a pack release goes out.
  *
  * <pre>
@@ -58,18 +58,19 @@ import java.util.Map;
 public final class Remote {
 
     /**
-     * The public distribution repository, where {@code stein.json} lives (the Loader's source
-     * repository is private): <b>the only place</b> where it appears in the code.
+     * The installer's repository, whose releases carry {@code stein.json}: <b>the only place</b>
+     * where it appears in the code.
      *
      * <p>When the file moves, change it here and publish a new Loader, and <b>leave the old file
      * up</b> as long as there are people with the earlier Loader installed: it is through it that
-     * those people learn there is a new version.
+     * those people learn there is a new version. Loaders up to 0.1.26 read the frozen {@code
+     * Stein-Project/stein-loader}.
      */
-    static final String REPO = "Stein-Project/stein-loader";
+    static final String REPO = "Stein-Project/installer";
 
-    /** The default address of the project's file: {@code stein.json} on the default branch. */
+    /** The default address of the project's file: {@code stein.json} of the latest release. */
     static final String DEFAULT_URL =
-            "https://raw.githubusercontent.com/" + REPO + "/main/stein.json";
+            "https://github.com/" + REPO + "/releases/latest/download/stein.json";
 
     /**
      * Cap on what is accepted for reading: it is a handful of lines, and there is no reason to
