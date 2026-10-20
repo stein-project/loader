@@ -123,6 +123,7 @@ steinloader.panel.less=Menos opções
 steinloader.panel.count=%s de %s ativos
 steinloader.log.rede=Rede e pacotes
 steinloader.log.desempenho=Desempenho
+steinloader.log.render=Desenho dos itens
 steinloader.log.open=Abrir pasta
 steinloader.log.lines=%s linhas
 steinloader.log.dropped=%s descartadas

@@ -123,6 +123,7 @@ steinloader.panel.less=Fewer options
 steinloader.panel.count=%s of %s enabled
 steinloader.log.rede=Network and packets
 steinloader.log.desempenho=Performance
+steinloader.log.render=Item rendering
 steinloader.log.open=Open folder
 steinloader.log.lines=%s lines
 steinloader.log.dropped=%s dropped
