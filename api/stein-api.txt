@@ -627,12 +627,14 @@ M dev/xavier/stein/loader/api/Secrets.of(Ljava/lang/String;)Ldev/xavier/stein/lo
 M dev/xavier/stein/loader/api/Secrets.put(Ljava/lang/String;Ljava/lang/String;)V public @Experimental
 M dev/xavier/stein/loader/api/Secrets.remove(Ljava/lang/String;)V public @Experimental
 M dev/xavier/stein/loader/api/Server.address()Ljava/lang/String; public static @Experimental
+M dev/xavier/stein/loader/api/Server.allows(Ljava/lang/String;)Z public static @Experimental
 M dev/xavier/stein/loader/api/Server.connect(Ljava/lang/String;)V public static @Experimental
 M dev/xavier/stein/loader/api/Server.connectingAddress()Ljava/lang/String; public static @Experimental
 M dev/xavier/stein/loader/api/Server.isMultiplayer()Z public static @Experimental
 M dev/xavier/stein/loader/api/Server.lastAddress()Ljava/lang/String; public static @Experimental
 M dev/xavier/stein/loader/api/Server.latency()I public static @Experimental
 M dev/xavier/stein/loader/api/Server.name()Ljava/lang/String; public static @Experimental
+M dev/xavier/stein/loader/api/Server.restrictedBy(Ljava/lang/String;)Ljava/lang/String; public static @Experimental
 M dev/xavier/stein/loader/api/Stacks.count(Ljava/lang/Object;)I public static @Experimental
 M dev/xavier/stein/loader/api/Stacks.create(Ljava/lang/String;II)Ljava/lang/Object; public static @Experimental
 M dev/xavier/stein/loader/api/Stacks.damage(Ljava/lang/Object;)I public static @Experimental

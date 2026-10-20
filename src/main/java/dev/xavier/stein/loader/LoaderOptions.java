@@ -30,15 +30,10 @@ public final class LoaderOptions {
     public static final String DISABLE = Opt.text("steinloader.disable", null);
 
     /**
-     * {@code -Dsteinloader.remote=url}: reads the project's file (Discord invite, latest version,
-     * main menu message) from another address; empty fetches nothing and keeps the stored copy
-     * (default: {@code stein.json} in the distribution repository).
-     */
-    public static final String REMOTE = Opt.text("steinloader.remote", Remote.DEFAULT_URL);
-
-    /**
-     * {@code -Dsteinloader.noRemote=true}: turns the project's file off entirely, including the
-     * stored copy: no Discord button, no update warning, no message (default: off).
+     * {@code -Dsteinloader.noRemote=true}: turns the Stein registry off entirely, including the
+     * stored copies: no Discord button, no update warning, no message, no server rules, no revoked
+     * mods (default: off). {@code -Dstein.registry=<base>} reads the registry from another address
+     * instead ({@link Registry}).
      */
     public static final boolean NO_REMOTE = Opt.flag("steinloader.noRemote");
 

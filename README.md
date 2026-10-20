@@ -77,26 +77,32 @@ in the installer (not the Loader's own `Loader.VERSION`). They live here, but th
 release workflow is what reads them: it checks out this repository and puts `changelog/<tag version>.*.md` in the
 release notes. Write both files before tagging an installer release; the Loader's build does not use them.
 
-## The project file (`stein.json`)
+## The Stein registry
 
-At startup the Loader fetches `stein.json` from the latest release of
-[Stein-Project/installer](https://github.com/Stein-Project/installer)
-(`https://github.com/Stein-Project/installer/releases/latest/download/stein.json`, see `Remote.java`), not from this
-repository: the Discord invite (the button on the main menu), the latest pack version (the update
-warning) and a message for the main menu, with one text per language. The same file lists the official mods
-(`sources`), which the Loader ignores. Loaders up to 0.1.26 read the frozen
-[Stein-Project/stein-loader](https://github.com/Stein-Project/stein-loader). It takes effect on the next start of everyone who has the Loader, with no
-new release:
+At startup the Loader reads three files of the Stein registry
+([Stein-Project/registry](https://github.com/Stein-Project/registry), published at
+`https://stein-project.github.io/registry/`, see `Registry.java`), not from this repository. They take effect on the
+next start of everyone who has the Loader, with no new release:
 
-- `discord` and `news` are edited **by hand**, in that repository (its `index.yml` uploads the change to the latest
-  release); give `news` a new `id` to show a new message (a player who closed a message does not see the same `id`
-  again);
-- `latest.version` and `latest.url` are filled in by the installer's release workflow when a pack release goes out;
-- only https links to the project's hosts are accepted (Discord, GitHub).
+- `stein.json`: the Discord invite (the button on the main menu), the latest pack version (the update warning) and a
+  message for the main menu, with one text per language. `discord` and `news` are edited **by hand** in the
+  registry; give `news` a new `id` to show a new message (a player who closed a message does not see the same `id`
+  again); `latest` is filled in by the installer's release workflow; only https links to the project's hosts are
+  accepted (Discord, GitHub);
+- `servers.json`: features a server does not allow, which the mods leave off **only while the player is there**
+  (`Server.allows`), without changing what the player chose;
+- `revoked.json`: mods that must not load, by sha256; they show in the list, refused.
 
-The last copy that arrived is kept in `config/steinloader-remoto.json` and is what applies offline, and also when the
-fetch gets anything other than 200. Keys the Loader does not read are ignored (older files also had `servers`, which
-is no longer used).
+Every file comes with an ed25519 signature (`<file>.sig`) and is only believed when it matches the public key in
+`Registry.java`. The last signed copy is kept in `config/steinloader-registry/` and is what applies offline, and also
+when the fetch fails or a copy arrives without a valid signature. `-Dstein.registry=<base>` reads another address (an
+empty value fetches nothing); `-Dsteinloader.noRemote=true` turns the registry off.
+
+Loaders up to 0.1.27 read `stein.json` from the latest release of
+[Stein-Project/installer](https://github.com/Stein-Project/installer), which its release workflow keeps publishing for
+them; Loaders up to 0.1.26 read the frozen [Stein-Project/stein-loader](https://github.com/Stein-Project/stein-loader).
+The Loader also writes `config/steinloader-gpu.json` (the graphics card's OpenGL strings and the system) on every start,
+for the Stein Client to match the registry's `compat.json` before the next one.
 
 ## Development
 

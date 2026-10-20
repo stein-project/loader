@@ -18,12 +18,8 @@ import net.minecraft.client.Minecraft;
 
 import java.io.File;
 import java.net.URI;
-import java.net.http.HttpClient;
-import java.net.http.HttpRequest;
-import java.net.http.HttpResponse;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
-import java.time.Duration;
 import java.util.LinkedHashMap;
 import java.util.Locale;
 import java.util.Map;
@@ -32,51 +28,36 @@ import java.util.Map;
  * What the project publishes and the Loader reads at startup: the Discord invite, the latest pack
  * version and a message for the main menu.
  *
- * <p>The file is {@code stein.json}, a file of the installer's latest release ({@link #REPO}), and
- * not inside the jar: a changed invite or a new message takes effect on the next start of anyone
- * who already has the Loader installed, with no new version or new installer. {@code discord} and
- * {@code news} are edited by hand in the installer's repository; {@code latest} is filled in by its
+ * <p>The file is {@code stein.json} of the Stein registry ({@link Registry}), signed, and not
+ * inside the jar: a changed invite or a new message takes effect on the next start of anyone who
+ * already has the Loader installed, with no new version or new installer. {@code discord} and
+ * {@code news} are edited by hand in the registry; {@code latest} is filled in by the installer's
  * release workflow when a pack release goes out.
  *
  * <pre>
- * { "discord": "https://discord.gg/xxxxxxx",
+ * { "schema": 1, "discord": "https://discord.gg/xxxxxxx",
  *   "latest": { "version": "0.1.29", "url": "https://github.com/.../releases/latest" },
  *   "news": { "id": "discord", "title": { "en_US": "..." }, "text": { "en_US": "..." },
  *             "url": "https://discord.gg/xxxxxxx" } }
  * </pre>
  *
  * <p>The fetch runs on another thread with a short timeout: the game starts the same without
- * internet. What arrives is stored in {@code config/steinloader-remoto.json} and is what applies
- * next time, even before the fetch answers. Any answer other than 200 (the repository unreachable
- * or still private, a missing file) and any unreadable file keep the stored copy, so the Discord
- * button and the message stay there, offline too. Keys this version does not read ({@code mods},
- * the installer's mod index, and {@code servers} in older files) are ignored.
+ * internet. The signed copy is stored by the registry and is what applies next time, even before
+ * the fetch answers; a copy that does not arrive, or arrives without a valid signature, keeps the
+ * stored one, so the Discord button and the message stay there, offline too. Keys this version does
+ * not read ({@code sources}, {@code defaultMods}, the launcher's) are ignored.
  *
- * <p>{@code -Dsteinloader.remote=<url>} changes the address (empty fetches nothing) and {@code
- * -Dsteinloader.noRemote=true} turns everything off, including the stored copy.
+ * <p>Loaders up to 0.1.27 read {@code stein.json} of the installer's latest release, which its
+ * release workflow keeps publishing for them; the copy those Loaders stored ({@code
+ * config/steinloader-remoto.json}) is read once here when the registry has none yet.
  */
 public final class Remote {
 
-    /**
-     * The installer's repository, whose releases carry {@code stein.json}: <b>the only place</b>
-     * where it appears in the code.
-     *
-     * <p>When the file moves, change it here and publish a new Loader, and <b>leave the old file
-     * up</b> as long as there are people with the earlier Loader installed: it is through it that
-     * those people learn there is a new version. Loaders up to 0.1.26 read the frozen {@code
-     * Stein-Project/stein-loader}.
-     */
-    static final String REPO = "Stein-Project/installer";
+    /** The registry file. */
+    static final String FILE = "stein.json";
 
-    /** The default address of the project's file: {@code stein.json} of the latest release. */
-    static final String DEFAULT_URL =
-            "https://github.com/" + REPO + "/releases/latest/download/stein.json";
-
-    /**
-     * Cap on what is accepted for reading: it is a handful of lines, and there is no reason to
-     * download more than that.
-     */
-    private static final int LIMIT = 64 * 1024;
+    /** The copy that Loaders up to 0.1.27 stored, read while the registry has none. */
+    private static final String OLD_CACHE = "config/steinloader-remoto.json";
 
     /**
      * A message from the project for the main menu.
@@ -167,31 +148,53 @@ public final class Remote {
 
     private static volatile News news;
 
-    private static File cache;
-
     private Remote() {}
 
-    /** Reads the last copy and goes after the new one. Called at game start. */
+    /**
+     * Reads the last copy and goes after the new one, together with the registry's other files.
+     * Called at game start.
+     */
     static void start(File gameDir) {
         if (LoaderOptions.NO_REMOTE) {
             return;
         }
-        cache = new File(gameDir, "config/steinloader-remoto.json");
         installed = installedVersion(gameDir);
-
-        if (cache.isFile()) {
-            try {
-                parse(new String(Files.readAllBytes(cache.toPath()), StandardCharsets.UTF_8));
-            } catch (Exception e) {
-                Log.info("loader", "stored Stein Labs copy unreadable: " + e);
-            }
+        Registry.start(gameDir);
+        String stored = Registry.cached(FILE);
+        if (stored == null) {
+            stored = readOld(new File(gameDir, OLD_CACHE));
         }
-        if (LoaderOptions.REMOTE == null || LoaderOptions.REMOTE.isEmpty()) {
+        apply(stored);
+        ServerRules.load(Registry.cached(ServerRules.FILE));
+        Revoked.load(Registry.cached(Revoked.FILE));
+        Registry.refresh(
+                new Registry.Entry(FILE, Remote::apply),
+                new Registry.Entry(ServerRules.FILE, ServerRules::load),
+                new Registry.Entry(Revoked.FILE, Revoked::load));
+    }
+
+    /** Publishes a copy of the file; one that does not parse changes nothing. */
+    private static void apply(String json) {
+        if (json == null) {
             return;
         }
-        Thread t = new Thread(Remote::fetch, "stein-remote");
-        t.setDaemon(true);
-        t.start();
+        try {
+            if (!parse(json)) {
+                Log.info("loader", "Stein Labs: not a JSON object, keeping what was there");
+            }
+        } catch (RuntimeException e) {
+            Log.info("loader", "Stein Labs copy unreadable: " + e);
+        }
+    }
+
+    private static String readOld(File f) {
+        try {
+            return f.isFile()
+                    ? new String(Files.readAllBytes(f.toPath()), StandardCharsets.UTF_8)
+                    : null;
+        } catch (Exception e) {
+            return null;
+        }
     }
 
     /**
@@ -247,50 +250,6 @@ public final class Remote {
     /** The current message, or null. The id is what says whether the player already closed it. */
     public static News news() {
         return news;
-    }
-
-    private static void fetch() {
-        try {
-            HttpClient http =
-                    HttpClient.newBuilder()
-                            .connectTimeout(Duration.ofSeconds(5))
-                            .followRedirects(HttpClient.Redirect.NORMAL)
-                            .build();
-            HttpRequest req =
-                    HttpRequest.newBuilder(URI.create(LoaderOptions.REMOTE))
-                            .timeout(Duration.ofSeconds(8))
-                            .header("User-Agent", "SteinLoader/" + Loader.VERSION)
-                            .GET()
-                            .build();
-            HttpResponse<String> res =
-                    http.send(req, HttpResponse.BodyHandlers.ofString(StandardCharsets.UTF_8));
-            if (res.statusCode() != 200) {
-                Log.info(
-                        "loader",
-                        "Stein Labs answered " + res.statusCode() + ": keeping the stored copy");
-                return;
-            }
-            String body = res.body();
-            if (body.length() > LIMIT) {
-                Log.info(
-                        "loader",
-                        "Stein Labs: response too large (" + body.length() + "), ignored");
-                return;
-            }
-            // Only a file that parses replaces the stored copy (bad JSON throws, below).
-            if (!parse(body)) {
-                Log.info("loader", "Stein Labs: not a JSON object, keeping the stored copy");
-                return;
-            }
-            if (cache != null) {
-                cache.getParentFile().mkdirs();
-                Files.write(cache.toPath(), body.getBytes(StandardCharsets.UTF_8));
-            }
-        } catch (Exception | LinkageError e) {
-            // No network, DNS down, proxy: not the player's error, and the stored copy is already
-            // in effect.
-            Log.info("loader", "Stein Labs unavailable (keeping the stored copy): " + e);
-        }
     }
 
     /**

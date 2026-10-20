@@ -350,6 +350,16 @@ public interface Host {
 
     void serverConnect(String address);
 
+    /** Is the feature allowed on the current server (the registry's server rules; 0.1.28)? */
+    default boolean serverAllows(String feature) {
+        return true;
+    }
+
+    /** The server that turns the feature off here, or "" (0.1.28). */
+    default String serverRestrictedBy(String feature) {
+        return "";
+    }
+
     // Lang (0.1.16)
 
     String translate(String key, Object[] args);

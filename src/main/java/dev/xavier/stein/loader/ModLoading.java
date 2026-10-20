@@ -74,6 +74,10 @@ final class ModLoading {
                 m.reject("steinloader.reject.merged", SteinBridge.NAME);
             } else if (!m.rejected() && !ids.add(m.id)) {
                 m.reject("steinloader.reject.duplicate", m.id);
+            } else if (!m.rejected() && Revoked.reason(m.file) != null) {
+                // Listed in the registry's revoked.json: malicious or broken, stopped everywhere.
+                Log.info("loader", "revoked: " + m.id + " (" + Revoked.reason(m.file) + ")");
+                m.reject("steinloader.reject.revoked");
             } else if (oldBridge && !m.rejected()) {
                 m.reject("steinloader.reject.bridge", Loader.MIN_BRIDGE, Loader.bridgeVersion());
             }
