@@ -50,7 +50,7 @@ import java.util.List;
  */
 public final class Loader implements HookSink {
 
-    public static final String VERSION = "0.1.27";
+    public static final String VERSION = "0.1.28";
 
     /**
      * Minimum bridge version. The Loader uses what the bridge provides (the events, the Graphics,
