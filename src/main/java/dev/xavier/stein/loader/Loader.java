@@ -470,6 +470,7 @@ public final class Loader implements HookSink {
             failLoader("network", e);
         }
         Accounts.start();
+        GpuInfo.write(Minecraft.getMinecraft().mcDataDir);
         // onShutdown: a single shutdown hook (thread) for all the mods; each used to add its own.
         Runtime.getRuntime()
                 .addShutdownHook(

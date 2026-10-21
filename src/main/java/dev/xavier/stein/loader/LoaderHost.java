@@ -246,6 +246,16 @@ public final class LoaderHost extends HostRender {
     }
 
     @Override
+    public boolean serverAllows(String feature) {
+        return ServerRules.allows(ServerOps.serverAddress(), feature);
+    }
+
+    @Override
+    public String serverRestrictedBy(String feature) {
+        return ServerRules.restrictedBy(ServerOps.serverAddress(), feature);
+    }
+
+    @Override
     public String serverName() {
         return ServerOps.serverName();
     }

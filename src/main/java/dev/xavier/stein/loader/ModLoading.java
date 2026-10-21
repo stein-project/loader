@@ -66,12 +66,18 @@ final class ModLoading {
         }
         List<ModInfo> enabled = new ArrayList<>();
         for (ModInfo m : ModScanner.scan(dir, loaderVersion)) {
+            String revoked;
             if ("steinaltmanager".equals(m.id) || "steinreconnect".equals(m.id)) {
                 // Both became Connect in 0.1.0, which reads each one's configuration once.
                 m.reject("steinloader.reject.merged", "Connect");
             } else if ("steinlens".equals(m.id)) {
                 // Up to 0.0.12 Lens was a mod; now it belongs to the Bridge (Video settings).
                 m.reject("steinloader.reject.merged", SteinBridge.NAME);
+            } else if (!m.rejected() && (revoked = Revoked.reason(m.file)) != null) {
+                // Listed in the registry's revoked.json: malicious or broken, stopped everywhere.
+                // Before the duplicate check, so a revoked copy does not take the id of a good one.
+                Log.info("loader", "revoked: " + m.id + " (" + revoked + ")");
+                m.reject("steinloader.reject.revoked");
             } else if (!m.rejected() && !ids.add(m.id)) {
                 m.reject("steinloader.reject.duplicate", m.id);
             } else if (oldBridge && !m.rejected()) {

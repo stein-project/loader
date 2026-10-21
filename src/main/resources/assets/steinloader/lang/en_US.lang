@@ -26,6 +26,7 @@ steinloader.reject.manifest=No steinmod.json: not a Stein Loader mod
 steinloader.reject.jar=Old extension: rename the file to %s
 steinloader.reject.unreadable=Unreadable file: %s
 steinloader.reject.duplicate=A mod with the ID %s already exists
+steinloader.reject.revoked=Revoked by the Stein Project: it does not load on any machine
 steinloader.reject.legacyGl=Not compatible with Stein GFX: it calls old OpenGL (%s). Turn Stein GFX off in the launcher to use it
 steinloader.reject.merged=Now part of %s: the file can be deleted
 steinloader.reject.depends.missing=Requires %s %s or newer
