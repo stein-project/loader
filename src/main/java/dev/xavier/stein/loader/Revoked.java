@@ -45,18 +45,26 @@ final class Revoked {
 
     private Revoked() {}
 
-    /** Publishes a copy of the file; one that does not parse changes nothing. */
-    static void load(String json) {
+    /**
+     * Publishes a copy of the file and says whether it was taken; one that does not parse, or has a
+     * schema this version does not know, changes nothing.
+     */
+    static boolean load(String json) {
         if (json == null) {
-            return;
+            return false;
         }
         try {
             JsonElement root = new JsonParser().parse(json);
             if (!root.isJsonObject()) {
-                return;
+                return false;
+            }
+            JsonObject r = root.getAsJsonObject();
+            if (r.has("schema") && r.get("schema").getAsInt() != 1) {
+                Log.info("loader", "revoked.json: unknown schema, keeping what was there");
+                return false;
             }
             Map<String, String> out = new HashMap<>();
-            JsonElement list = root.getAsJsonObject().get("mods");
+            JsonElement list = r.get("mods");
             if (list != null && list.isJsonArray()) {
                 for (JsonElement e : list.getAsJsonArray()) {
                     if (!e.isJsonObject()) {
@@ -71,8 +79,10 @@ final class Revoked {
                 }
             }
             bySha = Collections.unmodifiableMap(out);
+            return true;
         } catch (RuntimeException e) {
             Log.info("loader", "revoked.json unreadable, keeping what was there: " + e);
+            return false;
         }
     }
 

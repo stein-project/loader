@@ -62,20 +62,23 @@ final class ServerRules {
 
     private ServerRules() {}
 
-    /** Publishes a copy of the file; one that does not parse changes nothing. */
-    static void load(String json) {
+    /**
+     * Publishes a copy of the file and says whether it was taken; one that does not parse, or has a
+     * schema this version does not know, changes nothing.
+     */
+    static boolean load(String json) {
         if (json == null) {
-            return;
+            return false;
         }
         try {
             JsonElement root = new JsonParser().parse(json);
             if (!root.isJsonObject()) {
-                return;
+                return false;
             }
             JsonObject o = root.getAsJsonObject();
             if (o.has("schema") && o.get("schema").getAsInt() != 1) {
                 Log.info("loader", "servers.json: unknown schema, keeping what was there");
-                return;
+                return false;
             }
             List<Rule> out = new ArrayList<>();
             JsonElement list = o.get("servers");
@@ -91,8 +94,10 @@ final class ServerRules {
             synchronized (ServerRules.class) {
                 lastAddress = null; // the next question recomputes with the new rules
             }
+            return true;
         } catch (RuntimeException e) {
             Log.info("loader", "servers.json unreadable, keeping what was there: " + e);
+            return false;
         }
     }
 
@@ -106,7 +111,8 @@ final class ServerRules {
         Set<String> disable = new HashSet<>();
         if (o.has("hosts") && o.get("hosts").isJsonArray()) {
             for (JsonElement h : o.getAsJsonArray("hosts")) {
-                String s = h.getAsString().trim().toLowerCase(Locale.ROOT);
+                // Same form as the address it is compared with ("Hypixel.net." is hypixel.net).
+                String s = host(h.getAsString());
                 if (!s.isEmpty()) {
                     hosts.add(s);
                 }
@@ -160,9 +166,13 @@ final class ServerRules {
         return found;
     }
 
-    /** The host of "host" or "host:port", lowercase and without the trailing dot. */
+    /** The host of "host", "host:port" or "[ipv6]:port", lowercase and without the trailing dot. */
     static String host(String address) {
         String a = address.trim().toLowerCase(Locale.ROOT);
+        if (a.startsWith("[")) {
+            int end = a.indexOf(']');
+            return end > 0 ? a.substring(1, end) : a;
+        }
         int colon = a.lastIndexOf(':');
         if (colon > 0 && a.indexOf(':') == colon) {
             a = a.substring(0, colon);

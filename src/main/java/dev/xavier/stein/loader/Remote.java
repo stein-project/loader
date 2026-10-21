@@ -173,17 +173,23 @@ public final class Remote {
                 new Registry.Entry(Revoked.FILE, Revoked::load));
     }
 
-    /** Publishes a copy of the file; one that does not parse changes nothing. */
-    private static void apply(String json) {
+    /**
+     * Publishes a copy of the file and says whether it was taken; one that does not parse, or has a
+     * schema this version does not know, changes nothing.
+     */
+    private static boolean apply(String json) {
         if (json == null) {
-            return;
+            return false;
         }
         try {
             if (!parse(json)) {
-                Log.info("loader", "Stein Labs: not a JSON object, keeping what was there");
+                Log.info("loader", "Stein Labs: not a schema 1 object, keeping what was there");
+                return false;
             }
+            return true;
         } catch (RuntimeException e) {
             Log.info("loader", "Stein Labs copy unreadable: " + e);
+            return false;
         }
     }
 
@@ -254,7 +260,8 @@ public final class Remote {
 
     /**
      * Reads the file and publishes what it says. Returns false, changing nothing, when the root is
-     * not a JSON object; throws on JSON that does not parse, also changing nothing.
+     * not a JSON object or its schema is not 1 (no schema counts as 1, as in the copies Loaders up
+     * to 0.1.27 stored); throws on JSON that does not parse, also changing nothing.
      */
     private static boolean parse(String json) {
         JsonElement root = new JsonParser().parse(json);
@@ -262,6 +269,9 @@ public final class Remote {
             return false;
         }
         JsonObject o = root.getAsJsonObject();
+        if (o.has("schema") && o.get("schema").getAsInt() != 1) {
+            return false;
+        }
         // Only the keys below are read: older files also had "servers" and "mods", ignored now.
         String newDiscord = link(text(o, "discord"), "discord.gg", "discord.com", "discordapp.com");
         Update newLatest = null;

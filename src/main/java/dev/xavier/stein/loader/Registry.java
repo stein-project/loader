@@ -10,20 +10,23 @@ package dev.xavier.stein.loader;
 
 import dev.xavier.stein.bridge.core.Log;
 
+import java.io.ByteArrayOutputStream;
 import java.io.File;
+import java.io.InputStream;
 import java.net.URI;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
+import java.nio.file.StandardCopyOption;
 import java.security.KeyFactory;
 import java.security.PublicKey;
 import java.security.Signature;
 import java.security.spec.X509EncodedKeySpec;
 import java.time.Duration;
 import java.util.Base64;
-import java.util.function.Consumer;
+import java.util.function.Predicate;
 
 /**
  * The Stein registry: the files the project publishes for its programs to read at run time
@@ -96,9 +99,10 @@ final class Registry {
     }
 
     /**
-     * Fetches the files in the background; each one that arrives with a valid signature is stored
-     * and handed to its consumer (on the fetch thread). A file that does not arrive, or arrives
-     * without a valid signature, changes nothing: the stored copy stays in effect.
+     * Fetches the files in the background; each one that arrives with a valid signature is handed
+     * to its reader (on the fetch thread) and stored when the reader accepts it. A file that does
+     * not arrive, arrives without a valid signature or is refused (unknown schema, bad JSON)
+     * changes nothing: the stored copy stays in effect, also for the next start.
      */
     static void refresh(Entry... entries) {
         if (!enabled() || BASE.isEmpty()) {
@@ -121,12 +125,15 @@ final class Registry {
         t.start();
     }
 
-    /** A registry file and what to do with each verified copy. */
+    /**
+     * A registry file and what to do with each verified copy: the reader returns whether it took
+     * the copy, and only a copy it took replaces the stored one.
+     */
     static final class Entry {
         final String name;
-        final Consumer<String> apply;
+        final Predicate<String> apply;
 
-        Entry(String name, Consumer<String> apply) {
+        Entry(String name, Predicate<String> apply) {
             this.name = name;
             this.apply = apply;
         }
@@ -143,11 +150,22 @@ final class Registry {
                 Log.info("loader", "registry: " + e.name + " has no valid signature, ignored");
                 return;
             }
-            String text = new String(body, StandardCharsets.UTF_8);
-            e.apply.accept(text);
+            if (!e.apply.test(new String(body, StandardCharsets.UTF_8))) {
+                // Signed but not readable by this version (a newer schema): storing it would
+                // leave the next start with nothing, so the last copy this version read stays.
+                return;
+            }
             if (dir != null) {
                 dir.mkdirs();
-                Files.write(new File(dir, e.name).toPath(), body);
+                // Written beside and moved in one step: a game closed halfway through the write
+                // must not leave a truncated copy that the next start would read.
+                File tmp = new File(dir, e.name + ".tmp");
+                Files.write(tmp.toPath(), body);
+                Files.move(
+                        tmp.toPath(),
+                        new File(dir, e.name).toPath(),
+                        StandardCopyOption.REPLACE_EXISTING,
+                        StandardCopyOption.ATOMIC_MOVE);
             }
         } catch (Exception | LinkageError ex) {
             // No network, DNS down, proxy, a file that does not parse: the stored copy stays.
@@ -164,16 +182,24 @@ final class Registry {
                         .header("User-Agent", "SteinLoader/" + Loader.VERSION)
                         .GET()
                         .build();
-        HttpResponse<byte[]> res = http.send(req, HttpResponse.BodyHandlers.ofByteArray());
-        if (res.statusCode() != 200) {
-            Log.info("loader", "registry: " + url + " answered " + res.statusCode());
-            return null;
+        HttpResponse<InputStream> res = http.send(req, HttpResponse.BodyHandlers.ofInputStream());
+        try (InputStream in = res.body()) {
+            if (res.statusCode() != 200) {
+                Log.info("loader", "registry: " + url + " answered " + res.statusCode());
+                return null;
+            }
+            // Read up to the cap and no further: a huge answer is refused without holding it all.
+            ByteArrayOutputStream out = new ByteArrayOutputStream();
+            byte[] buf = new byte[8192];
+            for (int n; (n = in.read(buf)) > 0; ) {
+                if (out.size() + n > LIMIT) {
+                    Log.info("loader", "registry: " + url + " too large, ignored");
+                    return null;
+                }
+                out.write(buf, 0, n);
+            }
+            return out.toByteArray();
         }
-        if (res.body().length > LIMIT) {
-            Log.info("loader", "registry: " + url + " too large, ignored");
-            return null;
-        }
-        return res.body();
     }
 
     /** Does the signature (base64 of the raw ed25519 signature) match the bytes and our key? */
