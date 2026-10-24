@@ -172,17 +172,17 @@ public final class HookTest implements SteinMod {
         if (!message.equalsIgnoreCase("/hooktest")) {
             return message;
         }
-        boolean sent = Net.sendPayload("stein:test", "ola".getBytes(StandardCharsets.UTF_8));
+        boolean sent = Net.sendPayload("stein:test", "hello".getBytes(StandardCharsets.UTF_8));
         String line =
                 "hooktest: "
                         + frames
-                        + " quadros do mundo, "
+                        + " world frames, "
                         + payloads
-                        + " pacotes (ultimo "
+                        + " payloads (last "
                         + lastChannel
                         + "), "
                         + sounds
-                        + " sons, pacote mandado: "
+                        + " sounds, payload sent: "
                         + sent;
         System.out.println("[hooktest] " + line);
         Minecraft.getMinecraft()
