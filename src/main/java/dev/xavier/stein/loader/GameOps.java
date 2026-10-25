@@ -102,7 +102,20 @@ final class GameOps {
     }
 
     static String formatted(Object component) {
-        return component instanceof IChatComponent c ? c.getFormattedText() : "";
+        if (!(component instanceof IChatComponent c)) {
+            return "";
+        }
+        // A plain text without siblings (what mods build, and the game's names): the game's
+        // getFormattedText walks an iterator over the component itself only and appends its style's
+        // code, its text and the reset code — the same String, without the iterator, the array and
+        // the builder it allocates (in a crowd, the game thread's biggest allocation: a mod paints
+        // every name every frame). Anything else goes through the game's method.
+        if (c.getClass() == ChatComponentText.class && c.getSiblings().isEmpty()) {
+            return c.getChatStyle().getFormattingCode()
+                    + c.getUnformattedTextForChat()
+                    + EnumChatFormatting.RESET;
+        }
+        return c.getFormattedText();
     }
 
     // --- Screens ---
