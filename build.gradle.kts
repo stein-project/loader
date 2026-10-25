@@ -229,6 +229,8 @@ val patchLoader = tasks.register<JavaExec>("patchLoader") {
     val batch = work.map { it.file("steinloader/batch.tsv") }
     val out = work.map { it.file("steinloader/patched.jar") }
     inputs.files(loaderRemap)
+    // the rules too: a rule added to the Bridge must reach the Loader without a clean build
+    inputs.files(bridgeRules("mc", "opt", "modgl"), nameMapping)
     outputs.file(out)
     tool("Patcher", patcherClasses + asm)
     systemProperty("patcher.lenient", "true")
@@ -474,7 +476,7 @@ class Tee(private val a: OutputStream, private val b: OutputStream) : OutputStre
 }
 
 /** The java command that plays the game with this Loader: the same JVM settings the installer gives the player. */
-fun gameCommand(gameDir: File, jvmArgs: List<String>): List<String> {
+fun gameCommand(gameDir: File, jvmArgs: List<String>, gameArgs: List<String> = emptyList()): List<String> {
     val java = javaToolchains.launcherFor { languageVersion = JavaLanguageVersion.of(25) }.get()
     val mem = providers.gradleProperty("stein.mem").getOrElse("2")
     return listOf(java.executablePath.asFile.path, "-Xmx${mem}G", "-Xms256M", "-XX:SoftMaxHeapSize=768M",
@@ -484,7 +486,7 @@ fun gameCommand(gameDir: File, jvmArgs: List<String>): List<String> {
             "dev.xavier.stein.bridge.launch.Main", "--username", providers.gradleProperty("stein.user")
                 .getOrElse("SteinBridge"), "--version", "1.8.9", "--gameDir", gameDir.path,
             "--assetsDir", runGame("assets"), "--assetIndex", "1.8", "--uuid", "00000000000000000000000000000000",
-            "--accessToken", "0", "--userProperties", "{}", "--userType", "legacy")
+            "--accessToken", "0", "--userProperties", "{}", "--userType", "legacy") + gameArgs
 }
 
 /** Puts the mods of -Pstein.mods (a folder of .steinmod files) into the game's mods folder. */
@@ -495,7 +497,8 @@ fun installMods(gameDir: File) {
 
 /**
  * Plays the game through the Stein Bridge with this Loader, in an isolated game folder (build/gamedir). Options (-P):
- * stein.mods (a folder of .steinmod files), stein.jvmArgs, stein.gameDir, stein.runLog, stein.user, stein.mem.
+ * stein.mods (a folder of .steinmod files), stein.jvmArgs, stein.gameDir, stein.runLog, stein.user, stein.mem, and
+ * stein.args (more arguments for the game, e.g. "--server 127.0.0.1 --port 25566" for the bench server).
  */
 tasks.register("runClient") {
     group = "application"
@@ -506,7 +509,8 @@ tasks.register("runClient") {
         val runLog = file(providers.gradleProperty("stein.runLog").getOrElse("build/run.log"))
         installMods(gameDir)
         val extra = providers.gradleProperty("stein.jvmArgs").getOrElse("").split(" ").filter(String::isNotBlank)
-        val p = ProcessBuilder(gameCommand(gameDir, extra)).directory(gameDir).redirectErrorStream(true).start()
+        val args = providers.gradleProperty("stein.args").getOrElse("").split(" ").filter(String::isNotBlank)
+        val p = ProcessBuilder(gameCommand(gameDir, extra, args)).directory(gameDir).redirectErrorStream(true).start()
         runLog.outputStream().use { log ->
             val out = Tee(System.out, log)
             p.inputStream.copyTo(out)
@@ -519,14 +523,16 @@ tasks.register("runClient") {
 
 /**
  * Plays a singleplayer world (-Pstein.world=<folder in build/gamedir/saves>) with every verification mode on, in both
- * pipelines, and fails on any divergence or exception. Run it after changes to rendering, the engine or a patcher rule.
+ * pipelines and both graphics APIs, and fails on any divergence or exception. Run it after changes to rendering, the
+ * engine or a patcher rule.
  * Each run opens the world after 8 s and walks forward for a while (the window stays minimized), in third person so the
  * player's own model is checked too. Every check compares Stein's result with the game's own computation.
  *   gfx    Stein GFX with every engine check and every Stein GFX check, about 2 minutes
  *   gpu    the pose computed on the GPU against the CPU one (the GPU pose is off while the CPU pose check runs)
+ *   vulkan Stein GFX on the Vulkan backend, with the checks that do not read the OpenGL driver
  *   fixed  the game's fixed-function pipeline (-Dsteinbridge.gfx=false, the fallback) with the engine checks,
  *          including the ones of that pipeline only (Matrix, HudBatch)
- * Logs: build/verify-gfx.log, build/verify-gpu.log, build/verify-fixed.log.
+ * Logs: build/verify-gfx.log, build/verify-gpu.log, build/verify-vulkan.log, build/verify-fixed.log.
  */
 tasks.register("verify") {
     group = "verification"
@@ -606,6 +612,12 @@ tasks.register("verify") {
         run("gpu", 75, listOf("-Dsteinbridge.diag.holdKeyAtSec=25", "-Dsteinbridge.diag.holdKey=17",
             "-Dsteinbridge.diag.holdKeyMs=20000", "-Dsteinbridge.gfx.gpuPoseCheck=true"),
             Regex("Exception|wrong commands [1-9]|wrong rest [1-9]"), listOf(gpuLine))
+        // The same game with the Vulkan backend: the checks that do not read the OpenGL driver (the recorded frame and
+        // the pass state are the OpenGL backend's), and no hidden OpenGL context, so a call to OpenGL that slipped
+        // through aborts the run instead of landing on a context nobody sees.
+        val vulkanChecks = gfxChecks.filterNot { it.contains("recordFrame") || it.contains("passState") }
+        run("vulkan", 110, walk + "-Dsteinbridge.gfx.api=vulkan" + "-Dsteinbridge.gfx.vkGlSink=false" +
+            engineChecks + vulkanChecks, problems, listOf(engineLine, gfxLine))
         run("fixed", 110, walk + "-Dsteinbridge.gfx=false" + engineChecks + "-Dsteinbridge.opt.checkMatrix=true" +
             "-Dsteinbridge.opt.checkHudBatch=true", problems, listOf(engineLine))
         if (failed.isNotEmpty()) throw GradleException("verification failed: ${failed.distinct().joinToString()}")
