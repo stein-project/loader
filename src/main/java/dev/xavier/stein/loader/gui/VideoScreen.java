@@ -10,6 +10,7 @@ package dev.xavier.stein.loader.gui;
 
 import dev.xavier.stein.bridge.showcase.Showcase;
 import dev.xavier.stein.bridge.showcase.VideoSettings;
+import dev.xavier.stein.loader.LoaderOptions;
 
 import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.client.gui.ScaledResolution;
@@ -60,7 +61,17 @@ public final class VideoScreen extends GuiScreen {
     private VideoSettings.Entry dragging;
 
     private double dragAt;
+
+    /** The dragged slider's track: where it starts and how wide it is. */
+    private int dragX;
+
+    private int dragW = 1;
     private boolean landscape;
+
+    /** The HDR calibration's step ({@link VideoCalibration}); -1 when not calibrating. */
+    private int calibrating = -1;
+
+    private float calibrate;
 
     public VideoScreen(GuiScreen parent) {
         this.parent = parent;
@@ -80,6 +91,12 @@ public final class VideoScreen extends GuiScreen {
             Showcase.open();
             landscape = Showcase.active();
             topic = Math.max(0, Math.min(topic, sections.size() - 1));
+            // (diagnostics: also without HDR, to see the steps' layout)
+            if (LoaderOptions.DIAG_HDR_STEP >= 0 && landscape) {
+                calibrating = Math.min(LoaderOptions.DIAG_HDR_STEP, VideoCalibration.STEPS - 1);
+                VideoCalibration.begin();
+                VideoCalibration.arrive(calibrating);
+            }
         }
         Keyboard.enableRepeatEvents(true);
     }
@@ -87,6 +104,7 @@ public final class VideoScreen extends GuiScreen {
     @Override
     public void onGuiClosed() {
         Keyboard.enableRepeatEvents(false);
+        VideoCalibration.end();
         Showcase.close();
         VideoSettings.Source s = VideoSettings.source();
         if (s != null) {
@@ -112,9 +130,10 @@ public final class VideoScreen extends GuiScreen {
         }
         float open = Ui.clamp01((now - openedAt) / (float) OPEN_MS);
         open = open * open * (3 - 2 * open);
-        hide = Ui.towards(hide, hidden ? 1.0F : 0.0F, 9.0F, delta);
+        hide = Ui.towards(hide, hidden || calibrating >= 0 ? 1.0F : 0.0F, 9.0F, delta);
+        calibrate = Ui.towards(calibrate, calibrating >= 0 ? 1.0F : 0.0F, 9.0F, delta);
         if (dragging != null && Mouse.isButtonDown(0)) {
-            dragAt = layout.sliderAt(mouseX);
+            dragAt = fraction(mouseX);
             if (!dragging.onRelease) {
                 apply(() -> dragging.setFraction.accept(dragAt));
             }
@@ -124,8 +143,23 @@ public final class VideoScreen extends GuiScreen {
         VideoDrawing.panel(
                 this, layout, sections, topic, mouseX, mouseY, dragging, dragAt, alpha, delta);
         VideoDrawing.controls(layout, mouseX, mouseY, Showcase.night(), landscape, alpha);
-        VideoDrawing.server(mc, layout, alpha, now);
-        if (hide > 0.01F) {
+        if (landscape) {
+            VideoCalibration.pill(layout, width, mouseX, mouseY, alpha);
+        }
+        VideoDrawing.server(mc, layout, open, now);
+        if (calibrating >= 0 || calibrate > 0.01F) {
+            VideoCalibration.draw(
+                    layout,
+                    width,
+                    height,
+                    Math.max(0, calibrating),
+                    mouseX,
+                    mouseY,
+                    dragging,
+                    dragAt,
+                    calibrate,
+                    delta);
+        } else if (hide > 0.01F) {
             VideoDrawing.hiddenNote(width, height, hide, now);
         }
         if (landscape) {
@@ -149,7 +183,7 @@ public final class VideoScreen extends GuiScreen {
 
     @Override
     protected void mouseClicked(int mouseX, int mouseY, int button) {
-        if (hidden) {
+        if (hidden && calibrating < 0) {
             hidden = false;
             return;
         }
@@ -178,8 +212,51 @@ public final class VideoScreen extends GuiScreen {
                 click();
             }
             case ENTRY -> entry(hit, mouseX, button);
+            case CALIBRATE -> {
+                calibrating = 0;
+                VideoCalibration.begin();
+                click();
+            }
+            case CAL_SLIDER -> drag(hit.entry, hit.backEdge, hit.index, mouseX);
+            case CAL_NEXT -> {
+                calibrating = calibrating + 1 >= VideoCalibration.STEPS ? -1 : calibrating + 1;
+                calibrated();
+                click();
+            }
+            case CAL_BACK -> {
+                calibrating--;
+                calibrated();
+                click();
+            }
             default -> {}
         }
+    }
+
+    /** The calibration moved to another step, or ended. */
+    private void calibrated() {
+        if (calibrating < 0) {
+            VideoCalibration.end();
+        } else {
+            VideoCalibration.arrive(calibrating);
+        }
+    }
+
+    /** Starts dragging {@code e} along a track at {@code x}, {@code w} wide. */
+    private void drag(VideoSettings.Entry e, int x, int w, int mouseX) {
+        if (e == null || !e.enabled.getAsBoolean()) {
+            return;
+        }
+        dragging = e;
+        dragX = x;
+        dragW = Math.max(1, w);
+        dragAt = fraction(mouseX);
+        if (!e.onRelease) {
+            apply(() -> e.setFraction.accept(dragAt));
+        }
+    }
+
+    private double fraction(int mouseX) {
+        return Math.max(0, Math.min(1, (mouseX - dragX) / (double) dragW));
     }
 
     private void entry(VideoLayout.Hit hit, int mouseX, int button) {
@@ -188,11 +265,8 @@ public final class VideoScreen extends GuiScreen {
             return;
         }
         if (e.kind == VideoSettings.Kind.SLIDER) {
-            dragging = e;
-            dragAt = layout.sliderAt(mouseX);
-            if (!e.onRelease) {
-                apply(() -> e.setFraction.accept(dragAt));
-            }
+            // every track in the list spans the content
+            drag(e, layout.contentX, layout.contentW, mouseX);
             return;
         }
         if (e.kind != VideoSettings.Kind.CHOICE) {
@@ -226,6 +300,11 @@ public final class VideoScreen extends GuiScreen {
     @Override
     protected void keyTyped(char c, int key) {
         if (key == Keyboard.KEY_ESCAPE) {
+            if (calibrating >= 0) {
+                calibrating = -1;
+                calibrated();
+                return;
+            }
             if (hidden) {
                 hidden = false;
                 return;
@@ -233,7 +312,7 @@ public final class VideoScreen extends GuiScreen {
             mc.displayGuiScreen(parent);
             return;
         }
-        if (key == KEY_H && !hidden) {
+        if (key == KEY_H && !hidden && calibrating < 0) {
             hidden = true;
         }
     }

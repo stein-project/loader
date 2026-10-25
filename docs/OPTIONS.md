@@ -13,6 +13,7 @@ The Bridge's options are in its own `docs/OPTIONS.md`; the mod API reads one mor
 - `-Dsteinloader.noAnnounce=true`: does not tell the server which mods are loaded when joining (default: off, the list is sent on the `SteinLoader` channel).
 - `-Dsteinloader.vanillaFont=true`: the Loader's menus use Minecraft's font instead of Stein's (default: off).
 - `-Dsteinloader.hudWeight=SemiBold|Bold|ExtraBold`: the weight of the HUD font, for comparison (default `Bold`).
+- `-Dsteinloader.diag.hdrStep=N`: (diagnostics) the video settings open straight into step N (0-2) of the HDR calibration, even where HDR cannot be shown (the steps' layout; default: unset).
 - `-Dsteinloader.hudFontSize=N`: the body size of the HUD font, for comparison (default 8.6).
 - `-Dsteinloader.diag.editorOptions=id`: test, the HUD editor opens the options of this element directly (default: unset).
 - `-Dsteinloader.debugChest=true`: logs each chest the server opens and whether a virtual chest was requested (default: off).

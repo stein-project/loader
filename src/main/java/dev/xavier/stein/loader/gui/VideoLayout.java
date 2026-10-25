@@ -26,7 +26,11 @@ final class VideoLayout {
         ENTRY,
         DAY,
         NIGHT,
-        HIDE
+        HIDE,
+        CALIBRATE,
+        CAL_SLIDER,
+        CAL_NEXT,
+        CAL_BACK
     }
 
     static final class Hit {
@@ -122,11 +126,6 @@ final class VideoLayout {
             }
         }
         return null;
-    }
-
-    /** Where a slider's track is, from 0 to 1 at {@code mouseX}: every track spans the content. */
-    double sliderAt(int mouseX) {
-        return Math.max(0, Math.min(1, (mouseX - contentX) / (double) Math.max(1, contentW)));
     }
 
     int scroll() {

@@ -56,6 +56,13 @@ public final class LoaderOptions {
     public static final String HUD_WEIGHT = Opt.text("steinloader.hudWeight", "Bold");
 
     /**
+     * {@code -Dsteinloader.diag.hdrStep=N}: (diagnostics) the video settings open straight into
+     * step N (0-2) of the HDR calibration, even where HDR cannot be shown (the steps' layout;
+     * default: unset).
+     */
+    public static final int DIAG_HDR_STEP = Opt.integer("steinloader.diag.hdrStep", -1);
+
+    /**
      * {@code -Dsteinloader.hudFontSize=N}: the body size of the HUD font, for comparison (default
      * 8.6).
      */

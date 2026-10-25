@@ -296,9 +296,10 @@ final class VideoDrawing {
                     Ui.alpha(Theme.FAINT, alpha));
             return;
         }
+        // the hint in the reading font: a sentence, not a label
         List<String> lines = Ui.wrap(hint, l.pw - 28);
         for (int i = 0; i < Math.min(3, lines.size()); i++) {
-            Ui.label(lines.get(i), l.px + 14, top + 7 + i * 9, Ui.alpha(Theme.MUTED, alpha));
+            Ui.text(lines.get(i), l.px + 14, top + 5 + i * 10, Ui.alpha(Theme.MUTED, alpha));
         }
     }
 
