@@ -95,6 +95,35 @@ public final class Icons {
         put("pencil", "M4.5 19.5l1-4.2L16.2 4.6l3.2 3.2L8.7 18.5z", "M13.6 7.2l3.2 3.2");
         // Restore: the arrow that goes back.
         put("restore", "M5.2 14a7.2 7.2 0 1 0 1.7-7.1L4 9.8", "M4 5v4.8h4.8");
+        // ---- the video settings' ----
+        // Day: the sun and its rays. Night: the crescent.
+        put(
+                "sun",
+                "o 12 12 4",
+                "M12 3v2M12 19v2M3 12h2M19 12h2M5.6 5.6l1.4 1.4M17 17l1.4 1.4M18.4 5.6L17 7M7"
+                        + " 17l-1.4 1.4");
+        put("moon", "M19.5 14.5A8 8 0 0 1 9.5 4.5a8 8 0 1 0 10 10z");
+        // Show the picture: the eye. Hide it: the eye crossed out.
+        put(
+                "eye",
+                "M2.5 12s3.5-6.5 9.5-6.5 9.5 6.5 9.5 6.5-3.5 6.5-9.5 6.5S2.5 12 2.5 12z",
+                "o 12 12 2.8");
+        put(
+                "eyeOff",
+                "M2.5 12s3.5-6.5 9.5-6.5 9.5 6.5 9.5 6.5-3.5 6.5-9.5 6.5S2.5 12 2.5 12z",
+                "M4 4l16 16");
+        // The topics: settings (two sliders), camera, light (a bulb), image (a sparkle), sky (a
+        // cloud), performance (a gauge).
+        put("sliders", "M5 8h14", "M5 16h14", "o 9 8 2", "o 15 16 2");
+        put("camera", "r 3 7 18 12.5 2", "M8.5 7l1.5-2.5h4L15.5 7", "o 12 13.2 3.3");
+        put(
+                "bulb",
+                "M9 18h6",
+                "M10 21h4",
+                "M9 15.5c-2-1.4-3-3.2-3-5.3a6 6 0 0 1 12 0c0 2.1-1 3.9-3 5.3z");
+        put("sparkle", "M12 3l2 7 7 2-7 2-2 7-2-7-7-2 7-2z");
+        put("cloud", "M7.5 18.5a4 4 0 0 1-.6-8 5.5 5.5 0 0 1 10.6 1.5 3.3 3.3 0 0 1-.5 6.5z");
+        put("gauge", "M4.5 17a8 8 0 1 1 15 0", "M12 14l3.5-4.5", "d 12 14 1.2");
     }
 
     private Icons() {}

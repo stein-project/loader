@@ -12,6 +12,7 @@ import dev.xavier.stein.bridge.core.Input;
 import dev.xavier.stein.bridge.core.Log;
 import dev.xavier.stein.bridge.engine.KeyBindings;
 import dev.xavier.stein.loader.api.Screens;
+import dev.xavier.stein.loader.gui.VideoScreen;
 
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.entity.EntityPlayerSP;
@@ -24,6 +25,7 @@ import net.minecraft.client.gui.GuiMultiplayer;
 import net.minecraft.client.gui.GuiOptions;
 import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.client.gui.GuiSelectWorld;
+import net.minecraft.client.gui.GuiVideoSettings;
 import net.minecraft.client.gui.inventory.GuiContainer;
 import net.minecraft.client.gui.inventory.GuiContainerCreative;
 import net.minecraft.client.gui.inventory.GuiInventory;
@@ -222,6 +224,9 @@ final class GameOps {
         } else if (screen instanceof GuiDisconnected g && g != disconnectedSeen) {
             disconnectedSeen = g;
             loader.disconnected(connecting, reason(g));
+        } else if (screen instanceof GuiVideoSettings v && VideoScreen.available()) {
+            // Stein's video settings, over the showcase, in place of the game's
+            mc().displayGuiScreen(new VideoScreen(v.parentGuiScreen));
         }
     }
 
