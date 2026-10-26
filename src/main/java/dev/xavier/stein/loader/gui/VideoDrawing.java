@@ -75,7 +75,7 @@ final class VideoDrawing {
             float alpha) {
         int y = l.listTop - 4;
         // as tall as the list allows: every topic stays in view
-        int step = Math.max(18, Math.min(26, (l.listBottom - y) / Math.max(1, sections.size())));
+        int step = Math.max(12, Math.min(26, (l.listBottom - y) / Math.max(1, sections.size())));
         int half = Math.min(11, step / 2);
         for (int i = 0; i < sections.size(); i++) {
             int cy = y + i * step + step / 2;
@@ -96,7 +96,12 @@ final class VideoDrawing {
                         Ui.alpha(on ? Theme.ACCENT_SOFT : Theme.FIELD, alpha));
             }
             int color = on ? Theme.ACCENT : hover ? Theme.INK : Theme.MUTED;
-            Icons.draw(icon(sections.get(i).id), cx, cy, 12.0F, Ui.alpha(color, alpha));
+            Icons.draw(
+                    icon(sections.get(i).id),
+                    cx,
+                    cy,
+                    Math.min(12.0F, step - 4.0F),
+                    Ui.alpha(color, alpha));
             l.add(VideoLayout.Kind.TOPIC, l.railX, cy - half, VideoLayout.RAIL, 2 * half).index = i;
         }
         Ui.hairV(
