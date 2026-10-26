@@ -116,8 +116,8 @@ final class VideoCalibration {
             Ui.label(e.value.get(), tx + tw + 8, ty - 4, Ui.alpha(Theme.GOLD, alpha));
             VideoLayout.Hit hit = l.add(VideoLayout.Kind.CAL_SLIDER, tx - 4, ty - 6, tw + 8, 12);
             hit.entry = e;
-            hit.backEdge = tx; // the track's start: VideoScreen reads it for the drag
-            hit.index = tw;
+            hit.trackX = tx;
+            hit.trackW = tw;
         }
         int bw = 70;
         int by = y + CARD_H - 22;
@@ -167,7 +167,7 @@ final class VideoCalibration {
         String label = VideoScreen.tr("steinloader.hdr.calibrate");
         int w = Ui.labelWidth(label) + 34;
         int h = 18;
-        int x = width - VideoLayout.MARGIN - w;
+        int x = VideoLayout.MARGIN;
         int y = VideoLayout.MARGIN + 24;
         boolean hover = inside(mx, my, x, y, w, h);
         Shapes.fill(x, y, w, h, h / 2.0F, Ui.alpha(0xC80A0614, alpha));

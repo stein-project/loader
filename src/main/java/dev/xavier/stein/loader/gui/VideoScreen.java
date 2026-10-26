@@ -23,12 +23,12 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * The video settings, Stein's way: a translucent panel on the left, over a landscape of Stein's own
- * ({@link Showcase}) that shows each change as it is made. The game's options and Stein's are in
- * one list per topic ({@link VideoSettings}), chosen on the rail of icons; under the list, what the
- * option under the mouse does, in plain words.
+ * The video settings, Stein's way: a narrow translucent column on the right, over a landscape of
+ * Stein's own ({@link Showcase}) that shows each change as it is made. The game's options and
+ * Stein's are in one compact list per topic ({@link VideoSettings}), one line each, the topics
+ * chosen by name at the top; under the list, what the option under the mouse does, in plain words.
  *
- * <p>On the top right, day or night for the landscape (the clock runs through the sunset or the
+ * <p>On the top left, day or night for the landscape (the clock runs through the sunset or the
  * dawn) and a button that hides the menu to see the whole picture — a click anywhere, or Esc,
  * brings it back. Inside a server, a small note at the bottom says the player is still there, and
  * turns red while they take damage.
@@ -139,7 +139,7 @@ public final class VideoScreen extends GuiScreen {
             }
         }
         float alpha = open * (1.0F - hide);
-        layout.place(width, height, -layout.panelWidth(width) * (1.0F - open) - 40 * hide);
+        layout.place(width, height, layout.panelWidth(width) * (1.0F - open) + 40 * hide);
         VideoDrawing.panel(
                 this, layout, sections, topic, mouseX, mouseY, dragging, dragAt, alpha, delta);
         VideoDrawing.controls(layout, mouseX, mouseY, Showcase.night(), landscape, alpha);
@@ -217,7 +217,7 @@ public final class VideoScreen extends GuiScreen {
                 VideoCalibration.begin();
                 click();
             }
-            case CAL_SLIDER -> drag(hit.entry, hit.backEdge, hit.index, mouseX);
+            case CAL_SLIDER -> drag(hit.entry, hit.trackX, hit.trackW, mouseX);
             case CAL_NEXT -> {
                 calibrating = calibrating + 1 >= VideoCalibration.STEPS ? -1 : calibrating + 1;
                 calibrated();
@@ -265,8 +265,10 @@ public final class VideoScreen extends GuiScreen {
             return;
         }
         if (e.kind == VideoSettings.Kind.SLIDER) {
-            // every track in the list spans the content
-            drag(e, layout.contentX, layout.contentW, mouseX);
+            // only the track (and a little around it) grabs: a click on the name changes nothing
+            if (mouseX >= hit.trackX - 6) {
+                drag(e, hit.trackX, hit.trackW, mouseX);
+            }
             return;
         }
         if (e.kind != VideoSettings.Kind.CHOICE) {

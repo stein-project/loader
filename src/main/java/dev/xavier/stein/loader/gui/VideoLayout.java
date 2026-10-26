@@ -47,21 +47,24 @@ final class VideoLayout {
 
         /** Set by {@link VideoLayout#hit}: the click is on the back arrow. */
         boolean back;
+
+        /** For a slider: where its track starts and how wide it is. */
+        int trackX;
+
+        int trackW;
     }
 
     static final int MARGIN = 10;
-    static final int RAIL = 26;
-    static final int HEADER = 40;
-    static final int HINT = 38;
-    static final int ROW = 20;
-    static final int SLIDER_ROW = 30;
+    static final int HEADER = 26;
+    static final int HINT = 36;
+    static final int ROW = 16;
+    static final int CHIP_H = 13;
 
     // the panel and its parts, from place()
     int px;
     int py;
     int pw;
     int ph;
-    int railX;
     int contentX;
     int contentW;
     int listTop;
@@ -75,21 +78,23 @@ final class VideoLayout {
     private final List<Hit> hits = new ArrayList<>();
     private int used;
 
-    /** The panel's width for a screen this wide: a third of it, between 230 and 290. */
+    /** The panel's width for a screen this wide: a narrow column, most of the view is landscape. */
     int panelWidth(int screenWidth) {
-        return Math.max(230, Math.min(290, screenWidth * 2 / 5));
+        return Math.max(190, Math.min(240, screenWidth * 3 / 10));
     }
 
-    /** Lays the panel out, {@code dx} away from its place (it slides in and out). */
+    /**
+     * Lays the panel out on the right, {@code dx} away from its place (it slides in and out). The
+     * list's top is set by the drawing, under the topics.
+     */
     void place(int width, int height, float dx) {
         pw = panelWidth(width);
-        px = MARGIN + Math.round(dx);
+        px = width - MARGIN - pw + Math.round(dx);
         py = MARGIN;
         ph = height - 2 * MARGIN;
-        railX = px + 8;
-        contentX = railX + RAIL + 10;
-        contentW = px + pw - 12 - contentX;
-        listTop = py + HEADER + 14;
+        contentX = px + 12;
+        contentW = pw - 24;
+        listTop = py + HEADER;
         listBottom = py + ph - HINT;
         used = 0;
     }
@@ -113,6 +118,8 @@ final class VideoLayout {
         hit.entry = null;
         hit.backEdge = Integer.MIN_VALUE;
         hit.back = false;
+        hit.trackX = 0;
+        hit.trackW = 0;
         return hit;
     }
 
