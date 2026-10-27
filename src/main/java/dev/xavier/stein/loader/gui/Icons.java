@@ -124,6 +124,13 @@ public final class Icons {
         put("sparkle", "M12 3l2 7 7 2-7 2-2 7-2-7-7-2 7-2z");
         put("cloud", "M7.5 18.5a4 4 0 0 1-.6-8 5.5 5.5 0 0 1 10.6 1.5 3.3 3.3 0 0 1-.5 6.5z");
         put("gauge", "M4.5 17a8 8 0 1 1 15 0", "M12 14l3.5-4.5", "d 12 14 1.2");
+        // World detail: a block.
+        put("cube", "M12 3l8 4.5v9L12 21l-8-4.5v-9z", "M4 7.5l8 4.5 8-4.5", "M12 12v9");
+        // The views: Stein's landscape (mountains and the sun) or the player's own (a person).
+        put("mountain", "M2.5 19.5l6.5-10 4.5 6 3-4 5 8z", "o 17 6 1.8");
+        put("person", "o 12 8 3.6", "M5 20.5a7 7 0 0 1 14 0");
+        // Back: the arrow to the left.
+        put("back", "M10 5.5L3.5 12l6.5 6.5", "M4 12h16.5");
     }
 
     private Icons() {}

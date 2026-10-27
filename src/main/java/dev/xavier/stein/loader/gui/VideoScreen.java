@@ -8,9 +8,12 @@
 
 package dev.xavier.stein.loader.gui;
 
+import dev.xavier.stein.bridge.engine.FrameTime;
 import dev.xavier.stein.bridge.showcase.Showcase;
 import dev.xavier.stein.bridge.showcase.VideoSettings;
+import dev.xavier.stein.gfx.SteinHdr;
 import dev.xavier.stein.loader.LoaderOptions;
+import dev.xavier.stein.loader.api.ModConfig;
 
 import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.client.gui.ScaledResolution;
@@ -26,17 +29,35 @@ import java.util.List;
  * The video settings, Stein's way: a narrow translucent column on the right, over a landscape of
  * Stein's own ({@link Showcase}) that shows each change as it is made. The game's options and
  * Stein's are in one compact list per topic ({@link VideoSettings}), one line each, the topics
- * chosen by name at the top; under the list, what the option under the mouse does, in plain words.
+ * chosen by icon at the top; under the list, what the option under the mouse does, in plain words.
  *
- * <p>On the top left, day or night for the landscape (the clock runs through the sunset or the
- * dawn) and a button that hides the menu to see the whole picture — a click anywhere, or Esc,
- * brings it back. Inside a server, a small note at the bottom says the player is still there, and
- * turns red while they take damage.
+ * <p>Back in the top left corner (Esc does the same), and in the bottom left ({@link
+ * VideoToolbar}): hide the menu to see the whole picture, day or night for the landscape (the clock
+ * runs through the sunset or the dawn), and the landscape or the player's own view behind the menu
+ * — that last choice is remembered. In the main menu there is no own view: the landscape is drawn
+ * by the screen itself.
  *
- * <p>Without a world (the main menu) there is no landscape: the panel sits over the game's own
- * background. Without the Bridge's options (nothing provided them) the game's screen stays.
+ * <p>Where HDR can be shown, the line "Calibrate HDR" is added under HDR: three steps over the same
+ * picture ({@link VideoCalibration}). Without the Bridge's options (nothing provided them) the
+ * game's screen stays.
  */
 public final class VideoScreen extends GuiScreen {
+
+    /** What the screen remembers between sessions. */
+    static final class Prefs {
+        /** The player's own view behind the menu instead of the landscape. */
+        boolean ownView;
+    }
+
+    /** Loaded on the first opening: the game folder is known only once the game runs. */
+    private static ModConfig<Prefs> prefs;
+
+    private static ModConfig<Prefs> prefs() {
+        if (prefs == null) {
+            prefs = ModConfig.of("steinloader-video", Prefs.class);
+        }
+        return prefs;
+    }
 
     private static final long OPEN_MS = 320L;
 
@@ -51,6 +72,7 @@ public final class VideoScreen extends GuiScreen {
     private final GuiScreen parent;
     private List<VideoSettings.Section> sections;
     private final VideoLayout layout = new VideoLayout();
+    private final VideoToolbar toolbar = new VideoToolbar();
 
     private long openedAt;
     private long last;
@@ -68,10 +90,21 @@ public final class VideoScreen extends GuiScreen {
     private int dragW = 1;
     private boolean landscape;
 
+    /** When the landscape came in (the fade from black). */
+    private long landscapeAt;
+
     /** The HDR calibration's step ({@link VideoCalibration}); -1 when not calibrating. */
     private int calibrating = -1;
 
+    /** The step drawn while the card fades out after the end. */
+    private int calibrationShown;
+
     private float calibrate;
+
+    /** The frame rate and the 1% low of the last seconds, read twice per second. */
+    private final double[] fps = new double[2];
+
+    private long fpsAt;
 
     public VideoScreen(GuiScreen parent) {
         this.parent = parent;
@@ -85,15 +118,17 @@ public final class VideoScreen extends GuiScreen {
     @Override
     public void initGui() {
         if (sections == null) {
-            sections = VideoSettings.sections();
+            sections = withCalibration(VideoSettings.sections());
             openedAt = Ui.now();
             last = openedAt;
-            Showcase.open();
-            landscape = Showcase.active();
+            if (!ownViewChosen()) {
+                showLandscape(true);
+            }
             topic = Math.max(0, Math.min(topic, sections.size() - 1));
             // (diagnostics: also without HDR, to see the steps' layout)
             if (LoaderOptions.DIAG_HDR_STEP >= 0 && landscape) {
                 calibrating = Math.min(LoaderOptions.DIAG_HDR_STEP, VideoCalibration.STEPS - 1);
+                calibrationShown = calibrating;
                 VideoCalibration.begin();
                 VideoCalibration.arrive(calibrating);
             }
@@ -101,9 +136,60 @@ public final class VideoScreen extends GuiScreen {
         Keyboard.enableRepeatEvents(true);
     }
 
+    /** The own view, chosen and possible (there is a world to see). */
+    private boolean ownViewChosen() {
+        return prefs().get().ownView && mc.theWorld != null;
+    }
+
+    private void showLandscape(boolean on) {
+        if (on) {
+            Showcase.open();
+            if (!landscape && Showcase.active()) {
+                landscapeAt = Ui.now();
+            }
+        } else {
+            Showcase.close();
+        }
+        landscape = Showcase.active();
+    }
+
+    /** The topics, with "Calibrate HDR" right under HDR where HDR can be shown. */
+    private List<VideoSettings.Section> withCalibration(List<VideoSettings.Section> in) {
+        if (!SteinHdr.available() && LoaderOptions.DIAG_HDR_STEP < 0) {
+            return in;
+        }
+        List<VideoSettings.Section> out = new ArrayList<>(in.size());
+        for (VideoSettings.Section s : in) {
+            int at = -1;
+            for (int i = 0; i < s.entries.size(); i++) {
+                if ("hdr".equals(s.entries.get(i).id)) {
+                    at = i;
+                }
+            }
+            if (at < 0) {
+                out.add(s);
+                continue;
+            }
+            List<VideoSettings.Entry> entries = new ArrayList<>(s.entries);
+            entries.add(
+                    at + 1,
+                    VideoSettings.Entry.action(
+                            () -> tr("steinloader.hdr.calibrate"),
+                            () -> tr("steinloader.hdr.start"),
+                            () -> tr("steinloader.hdr.calibrate.hint"),
+                            () -> SteinHdr.available() || LoaderOptions.DIAG_HDR_STEP >= 0,
+                            this::startCalibration));
+            out.add(new VideoSettings.Section(s.id, s.title, entries));
+        }
+        return out;
+    }
+
     @Override
     public void onGuiClosed() {
         Keyboard.enableRepeatEvents(false);
+        if (calibrating >= 0) {
+            VideoCalibration.cancel(); // closed halfway
+        }
         VideoCalibration.end();
         Showcase.close();
         VideoSettings.Source s = VideoSettings.source();
@@ -125,7 +211,10 @@ public final class VideoScreen extends GuiScreen {
         long now = Ui.now();
         long delta = Math.min(100L, now - last);
         last = now;
-        if (!landscape) {
+        // in the main menu nothing draws a world: the landscape is drawn here, as the background
+        if (landscape) {
+            Showcase.drawInMenu(partialTicks);
+        } else if (mc.theWorld == null) {
             drawDefaultBackground();
         }
         float open = Ui.clamp01((now - openedAt) / (float) OPEN_MS);
@@ -134,37 +223,51 @@ public final class VideoScreen extends GuiScreen {
         calibrate = Ui.towards(calibrate, calibrating >= 0 ? 1.0F : 0.0F, 9.0F, delta);
         if (dragging != null && Mouse.isButtonDown(0)) {
             dragAt = fraction(mouseX);
-            if (!dragging.onRelease) {
-                apply(() -> dragging.setFraction.accept(dragAt));
-            }
+            live(dragging, dragAt);
+        }
+        if (now - fpsAt >= 500L) {
+            fpsAt = now;
+            FrameTime.recent(3.0, fps);
         }
         float alpha = open * (1.0F - hide);
         layout.place(width, height, layout.panelWidth(width) * (1.0F - open) + 40 * hide);
         VideoDrawing.panel(
                 this, layout, sections, topic, mouseX, mouseY, dragging, dragAt, alpha, delta);
-        VideoDrawing.controls(layout, mouseX, mouseY, Showcase.night(), landscape, alpha);
-        if (landscape) {
-            VideoCalibration.pill(layout, width, mouseX, mouseY, alpha);
+        int room = width - layout.panelWidth(width) - 3 * VideoLayout.MARGIN;
+        if (calibrating < 0) {
+            toolbar.draw(
+                    layout,
+                    height,
+                    room,
+                    mouseX,
+                    mouseY,
+                    Showcase.night(),
+                    landscape,
+                    mc.theWorld != null,
+                    hidden,
+                    alpha,
+                    open,
+                    fps,
+                    delta);
         }
-        VideoDrawing.server(mc, layout, open, now);
+        toolbar.server(mc, alpha, now);
         if (calibrating >= 0 || calibrate > 0.01F) {
             VideoCalibration.draw(
                     layout,
                     width,
                     height,
-                    Math.max(0, calibrating),
+                    calibrationShown,
+                    calibrating >= 0,
                     mouseX,
                     mouseY,
                     dragging,
                     dragAt,
                     calibrate,
                     delta);
-        } else if (hide > 0.01F) {
-            VideoDrawing.hiddenNote(width, height, hide, now);
         }
         if (landscape) {
             // the landscape fades in from black: the switch from the real world is not a cut
-            float veil = 1.0F - Ui.clamp01((now - openedAt) / (float) VEIL_MS);
+            float veil = 1.0F - Ui.clamp01((now - landscapeAt) / (float) VEIL_MS);
             if (veil > 0.0F) {
                 Ui.rect(0, 0, width, height, Ui.alpha(0xFF000000, veil * veil));
             }
@@ -183,11 +286,13 @@ public final class VideoScreen extends GuiScreen {
 
     @Override
     protected void mouseClicked(int mouseX, int mouseY, int button) {
-        if (hidden && calibrating < 0) {
+        VideoLayout.Hit hit = layout.hit(mouseX, mouseY);
+        if (hidden && calibrating < 0 && (hit == null || hit.kind != VideoLayout.Kind.BACK)) {
+            // anywhere but back, the hide button included: the menu comes back
             hidden = false;
+            click();
             return;
         }
-        VideoLayout.Hit hit = layout.hit(mouseX, mouseY);
         if (hit == null) {
             return;
         }
@@ -199,24 +304,25 @@ public final class VideoScreen extends GuiScreen {
                     click();
                 }
             }
-            case DAY -> {
-                Showcase.setNight(false);
+            case BACK -> {
                 click();
+                mc.displayGuiScreen(parent);
             }
-            case NIGHT -> {
-                Showcase.setNight(true);
+            case DAY_NIGHT -> {
+                Showcase.setNight(!Showcase.night());
                 click();
             }
             case HIDE -> {
                 hidden = true;
                 click();
             }
-            case ENTRY -> entry(hit, mouseX, button);
-            case CALIBRATE -> {
-                calibrating = 0;
-                VideoCalibration.begin();
+            case VIEW -> {
+                showLandscape(!landscape);
+                prefs().get().ownView = !landscape;
+                prefs().save();
                 click();
             }
+            case ENTRY -> entry(hit, mouseX, button);
             case CAL_SLIDER -> drag(hit.entry, hit.trackX, hit.trackW, mouseX);
             case CAL_NEXT -> {
                 calibrating = calibrating + 1 >= VideoCalibration.STEPS ? -1 : calibrating + 1;
@@ -224,6 +330,9 @@ public final class VideoScreen extends GuiScreen {
                 click();
             }
             case CAL_BACK -> {
+                if (calibrating == 0) {
+                    VideoCalibration.cancel(); // "Leave"
+                }
                 calibrating--;
                 calibrated();
                 click();
@@ -232,11 +341,23 @@ public final class VideoScreen extends GuiScreen {
         }
     }
 
+    /** From the "Calibrate HDR" line: over the landscape, even if the own view is chosen. */
+    private void startCalibration() {
+        showLandscape(true);
+        calibrating = 0;
+        calibrationShown = 0;
+        VideoCalibration.begin();
+    }
+
     /** The calibration moved to another step, or ended. */
     private void calibrated() {
         if (calibrating < 0) {
             VideoCalibration.end();
+            if (ownViewChosen()) {
+                showLandscape(false);
+            }
         } else {
+            calibrationShown = calibrating;
             VideoCalibration.arrive(calibrating);
         }
     }
@@ -250,8 +371,19 @@ public final class VideoScreen extends GuiScreen {
         dragX = x;
         dragW = Math.max(1, w);
         dragAt = fraction(mouseX);
-        if (!e.onRelease) {
-            apply(() -> e.setFraction.accept(dragAt));
+        live(e, dragAt);
+    }
+
+    /**
+     * While a track is dragged: the value applied at once, so the picture follows the hand; the
+     * owner applies and saves only when the value shown changes (one step), not at every frame.
+     */
+    private void live(VideoSettings.Entry e, double at) {
+        String before = e.value.get();
+        e.setFraction.accept(at);
+        VideoSettings.Source s = VideoSettings.source();
+        if (s != null && !before.equals(e.value.get())) {
+            s.changed();
         }
     }
 
@@ -269,6 +401,11 @@ public final class VideoScreen extends GuiScreen {
             if (mouseX >= hit.trackX - 6) {
                 drag(e, hit.trackX, hit.trackW, mouseX);
             }
+            return;
+        }
+        if (e.kind == VideoSettings.Kind.ACTION) {
+            click();
+            e.next.run();
             return;
         }
         if (e.kind != VideoSettings.Kind.CHOICE) {
@@ -303,6 +440,7 @@ public final class VideoScreen extends GuiScreen {
     protected void keyTyped(char c, int key) {
         if (key == Keyboard.KEY_ESCAPE) {
             if (calibrating >= 0) {
+                VideoCalibration.cancel();
                 calibrating = -1;
                 calibrated();
                 return;
@@ -314,8 +452,8 @@ public final class VideoScreen extends GuiScreen {
             mc.displayGuiScreen(parent);
             return;
         }
-        if (key == KEY_H && !hidden && calibrating < 0) {
-            hidden = true;
+        if (key == KEY_H && calibrating < 0) {
+            hidden = !hidden;
         }
     }
 

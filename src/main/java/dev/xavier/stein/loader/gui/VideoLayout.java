@@ -24,10 +24,10 @@ final class VideoLayout {
     enum Kind {
         TOPIC,
         ENTRY,
-        DAY,
-        NIGHT,
+        BACK,
+        DAY_NIGHT,
         HIDE,
-        CALIBRATE,
+        VIEW,
         CAL_SLIDER,
         CAL_NEXT,
         CAL_BACK

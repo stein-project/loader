@@ -18,25 +18,35 @@ import net.minecraft.client.gui.ScaledResolution;
 import java.util.List;
 
 /**
- * The HDR calibration, inside the video settings: a card at the bottom of the screen, three steps
- * in plain words, over the same landscape.
+ * The HDR calibration, started from its line in the video settings: the white, the black and the
+ * game's brightness, in plain words — a card at the bottom of the screen and a large test above it,
+ * on black, the reference the eye judges a screen's light against.
  *
  * <ol>
- *   <li><b>The screen's maximum</b>: a patch at the chosen peak with a symbol far brighter than any
- *       screen on it ({@link SteinHdr#peakTest}); the player drags until the symbol almost
+ *   <li><b>The brightest white</b>: a large square at the chosen peak with a symbol far brighter
+ *       than any screen on it ({@link SteinHdr#peakTest}); the player drags until the symbol almost
  *       disappears — past the screen's real limit both look the same.
- *   <li><b>The white</b>: a white card drawn by the game (the paper white); the player drags until
- *       it is comfortable, like a sheet of paper in a bright room.
- *   <li><b>Done</b>: the landscape goes to night, to see the lights against the menu.
+ *   <li><b>The black</b>: a black square with a symbol barely above black, drawn by the game; the
+ *       player drags the shadows until it just shows — swallowed, the dark places of the game would
+ *       be a black blot.
+ *   <li><b>The game's brightness</b>: a card half white (the paper white) and half black; the
+ *       player drags until the white is comfortable, like a sheet of paper in a bright room.
+ *   <li><b>Done</b>: the black goes away and the landscape goes to night, to see the lights against
+ *       the menu.
  * </ol>
  */
 final class VideoCalibration {
 
-    static final int STEPS = 3;
+    static final int STEPS = 4;
 
-    private static final int CARD_W = 280;
+    /**
+     * The black step's symbol: barely above black (3 of 255), where a screen that crushes the
+     * shadows shows nothing.
+     */
+    private static final int DARK_SYMBOL = 0xFF030303;
+
+    private static final int CARD_W = 300;
     private static final int CARD_H = 124;
-    private static final int PATCH = 64;
 
     private VideoCalibration() {}
 
@@ -44,35 +54,80 @@ final class VideoCalibration {
     static VideoSettings.Entry entry(int step) {
         return switch (step) {
             case 0 -> VideoSettings.find("hdrPeak");
-            case 1 -> VideoSettings.find("hdrWhite");
+            case 1 -> VideoSettings.find("hdrBlack");
+            case 2 -> VideoSettings.find("hdrWhite");
             default -> null;
         };
     }
 
-    /** Starting: HDR on (it is what is being calibrated), the landscape by day. */
+    /** The values the calibration found, put back if the player leaves it halfway. */
+    private static final double[] SAVED = new double[STEPS - 1];
+
+    /**
+     * Starting: HDR on (it is what is being calibrated), the landscape by day, and every value of
+     * the calibration back at its default — each step is judged on a clean picture, not through the
+     * values being replaced.
+     */
     static void begin() {
         VideoSettings.Entry hdr = VideoSettings.find("hdr");
         if (hdr != null && hdr.state != null && !hdr.state.getAsBoolean()) {
             hdr.next.run();
         }
+        for (int i = 0; i < SAVED.length; i++) {
+            VideoSettings.Entry e = entry(i);
+            SAVED[i] = e == null ? -1 : e.fraction.getAsDouble();
+            if (e != null && e.byDefault >= 0) {
+                e.setFraction.accept(e.byDefault);
+            }
+        }
+        changed();
         Showcase.setNight(false);
+        SteinHdr.calibrating(true);
     }
 
-    /** Each step's arrival: the last one shows the night. */
+    /** Left halfway (Leave, Esc): the values from before the calibration come back. */
+    static void cancel() {
+        for (int i = 0; i < SAVED.length; i++) {
+            VideoSettings.Entry e = entry(i);
+            if (e != null && SAVED[i] >= 0) {
+                e.setFraction.accept(SAVED[i]);
+            }
+        }
+        changed();
+    }
+
+    private static void changed() {
+        VideoSettings.Source s = VideoSettings.source();
+        if (s != null) {
+            s.changed();
+        }
+    }
+
+    /**
+     * Each step's arrival: the adjusting steps judge the plain image (the HDR style off); the last
+     * one shows the night, in the style chosen.
+     */
     static void arrive(int step) {
         Showcase.setNight(step == STEPS - 1);
+        SteinHdr.calibrating(step < STEPS - 1);
     }
 
-    /** Leaving: the test off. */
+    /** Leaving: the test off, the style back. */
     static void end() {
         SteinHdr.peakTest(false, 0, 0, 0, 0, 0);
+        SteinHdr.calibrating(false);
     }
 
+    /**
+     * Draws step {@code step}; {@code live} is false while the card fades out after the end (then
+     * nothing turns the peak test back on).
+     */
     static void draw(
             VideoLayout l,
             int width,
             int height,
             int step,
+            boolean live,
             int mx,
             int my,
             VideoSettings.Entry dragging,
@@ -80,14 +135,22 @@ final class VideoCalibration {
             float alpha,
             long delta) {
         int x = (width - CARD_W) / 2;
-        int y = height - VideoLayout.MARGIN - CARD_H - 26;
-        peak(step == 0, width, y, alpha);
-        if (step == 1) {
-            sample(width, y, alpha);
+        int y = height - VideoLayout.MARGIN - CARD_H;
+        if (step < STEPS - 1) {
+            // black around the test: the reference the screen's light is judged against
+            Ui.rect(0, 0, width, height, Ui.alpha(0xFF000000, 0.97F * alpha));
         }
-        Shapes.fill(x, y, CARD_W, CARD_H, 8, Ui.alpha(0xD80A0614, alpha));
-        Shapes.stroke(x, y, CARD_W, CARD_H, 8, 1, Ui.alpha(Theme.RULE, alpha));
-        String key = step == 0 ? "peak" : step == 1 ? "white" : "done";
+        int top = VideoLayout.MARGIN + 6;
+        int room = y - 14 - top;
+        peak(live && step == 0, width, top, room, alpha);
+        if (step == 1) {
+            dark(width, top, room, alpha);
+        } else if (step == 2) {
+            whiteAndBlack(width, top, room, alpha);
+        }
+        Shapes.fill(x, y, CARD_W, CARD_H, 8, Ui.alpha(0xF00A0614, alpha));
+        Shapes.stroke(x, y, CARD_W, CARD_H, 8, 1, Ui.alpha(Theme.RULE_STRONG, alpha));
+        String key = step == 0 ? "peak" : step == 1 ? "dark" : step == 2 ? "white" : "done";
         Ui.label(
                 VideoScreen.tr("steinloader.hdr.step", step + 1, STEPS),
                 x + 12,
@@ -107,13 +170,13 @@ final class VideoCalibration {
         VideoSettings.Entry e = entry(step);
         if (e != null) {
             int tx = x + 12;
-            int tw = CARD_W - 24 - 60;
+            // no number: the eye on the test decides, not a value in nits
+            int tw = CARD_W - 24;
             int ty = y + CARD_H - 34;
             boolean hover = my >= ty - 6 && my < ty + 6 && mx >= tx - 4 && mx < tx + tw + 4;
             double f = e == dragging ? dragAt : e.fraction.getAsDouble();
             Widgets.slider(
                     "hdrcal|" + step, tx, ty, tw, (float) f, hover, e == dragging, alpha, delta);
-            Ui.label(e.value.get(), tx + tw + 8, ty - 4, Ui.alpha(Theme.GOLD, alpha));
             VideoLayout.Hit hit = l.add(VideoLayout.Kind.CAL_SLIDER, tx - 4, ty - 6, tw + 8, 12);
             hit.entry = e;
             hit.trackX = tx;
@@ -133,49 +196,57 @@ final class VideoCalibration {
         l.add(VideoLayout.Kind.CAL_BACK, bx, by, bw, 16);
     }
 
-    /** The peak test's patch, centered above the card; the encode draws inside it. */
-    private static void peak(boolean on, int width, int cardY, float alpha) {
-        Minecraft mc = Minecraft.getMinecraft();
+    /**
+     * The peak test's square, as large as the room above the card allows; the encode draws inside
+     * it. Off ({@code on} false), the test is turned off.
+     */
+    private static void peak(boolean on, int width, int top, int room, float alpha) {
         if (!on) {
             SteinHdr.peakTest(false, 0, 0, 0, 0, 0);
             return;
         }
-        int px = (width - PATCH) / 2;
-        int py = Math.max(VideoLayout.MARGIN + 30, cardY - PATCH - 30);
-        Shapes.stroke(
-                px - 3, py - 3, PATCH + 6, PATCH + 6, 4, 1, Ui.alpha(Theme.RULE_STRONG, alpha));
+        Minecraft mc = Minecraft.getMinecraft();
+        int size = Math.max(48, Math.min(room, width * 2 / 5));
+        int px = (width - size) / 2;
+        int py = top + (room - size) / 2;
+        Shapes.stroke(px - 4, py - 4, size + 8, size + 8, 6, 1, Ui.alpha(Theme.RULE_STRONG, alpha));
         int s = new ScaledResolution(mc).getScaleFactor();
-        SteinHdr.peakTest(true, px * s, py * s, PATCH * s, PATCH * s, mc.displayHeight);
+        SteinHdr.peakTest(true, px * s, py * s, size * s, size * s, mc.displayHeight);
     }
 
-    /** The white card of the second step: the game's white is the paper white. */
-    private static void sample(int width, int cardY, float alpha) {
-        int w = 120;
-        int h = 56;
+    /** The black step's square: black, with a block barely above it (as the peak test's). */
+    private static void dark(int width, int top, int room, float alpha) {
+        int size = Math.max(48, Math.min(room, width * 2 / 5));
+        int x = (width - size) / 2;
+        int y = top + (room - size) / 2;
+        Shapes.stroke(x - 4, y - 4, size + 8, size + 8, 6, 1, Ui.alpha(Theme.RULE_STRONG, alpha));
+        Shapes.fill(x, y, size, size, 0, Ui.alpha(0xFF000000, alpha));
+        float cx = x + size / 2.0F;
+        float cy = y + size / 2.0F;
+        Icons.draw("cube", cx, cy, size * 0.62F, Ui.alpha(DARK_SYMBOL, alpha));
+    }
+
+    /** The card of the third step: the game's white (the paper white) beside black. */
+    private static void whiteAndBlack(int width, int top, int room, float alpha) {
+        int h = Math.max(48, Math.min(room, width / 4));
+        int w = h * 2;
         int x = (width - w) / 2;
-        int y = Math.max(VideoLayout.MARGIN + 30, cardY - h - 30);
-        Shapes.fill(x, y, w, h, 6, Ui.alpha(0xFFFFFFFF, alpha));
-        String s = VideoScreen.tr("steinloader.hdr.sample");
-        Ui.label(s, x + (w - Ui.labelWidth(s)) / 2, y + h / 2 - 4, Ui.alpha(0xFF0A0614, alpha));
-    }
-
-    /** The pill that starts it, under the day and night ones; only where HDR can be shown. */
-    static void pill(VideoLayout l, int width, int mx, int my, float alpha) {
-        if (!SteinHdr.available() || alpha <= 0.01F) {
-            return;
-        }
-        String label = VideoScreen.tr("steinloader.hdr.calibrate");
-        int w = Ui.labelWidth(label) + 34;
-        int h = 18;
-        int x = VideoLayout.MARGIN;
-        int y = VideoLayout.MARGIN + 24;
-        boolean hover = inside(mx, my, x, y, w, h);
-        Shapes.fill(x, y, w, h, h / 2.0F, Ui.alpha(0xC80A0614, alpha));
-        Shapes.stroke(
-                x, y, w, h, h / 2.0F, 1, Ui.alpha(hover ? Theme.GOLD : Theme.RULE_STRONG, alpha));
-        Icons.draw("sparkle", x + 12, y + h / 2.0F, 10.0F, Ui.alpha(Theme.ACCENT, alpha));
-        Ui.label(label, x + 21, y + 5, Ui.alpha(hover ? Theme.GOLD : Theme.INK_SOFT, alpha));
-        l.add(VideoLayout.Kind.CALIBRATE, x, y, w, h);
+        int y = top + (room - h) / 2;
+        Shapes.stroke(x - 4, y - 4, w + 8, h + 8, 6, 1, Ui.alpha(Theme.RULE_STRONG, alpha));
+        Shapes.fill(x, y, w / 2, h, 0, Ui.alpha(0xFFFFFFFF, alpha));
+        Shapes.fill(x + w / 2, y, w - w / 2, h, 0, Ui.alpha(0xFF000000, alpha));
+        String white = VideoScreen.tr("steinloader.hdr.sample");
+        Ui.label(
+                white,
+                x + (w / 2 - Ui.labelWidth(white)) / 2,
+                y + h / 2 - 4,
+                Ui.alpha(0xFF0A0614, alpha));
+        String black = VideoScreen.tr("steinloader.hdr.black");
+        Ui.label(
+                black,
+                x + w / 2 + (w / 2 - Ui.labelWidth(black)) / 2,
+                y + h / 2 - 4,
+                Ui.alpha(Theme.MUTED, alpha));
     }
 
     private static boolean inside(int mx, int my, int x, int y, int w, int h) {

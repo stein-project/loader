@@ -10,14 +10,12 @@ package dev.xavier.stein.loader.gui;
 
 import dev.xavier.stein.bridge.showcase.VideoSettings;
 
-import net.minecraft.client.Minecraft;
-
 import java.util.List;
 
 /**
- * The drawing of {@link VideoScreen}: the panel (header, the row of topics, the list, the hint),
- * the controls over the landscape and the note about the server. Every piece registers where it was
- * drawn in the {@link VideoLayout}, for the clicks.
+ * The drawing of {@link VideoScreen}'s panel: the header, the row of topics, the list and the hint.
+ * Every piece registers where it was drawn in the {@link VideoLayout}, for the clicks (the controls
+ * over the picture are {@link VideoToolbar}'s).
  */
 final class VideoDrawing {
 
@@ -60,8 +58,37 @@ final class VideoDrawing {
             return;
         }
         VideoSettings.Section s = sections.get(topic);
+        // the hint's room: as many lines as the topic's longest hint, so the list does not move
+        // when the mouse goes from one option to another
+        int lines = hintLines(s, l.contentW);
+        l.listBottom = l.py + l.ph - (10 + lines * HINT_LINE);
         String hint = list(l, s, mx, my, dragging, dragAt, alpha, delta);
-        hint(l, hint, alpha);
+        hint(l, hint, lines, alpha);
+    }
+
+    /** Height of a line of the hint. */
+    private static final int HINT_LINE = 11;
+
+    /** The most lines a hint takes; a longer one ends in "...". */
+    private static final int HINT_MAX = 4;
+
+    /** {@link #hintLines}' last answer, for the same topic and width. */
+    private static VideoSettings.Section linesOf;
+
+    private static int linesWidth;
+    private static int lines;
+
+    private static int hintLines(VideoSettings.Section s, int w) {
+        if (s != linesOf || w != linesWidth) {
+            int n = Ui.wrap(VideoScreen.tr("steinloader.video.hintIdle"), w).size();
+            for (VideoSettings.Entry e : s.entries) {
+                n = Math.max(n, Ui.wrap(e.hint.get(), w).size());
+            }
+            linesOf = s;
+            linesWidth = w;
+            lines = Math.min(HINT_MAX, Math.max(1, n));
+        }
+        return lines;
     }
 
     /**
@@ -219,6 +246,24 @@ final class VideoDrawing {
             return;
         }
         String value = e.value.get();
+        if (e.kind == VideoSettings.Kind.ACTION) {
+            // a button at the end of the line: the whole line clicks it
+            int bw = Ui.labelWidth(value) + 16;
+            int bx = right - bw;
+            int color = !enabled ? Theme.FAINT : hover ? Theme.GOLD : Theme.INK;
+            Ui.text(Ui.trim(label, bx - l.contentX - 6), l.contentX, ty, Ui.alpha(ink, alpha));
+            Shapes.fill(bx, y + 2, bw, h - 4, (h - 4) / 2.0F, Ui.alpha(Theme.ACCENT_SOFT, alpha));
+            Shapes.stroke(
+                    bx,
+                    y + 2,
+                    bw,
+                    h - 4,
+                    (h - 4) / 2.0F,
+                    1,
+                    Ui.alpha(enabled ? Theme.ACCENT : Theme.RULE, alpha));
+            Ui.label(value, bx + 8, y + 4, Ui.alpha(color, alpha));
+            return;
+        }
         if (e.kind == VideoSettings.Kind.INFO) {
             Ui.text(
                     Ui.trim(label, l.contentW - Ui.width(value) - 8),
@@ -251,154 +296,30 @@ final class VideoDrawing {
     }
 
     /** What the option under the mouse does, under the list. */
-    private static void hint(VideoLayout l, String hint, float alpha) {
+    private static void hint(VideoLayout l, String hint, int room, float alpha) {
         int top = l.listBottom + 4;
         Ui.hair(l.px + 10, top, l.pw - 20, Ui.alpha(Theme.RULE, alpha));
-        if (hint == null || hint.isEmpty()) {
-            List<String> idle = Ui.wrap(VideoScreen.tr("steinloader.video.hintIdle"), l.contentW);
-            for (int i = 0; i < Math.min(2, idle.size()); i++) {
-                Ui.text(idle.get(i), l.contentX, top + 5 + i * 10, Ui.alpha(Theme.FAINT, alpha));
-            }
-            return;
-        }
+        boolean idle = hint == null || hint.isEmpty();
         // the hint in the reading font: a sentence, not a label
-        List<String> lines = Ui.wrap(hint, l.contentW);
-        for (int i = 0; i < Math.min(3, lines.size()); i++) {
-            Ui.text(lines.get(i), l.contentX, top + 5 + i * 10, Ui.alpha(Theme.MUTED, alpha));
+        List<String> lines =
+                Ui.wrap(idle ? VideoScreen.tr("steinloader.video.hintIdle") : hint, l.contentW);
+        int color = idle ? Theme.FAINT : Theme.MUTED;
+        int n = Math.min(room, lines.size());
+        for (int i = 0; i < n; i++) {
+            String line = lines.get(i);
+            if (i == n - 1 && n < lines.size()) {
+                line = Ui.trim(line + " ...", l.contentW);
+            }
+            Ui.text(line, l.contentX, top + 5 + i * HINT_LINE, Ui.alpha(color, alpha));
         }
-    }
-
-    /** Over the landscape, top left (the panel is on the right): day, night, and hide the menu. */
-    static void controls(
-            VideoLayout l, int mx, int my, boolean night, boolean landscape, float alpha) {
-        if (!landscape || alpha <= 0.01F) {
-            return;
-        }
-        int y = VideoLayout.MARGIN;
-        int x = VideoLayout.MARGIN;
-        int dayW = pillWidth("sun", VideoScreen.tr("steinloader.video.day"));
-        pill(
-                l,
-                VideoLayout.Kind.DAY,
-                "sun",
-                VideoScreen.tr("steinloader.video.day"),
-                x,
-                y,
-                dayW,
-                !night,
-                mx,
-                my,
-                alpha);
-        x += dayW + 4;
-        int nightW = pillWidth("moon", VideoScreen.tr("steinloader.video.night"));
-        pill(
-                l,
-                VideoLayout.Kind.NIGHT,
-                "moon",
-                VideoScreen.tr("steinloader.video.night"),
-                x,
-                y,
-                nightW,
-                night,
-                mx,
-                my,
-                alpha);
-        x += nightW + 6;
-        int hideW = pillWidth("eyeOff", VideoScreen.tr("steinloader.video.hide"));
-        pill(
-                l,
-                VideoLayout.Kind.HIDE,
-                "eyeOff",
-                VideoScreen.tr("steinloader.video.hide"),
-                x,
-                y,
-                hideW,
-                false,
-                mx,
-                my,
-                alpha);
-    }
-
-    private static int pillWidth(String icon, String label) {
-        return 24 + Ui.labelWidth(label) + 10;
-    }
-
-    private static void pill(
-            VideoLayout l,
-            VideoLayout.Kind kind,
-            String icon,
-            String label,
-            int x,
-            int y,
-            int w,
-            boolean on,
-            int mx,
-            int my,
-            float alpha) {
-        int h = 18;
-        boolean hover = mx >= x && mx < x + w && my >= y && my < y + h;
-        Shapes.fill(x, y, w, h, h / 2.0F, Ui.alpha(PANEL, alpha));
-        if (on) {
-            Shapes.fill(x, y, w, h, h / 2.0F, Ui.alpha(Theme.ACCENT_SOFT, alpha));
-        }
-        int border = on ? Theme.ACCENT : hover ? Theme.GOLD : Theme.RULE_STRONG;
-        Shapes.stroke(x, y, w, h, h / 2.0F, 1, Ui.alpha(border, alpha));
-        int ink = on ? Theme.INK : hover ? Theme.GOLD : Theme.INK_SOFT;
-        Icons.draw(icon, x + 12, y + h / 2.0F, 10.0F, Ui.alpha(on ? Theme.ACCENT : ink, alpha));
-        Ui.label(label, x + 21, y + 5, Ui.alpha(ink, alpha));
-        l.add(kind, x, y, w, h);
-    }
-
-    /**
-     * Inside a server: the player is still there (the game does not pause), and while they take
-     * damage the note says so in red.
-     */
-    static void server(Minecraft mc, VideoLayout l, float alpha, long now) {
-        if (mc.theWorld == null || mc.isSingleplayer() || mc.thePlayer == null || alpha <= 0.01F) {
-            return;
-        }
-        boolean hurt = mc.thePlayer.hurtTime > 0;
-        String text = VideoScreen.tr(hurt ? "steinloader.video.hurt" : "steinloader.video.server");
-        int w = Ui.labelWidth(text) + 30;
-        int h = 18;
-        int sh = mc.currentScreen == null ? 0 : mc.currentScreen.height;
-        int x = VideoLayout.MARGIN;
-        int y = sh - VideoLayout.MARGIN - h;
-        float pulse = hurt ? 0.6F + 0.4F * (float) Math.sin(now / 90.0) : 1.0F;
-        Shapes.fill(x, y, w, h, h / 2.0F, Ui.alpha(PANEL, alpha));
-        Shapes.stroke(
-                x,
-                y,
-                w,
-                h,
-                h / 2.0F,
-                1,
-                Ui.alpha(hurt ? Theme.DANGER : Theme.RULE_STRONG, alpha * pulse));
-        Icons.draw(
-                hurt ? "heart" : "ping",
-                x + 12,
-                y + h / 2.0F,
-                10.0F,
-                Ui.alpha(hurt ? Theme.DANGER : Theme.GOLD, alpha));
-        Ui.label(text, x + 21, y + 5, Ui.alpha(hurt ? Theme.DANGER : Theme.INK_SOFT, alpha));
-    }
-
-    /** With the menu hidden: how to bring it back, fading to a whisper after a few seconds. */
-    static void hiddenNote(int width, int height, float hide, long now) {
-        String text = VideoScreen.tr("steinloader.video.show");
-        int w = Ui.labelWidth(text) + 20;
-        int h = 16;
-        int x = (width - w) / 2;
-        int y = height - VideoLayout.MARGIN - h;
-        float a = hide * 0.75F;
-        Shapes.fill(x, y, w, h, h / 2.0F, Ui.alpha(PANEL, a));
-        Ui.label(text, x + 10, y + 4, Ui.alpha(Theme.INK_SOFT, a));
     }
 
     /** The icon of each topic. */
     private static String icon(String id) {
         return switch (id) {
             case "general" -> "sliders";
+            case "display" -> "screen";
+            case "world" -> "mountain";
             case "camera" -> "camera";
             case "light" -> "bulb";
             case "image" -> "sparkle";
