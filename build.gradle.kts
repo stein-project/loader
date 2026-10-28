@@ -479,7 +479,7 @@ class Tee(private val a: OutputStream, private val b: OutputStream) : OutputStre
 fun gameCommand(gameDir: File, jvmArgs: List<String>, gameArgs: List<String> = emptyList()): List<String> {
     val java = javaToolchains.launcherFor { languageVersion = JavaLanguageVersion.of(25) }.get()
     val mem = providers.gradleProperty("stein.mem").getOrElse("2")
-    return listOf(java.executablePath.asFile.path, "-Xmx${mem}G", "-Xms256M", "-XX:SoftMaxHeapSize=768M",
+    return listOf(java.executablePath.asFile.path, "-Xmx${mem}G", "-Xms256M", "-XX:SoftMaxHeapSize=1024M",
         "-XX:+UseZGC", "-XX:-ZProactive", "--enable-native-access=ALL-UNNAMED",
         "-Djava.library.path=${runGame("natives")}") + jvmArgs +
         listOf("-cp", runGame("classpath") + File.pathSeparator + runLoaderJar().path,
