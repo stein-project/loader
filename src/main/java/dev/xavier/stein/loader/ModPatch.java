@@ -52,8 +52,8 @@ import java.util.regex.Pattern;
  *
  * <p>It does the same as the Patcher (patcher/Patcher.java) with the call-site rules — redirect,
  * "static", "before", "after", with scope —, in the same order, and the result is the same byte for
- * byte (the mod build checks this on every build, in the Loader itself). The "body" and "field"
- * modes are not included: they touch game classes, and a mod has none.
+ * byte (the mod build checks this on every build, in the Loader itself). The "body", "field" and
+ * "new" modes are not included: they touch game classes, and a mod has none.
  *
  * <p>And it does one thing the Patcher does not: <b>access to non-public game members</b>. The mod
  * compiles against the game with private fields and methods opened; each instruction the JVM would
@@ -209,7 +209,7 @@ public final class ModPatch {
             String scope = f.length > 6 && !f[6].trim().isEmpty() ? f[6].trim() : null;
             String key = owner + "." + f[1] + ":" + f[2];
             switch (mode) {
-                case "body", "field" -> {
+                case "body", "field", "new" -> {
                     // Only on a game class.
                 }
                 case "before" ->
