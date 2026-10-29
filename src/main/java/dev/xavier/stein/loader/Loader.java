@@ -50,7 +50,7 @@ import java.util.List;
  */
 public final class Loader implements HookSink {
 
-    public static final String VERSION = "0.1.28";
+    public static final String VERSION = "0.1.30";
 
     /**
      * Minimum bridge version. The Loader uses what the bridge provides (the events, the Graphics,
@@ -86,6 +86,40 @@ public final class Loader implements HookSink {
 
     private SteinMod[] mods = new SteinMod[0];
     private int failures;
+
+    // The mods that override each hot event (Overrides), in mod order: the per-entity, per-item
+    // and several-times-a-frame hooks ask only these, and return at once when there are none.
+    private SteinMod[] hideMods = mods;
+    private SteinMod[] ghostMods = mods;
+    private SteinMod[] itemModelMods = mods;
+    private SteinMod[] blockModelMods = mods;
+    private SteinMod[] armorTextureMods = mods;
+    private SteinMod[] nametagMods = mods;
+    private SteinMod[] fovMods = mods;
+    private SteinMod[] fovModifierMods = mods;
+    private SteinMod[] playerListMods = mods;
+    private SteinMod[] playerListNameMods = mods;
+    private SteinMod[] playSoundMods = mods;
+
+    /** Does any mod draw in onOverlayTop? With none, there is no depth to clear. */
+    private boolean overlayTop;
+
+    /** Works out, once, which mods take part in each hot event. */
+    private void indexOverrides() {
+        Class<?> o = Object.class;
+        hideMods = Overrides.of(mods, "onHideEntity", o);
+        ghostMods = Overrides.of(mods, "onGhostEntity", o);
+        itemModelMods = Overrides.of(mods, "onItemModel", o, o);
+        blockModelMods = Overrides.of(mods, "onBlockModel", o, o, o, o);
+        armorTextureMods = Overrides.of(mods, "onArmorTexture", o, int.class, String.class, o);
+        nametagMods = Overrides.of(mods, "onNametag", o, o);
+        fovMods = Overrides.of(mods, "onFov", float.class, float.class, boolean.class);
+        fovModifierMods = Overrides.of(mods, "onFovModifier", float.class);
+        playerListMods = Overrides.of(mods, "onPlayerList", o, int.class, o, o);
+        playerListNameMods = Overrides.of(mods, "onPlayerListName", o, String.class);
+        playSoundMods = Overrides.of(mods, "onPlaySound", o);
+        overlayTop = Overrides.of(mods, "onOverlayTop", float.class).length > 0;
+    }
 
     public Loader() {
         instance = this;
@@ -124,12 +158,6 @@ public final class Loader implements HookSink {
     @FunctionalInterface
     private interface Claim {
         boolean on(SteinMod m, Object arg);
-    }
-
-    /** An event that passes a value through every mod; a null answer keeps the current value. */
-    @FunctionalInterface
-    private interface Swap {
-        Object on(SteinMod m, Object key, Object value);
     }
 
     /** Every mod, in order; an error is logged and the next mod still gets the event. */
@@ -219,22 +247,6 @@ public final class Loader implements HookSink {
         return false;
     }
 
-    /** The value after every mod had its say; a mod that answers null leaves it as it was. */
-    private Object swap(String event, Swap c, Object key, Object value) {
-        Object r = value;
-        for (SteinMod m : mods) {
-            try {
-                Object x = c.on(m, key, r);
-                if (x != null) {
-                    r = x;
-                }
-            } catch (Throwable e) {
-                fail(m, event, e);
-            }
-        }
-        return r;
-    }
-
     // ---- startup ----
 
     @Override
@@ -281,6 +293,7 @@ public final class Loader implements HookSink {
         enabled = Dependencies.resolve(enabled, all);
         ModLoading.Loaded loaded = ModLoading.instantiate(enabled, all);
         mods = loaded.instances().toArray(new SteinMod[0]);
+        indexOverrides();
         ModTimes.init(loaded.owners().toArray(new ModInfo[0]));
         ModLoading.addResourcePacks(loaded.packs());
         Log.info(
@@ -549,28 +562,6 @@ public final class Loader implements HookSink {
         each("onMouseInput", SteinMod::onMouseInput);
     }
 
-    /** Does any mod draw in onOverlayTop? (Seen once per mod list: with none, nothing to clear.) */
-    private SteinMod[] overlayTopOf;
-
-    private boolean overlayTop;
-
-    private boolean hasOverlayTop() {
-        if (overlayTopOf != mods) {
-            overlayTopOf = mods;
-            overlayTop = false;
-            for (SteinMod m : mods) {
-                try {
-                    overlayTop |=
-                            m.getClass().getMethod("onOverlayTop", float.class).getDeclaringClass()
-                                    != SteinMod.class;
-                } catch (NoSuchMethodException e) {
-                    // does not happen: the method belongs to the interface
-                }
-            }
-        }
-        return overlayTop;
-    }
-
     @Override
     public void overlay(float partialTicks) {
         ModTimes.frame();
@@ -581,7 +572,7 @@ public final class Loader implements HookSink {
         // grid's items (hotbar, armor, inventory) are drawn with depth, and whatever came after
         // them failed the depth test right where they are: the icons showed through the Tab list.
         // The depth is cleared here, as the game does before drawing a screen.
-        if (hasOverlayTop()) {
+        if (overlayTop) {
             GlStateManager.clear(GL11.GL_DEPTH_BUFFER_BIT);
         }
         frame("onOverlayTop", SteinMod::onOverlayTop, partialTicks);
@@ -685,7 +676,7 @@ public final class Loader implements HookSink {
     @Override
     public float fov(float fov, float partialTicks, boolean useFovSetting) {
         float f = fov;
-        for (SteinMod m : mods) {
+        for (SteinMod m : fovMods) {
             try {
                 f = m.onFov(f, partialTicks, useFovSetting);
             } catch (Throwable e) {
@@ -698,7 +689,7 @@ public final class Loader implements HookSink {
     @Override
     public float fovModifier(float modifier) {
         float f = modifier;
-        for (SteinMod m : mods) {
+        for (SteinMod m : fovModifierMods) {
             try {
                 f = m.onFovModifier(f);
             } catch (Throwable e) {
@@ -721,14 +712,25 @@ public final class Loader implements HookSink {
 
     @Override
     public Object itemModel(Object stack, Object model) {
-        return swap("onItemModel", SteinMod::onItemModel, stack, model);
+        Object r = model;
+        for (SteinMod m : itemModelMods) {
+            try {
+                Object x = m.onItemModel(stack, r);
+                if (x != null) {
+                    r = x;
+                }
+            } catch (Throwable e) {
+                fail(m, "onItemModel", e);
+            }
+        }
+        return r;
     }
 
     /** On the chunk build threads, only for marked blocks (Game.watchBlockModel). */
     @Override
     public Object blockModel(Object world, Object state, Object pos, Object model) {
         Object r = model;
-        for (SteinMod m : mods) {
+        for (SteinMod m : blockModelMods) {
             try {
                 Object x = m.onBlockModel(world, state, pos, r);
                 if (x != null) {
@@ -744,7 +746,7 @@ public final class Loader implements HookSink {
     @Override
     public Object armorTexture(Object stack, int layer, String overlay, Object location) {
         Object r = location;
-        for (SteinMod m : mods) {
+        for (SteinMod m : armorTextureMods) {
             try {
                 Object x = m.onArmorTexture(stack, layer, overlay, r);
                 if (x != null) {
@@ -825,17 +827,35 @@ public final class Loader implements HookSink {
 
     @Override
     public boolean hideEntity(Object entity) {
-        return claim("onHideEntity", SteinMod::onHideEntity, entity);
+        for (SteinMod m : hideMods) {
+            try {
+                if (m.onHideEntity(entity)) {
+                    return true;
+                }
+            } catch (Throwable e) {
+                fail(m, "onHideEntity", e);
+            }
+        }
+        return false;
     }
 
     @Override
     public boolean ghostEntity(Object entity) {
-        return claim("onGhostEntity", SteinMod::onGhostEntity, entity);
+        for (SteinMod m : ghostMods) {
+            try {
+                if (m.onGhostEntity(entity)) {
+                    return true;
+                }
+            } catch (Throwable e) {
+                fail(m, "onGhostEntity", e);
+            }
+        }
+        return false;
     }
 
     @Override
     public boolean playerList(Object overlay, int width, Object scoreboard, Object objective) {
-        for (SteinMod m : mods) {
+        for (SteinMod m : playerListMods) {
             try {
                 if (m.onPlayerList(overlay, width, scoreboard, objective)) {
                     return true;
@@ -849,17 +869,34 @@ public final class Loader implements HookSink {
 
     @Override
     public String playerListName(Object playerInfo, String name) {
-        return (String)
-                swap(
-                        "onPlayerListName",
-                        (m, info, value) -> m.onPlayerListName(info, (String) value),
-                        playerInfo,
-                        name);
+        String r = name;
+        for (SteinMod m : playerListNameMods) {
+            try {
+                String x = m.onPlayerListName(playerInfo, r);
+                if (x != null) {
+                    r = x;
+                }
+            } catch (Throwable e) {
+                fail(m, "onPlayerListName", e);
+            }
+        }
+        return r;
     }
 
     @Override
     public Object nametag(Object entity, Object name) {
-        return swap("onNametag", SteinMod::onNametag, entity, name);
+        Object r = name;
+        for (SteinMod m : nametagMods) {
+            try {
+                Object x = m.onNametag(entity, r);
+                if (x != null) {
+                    r = x;
+                }
+            } catch (Throwable e) {
+                fail(m, "onNametag", e);
+            }
+        }
+        return r;
     }
 
     @Override
@@ -901,7 +938,7 @@ public final class Loader implements HookSink {
     @Override
     public Object playSound(Object sound) {
         Object s = sound;
-        for (SteinMod m : mods) {
+        for (SteinMod m : playSoundMods) {
             try {
                 s = m.onPlaySound(s);
                 if (s == null) {
