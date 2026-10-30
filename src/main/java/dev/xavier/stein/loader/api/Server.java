@@ -46,13 +46,13 @@ public final class Server {
     }
 
     /**
-     * Does the current server allow this feature? Some servers do not allow features that give
-     * information the game would not (a minimap on Hypixel, for example); the Stein registry lists
-     * them, and the mods leave those features off <b>only while the player is there</b>, without
-     * changing what the player chose. Always true outside a server.
+     * Does the current server allow this feature? The server decides, on the {@code SteinLoader}
+     * plugin channel, and the mods leave those features off <b>only while the player is there</b>,
+     * without changing what the player chose. Always true outside a server, and on a server that
+     * says nothing.
      *
-     * <p>Feature names the official mods use: {@code minimap}, {@code targetInfo}, {@code
-     * playerDistance}, {@code chatMacros}, {@code liveReplay}. Cheap enough to ask on every frame.
+     * <p>A mod declares what it asks about in {@code "features"} in steinmod.json, which is how a
+     * server learns the names. Cheap enough to ask on every frame.
      */
     @Experimental(since = "0.1.28")
     public static boolean allows(String feature) {
@@ -60,8 +60,8 @@ public final class Server {
     }
 
     /**
-     * The name of the server that turns the feature off here ("Hypixel"), for the mod to tell the
-     * player why an option is off; "" when the feature is allowed.
+     * The name of the server that turns the feature off here, for the mod to tell the player why an
+     * option is off; "" when the feature is allowed.
      */
     @Experimental(since = "0.1.28")
     public static String restrictedBy(String feature) {

@@ -164,6 +164,8 @@ final class ModScanner {
             versions(o.get("depends"), m.depends);
             versions(o.get("optional"), m.optional);
             m.announce = !o.has("announce") || o.get("announce").getAsBoolean();
+            m.features.addAll(list(o.get("features")));
+            m.source = text(o, "source", "").trim();
             return m;
         }
         ZipEntry services = z.getEntry(SERVICES);

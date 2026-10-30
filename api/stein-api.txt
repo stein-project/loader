@@ -685,9 +685,11 @@ M dev/xavier/stein/loader/api/SteinMod.onPlayerList(Ljava/lang/Object;ILjava/lan
 M dev/xavier/stein/loader/api/SteinMod.onPlayerListName(Ljava/lang/Object;Ljava/lang/String;)Ljava/lang/String; public
 M dev/xavier/stein/loader/api/SteinMod.onRelationsChanged()V public @Experimental
 M dev/xavier/stein/loader/api/SteinMod.onRenderWorld(F)V public @Experimental
+M dev/xavier/stein/loader/api/SteinMod.onResume()V public @Experimental
 M dev/xavier/stein/loader/api/SteinMod.onSendChat(Ljava/lang/String;)Ljava/lang/String; public @Experimental
 M dev/xavier/stein/loader/api/SteinMod.onShutdown()V public @Experimental
 M dev/xavier/stein/loader/api/SteinMod.onSlotChanged(IILjava/lang/Object;)V public @Experimental
+M dev/xavier/stein/loader/api/SteinMod.onSuspend()V public @Experimental
 M dev/xavier/stein/loader/api/SteinMod.onTextureStitch(Ljava/lang/Object;)V public
 M dev/xavier/stein/loader/api/SteinMod.onTickEnd()V public
 M dev/xavier/stein/loader/api/SteinMod.onWindowClick(IIII)Z public @Experimental

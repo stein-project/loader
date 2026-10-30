@@ -17,11 +17,13 @@ import dev.xavier.stein.loader.gui.Ui;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.IdentityHashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.function.Predicate;
 
 /**
  * The HUD grid's registry: the elements (the game's own parts and the mods'), each one's saved
@@ -31,6 +33,12 @@ import java.util.Set;
 final class HudRegistry {
 
     static final List<HudElement> elements = new ArrayList<>();
+
+    /** Every element, also those {@link #hide hidden}: {@link #elements} is rebuilt from it. */
+    private static final List<HudElement> registered = new ArrayList<>();
+
+    /** The ids of the elements out of the screen now; their places stay saved. */
+    private static Set<String> hidden = Collections.emptySet();
 
     /** The game's own parts (the Loader's). */
     private static final Set<HudElement> builtinElements =
@@ -69,6 +77,7 @@ final class HudRegistry {
             }
         }
         elements.add(e);
+        registered.add(e);
         if (!placements.containsKey(e.id())) {
             // The game as the game; the rest starts disabled, and the player enables it in the
             // editor's list.
@@ -79,7 +88,27 @@ final class HudRegistry {
         }
     }
 
+    /**
+     * Takes these elements out of the screen and of the editor, and puts the others back in their
+     * order. Nothing about them is changed: not the saved place, not whether they are enabled.
+     */
+    static void hide(Predicate<HudElement> out) {
+        elements.clear();
+        Set<String> ids = new HashSet<>();
+        for (HudElement e : registered) {
+            if (out.test(e)) {
+                ids.add(e.id());
+            } else {
+                elements.add(e);
+            }
+        }
+        hidden = ids;
+    }
+
     public static boolean isEnabled(String id) {
+        if (hidden.contains(id)) {
+            return false;
+        }
         Placement p = placements.get(id);
         return p == null || p.enabled;
     }

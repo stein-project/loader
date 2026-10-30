@@ -48,8 +48,14 @@ import net.minecraft.util.IChatComponent;
 import org.lwjgl.input.Keyboard;
 import org.lwjgl.input.Mouse;
 
+import java.util.ArrayList;
 import java.util.Collections;
+import java.util.IdentityHashMap;
+import java.util.Iterator;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 /**
  * Chat, screens, keys, world players and slots of the API (Chat, Screens, Keys, Entities, Players,
@@ -244,8 +250,51 @@ final class GameOps {
 
     static Object bind(String name, int key, String category) {
         KeyBinding b = new KeyBinding(name, key, category);
+        ModTimes.key(b);
         KeyBindings.register(b);
         return b;
+    }
+
+    /** Who holds each key down (index in the mod array; Keys.Binding.hold). */
+    private static final Map<Object, Integer> HOLDERS = new IdentityHashMap<>();
+
+    /** The keys of suspended mods, with the place each one had in the game's list. */
+    private static final Map<KeyBinding, Integer> PARKED = new LinkedHashMap<>();
+
+    /**
+     * Takes the keys of these mods (ids) out of the game's list, and puts back the others. The list
+     * is what the key table is built from, so the game stops seeing them, also when it rebuilds the
+     * table; the options keep them, with the key the player chose, on the Controls screen and in
+     * options.txt. What a suspended mod was holding down is let go.
+     */
+    @SuppressWarnings("unchecked")
+    static void parkKeys(Set<String> ids) {
+        List<KeyBinding> all = KeyBinding.keybindArray;
+        for (Iterator<Map.Entry<KeyBinding, Integer>> it = PARKED.entrySet().iterator();
+                it.hasNext(); ) {
+            Map.Entry<KeyBinding, Integer> e = it.next();
+            if (!ModTimes.keyOwnedBy(e.getKey(), ids)) {
+                all.add(Math.min(e.getValue(), all.size()), e.getKey());
+                it.remove();
+            }
+        }
+        for (int i = all.size() - 1; i >= 0; i--) {
+            KeyBinding k = all.get(i);
+            if (ModTimes.keyOwnedBy(k, ids)) {
+                KeyBinding.setKeyBindState(k.getKeyCode(), false);
+                while (k.isPressed()) {
+                    // the presses it would still have read
+                }
+                PARKED.put(k, i);
+                all.remove(i);
+            }
+        }
+        KeyBinding.resetKeyBindingArrayAndHash();
+        for (Object b : new ArrayList<>(HOLDERS.keySet())) {
+            if (ModTimes.owned(HOLDERS.get(b), ids)) {
+                keyHold(b, false);
+            }
+        }
     }
 
     static Object game(int which) {
@@ -298,6 +347,11 @@ final class GameOps {
     }
 
     static void keyHold(Object b, boolean held) {
+        if (held) {
+            HOLDERS.put(b, ModTimes.current);
+        } else {
+            HOLDERS.remove(b);
+        }
         int code = ((KeyBinding) b).getKeyCode();
         if (code != 0) {
             KeyBinding.setKeyBindState(code, held || physical(code));
