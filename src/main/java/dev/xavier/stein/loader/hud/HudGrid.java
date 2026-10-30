@@ -34,6 +34,7 @@ import java.util.ArrayList;
 import java.util.IdentityHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.function.Predicate;
 
 /**
  * The HUD grid: everything that stays on screen during the game — the game's own parts (hotbar,
@@ -107,6 +108,16 @@ public final class HudGrid {
     /** Registers a mod's element; it starts disabled. */
     public static void register(HudElement e) {
         HudRegistry.register(e);
+    }
+
+    /** See {@link HudRegistry#hide}. */
+    public static void hide(Predicate<HudElement> out) {
+        HudRegistry.hide(out);
+    }
+
+    /** Is this screen the HUD editor? */
+    public static boolean isEditor(Object screen) {
+        return screen instanceof HudEditor;
     }
 
     public static boolean isEnabled(String id) {

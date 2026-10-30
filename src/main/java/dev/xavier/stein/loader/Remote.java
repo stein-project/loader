@@ -25,18 +25,16 @@ import java.util.Locale;
 import java.util.Map;
 
 /**
- * What the project publishes and the Loader reads at startup: the Discord invite, the latest pack
- * version and a message for the main menu.
+ * What the project publishes and the Loader reads at startup: the Discord invite and a message for
+ * the main menu.
  *
  * <p>The file is {@code stein.json} of the Stein registry ({@link Registry}), signed, and not
  * inside the jar: a changed invite or a new message takes effect on the next start of anyone who
  * already has the Loader installed, with no new version or new installer. {@code discord} and
- * {@code news} are edited by hand in the registry; {@code latest} is filled in by the installer's
- * release workflow when a pack release goes out.
+ * {@code news} are edited by hand in the registry.
  *
  * <pre>
  * { "schema": 1, "discord": "https://discord.gg/xxxxxxx",
- *   "latest": { "version": "0.1.29", "url": "https://github.com/.../releases/latest" },
  *   "news": { "id": "discord", "title": { "en_US": "..." }, "text": { "en_US": "..." },
  *             "url": "https://discord.gg/xxxxxxx" } }
  * </pre>
@@ -45,7 +43,7 @@ import java.util.Map;
  * internet. The signed copy is stored by the registry and is what applies next time, even before
  * the fetch answers; a copy that does not arrive, or arrives without a valid signature, keeps the
  * stored one, so the Discord button and the message stay there, offline too. Keys this version does
- * not read ({@code sources}, {@code defaultMods}, the launcher's) are ignored.
+ * not read ({@code latest}, {@code sources}, {@code defaultMods}, the launcher's) are ignored.
  *
  * <p>Loaders up to 0.1.27 read {@code stein.json} of the installer's latest release, which its
  * release workflow keeps publishing for them; the copy those Loaders stored ({@code
@@ -130,22 +128,6 @@ public final class Remote {
 
     private static volatile String discord = "";
 
-    /** The published version of the pack and where to download it. */
-    public static final class Update {
-        public final String version;
-        public final String url;
-
-        Update(String version, String url) {
-            this.version = version;
-            this.url = url;
-        }
-    }
-
-    private static volatile Update latest;
-
-    /** The pack version the installer left in this .minecraft, or empty (development build). */
-    private static volatile String installed = "";
-
     private static volatile News news;
 
     private Remote() {}
@@ -158,19 +140,13 @@ public final class Remote {
         if (LoaderOptions.NO_REMOTE) {
             return;
         }
-        installed = installedVersion(gameDir);
         Registry.start(gameDir);
         String stored = Registry.cached(FILE);
         if (stored == null) {
             stored = readOld(new File(gameDir, OLD_CACHE));
         }
         apply(stored);
-        ServerRules.load(Registry.cached(ServerRules.FILE));
-        Revoked.load(Registry.cached(Revoked.FILE));
-        Registry.refresh(
-                new Registry.Entry(FILE, Remote::apply),
-                new Registry.Entry(ServerRules.FILE, ServerRules::load),
-                new Registry.Entry(Revoked.FILE, Revoked::load));
+        Registry.refresh(new Registry.Entry(FILE, Remote::apply));
     }
 
     /**
@@ -203,54 +179,9 @@ public final class Remote {
         }
     }
 
-    /**
-     * The version the installer recorded in this .minecraft ({@code
-     * versions/1.8.9-SteinLoader/stein-loader-install.json}). It is what gets compared with what
-     * the project publishes: the release number is the pack's, not that of one of its parts.
-     */
-    private static String installedVersion(File gameDir) {
-        File manifest = new File(gameDir, "versions/1.8.9-SteinLoader/stein-loader-install.json");
-        if (!manifest.isFile()) {
-            return "";
-        }
-        try {
-            JsonElement root =
-                    new JsonParser()
-                            .parse(
-                                    new String(
-                                            Files.readAllBytes(manifest.toPath()),
-                                            StandardCharsets.UTF_8));
-            return root.isJsonObject() ? text(root.getAsJsonObject(), "version") : "";
-        } catch (Exception e) {
-            return "";
-        }
-    }
-
     /** The project's Discord invite, or empty: it decides whether the button appears. */
     public static String discord() {
         return discord;
-    }
-
-    /**
-     * The update to announce, or null: there is only something to announce when this .minecraft was
-     * installed by the installer (and its version can be known) and what the project published is
-     * greater. Without the installer's file (development build, manual installation) nothing is
-     * said: warning about a version without knowing which one is installed would be a guess.
-     */
-    public static Update update() {
-        Update u = latest;
-        if (u == null || installed.isEmpty() || Versions.compare(installed, u.version) >= 0) {
-            return null;
-        }
-        return u;
-    }
-
-    /**
-     * The installed version, for whoever wants to show it ("you have 0.1.7"). Empty without the
-     * installer's file.
-     */
-    public static String installed() {
-        return installed;
     }
 
     /** The current message, or null. The id is what says whether the player already closed it. */
@@ -274,19 +205,10 @@ public final class Remote {
         }
         // Only the keys below are read: older files also had "servers" and "mods", ignored now.
         String newDiscord = link(text(o, "discord"), "discord.gg", "discord.com", "discordapp.com");
-        Update newLatest = null;
-        JsonElement pub = o.get("latest");
-        if (pub != null && pub.isJsonObject()) {
-            JsonObject l = pub.getAsJsonObject();
-            String version = text(l, "version").trim();
-            String url = link(text(l, "url"), "github.com", "discord.gg", "discord.com");
-            newLatest = version.isEmpty() || url.isEmpty() ? null : new Update(version, url);
-        }
         News newNews = news(o.get("news"));
 
         // Everything parsed: only now publish, so bad JSON never leaves half-applied state.
         discord = newDiscord;
-        latest = newLatest;
         news = newNews;
         return true;
     }

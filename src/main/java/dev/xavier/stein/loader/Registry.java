@@ -31,15 +31,14 @@ import java.util.function.Predicate;
 /**
  * The Stein registry: the files the project publishes for its programs to read at run time
  * (Stein-Project/registry, served at {@link #DEFAULT_BASE}), instead of baking them into a build.
- * This Loader reads {@code stein.json} (Discord, the update notice, the menu news), {@code
- * servers.json} (features turned off on a server) and {@code revoked.json} (mods that must not
- * load).
+ * This Loader reads only {@code stein.json} (Discord and the menu news): it says nothing about what
+ * a mod can do. Older Loaders also read {@code servers.json} and {@code revoked.json}.
  *
  * <p>Every file comes with an ed25519 signature next to it ({@code <file>.sig}) and is only
- * believed when it matches {@link #PUBLIC_KEY}: the registry decides what a server turns off and
- * which mods do not load, and a hijacked account or a tampered copy on the way must not be able to.
- * The signed copy is kept in {@code config/steinloader-registry/}, applies at once on the next
- * start (before the network answers, and offline) and is only replaced by another copy with a valid
+ * believed when it matches {@link #PUBLIC_KEY}: what it says ends up as a clickable link in the
+ * menu, and a hijacked account or a tampered copy on the way must not be able to put one there. The
+ * signed copy is kept in {@code config/steinloader-registry/}, applies at once on the next start
+ * (before the network answers, and offline) and is only replaced by another copy with a valid
  * signature.
  *
  * <p>{@code -Dstein.registry=<base>} reads another address (a local copy, for tests); an empty

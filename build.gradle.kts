@@ -392,7 +392,7 @@ dependencies { testCompileOnly(files(loaderClasses)) }
 
 // Mods' access to the game's closed members (internal.Access), and the "depends" and "optional" of steinmod.json:
 // who gets in, who is refused, and the order.
-for ((name, main) in listOf("accessTest" to "AccessTest", "dependenciesTest" to "dev.xavier.stein.loader.DependenciesTest")) {
+for ((name, main) in listOf("accessTest" to "AccessTest", "dependenciesTest" to "dev.xavier.stein.loader.DependenciesTest", "serverRequestTest" to "dev.xavier.stein.loader.ServerRequestTest")) {
     tasks.register<JavaExec>(name) {
         group = "verification"
         description = "Runs $main."

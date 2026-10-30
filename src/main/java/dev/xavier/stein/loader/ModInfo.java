@@ -79,6 +79,18 @@ public final class ModInfo {
      */
     boolean announce = true;
 
+    /**
+     * What a server can turn off in this mod ({@code "features"} in steinmod.json): it goes in the
+     * list sent to the server, so that a plugin knows what to ask for.
+     */
+    final List<String> features = new ArrayList<>();
+
+    /** The address of the mod's index ({@code "source"}), for the update notice; or empty. */
+    String source = "";
+
+    /** The newer version found by {@link ModUpdates}, or null. */
+    volatile ModUpdates.Update update;
+
     final List<SteinMod> instances = new ArrayList<>();
     State state;
     String error;
@@ -127,6 +139,22 @@ public final class ModInfo {
                         false);
         m.state = State.BUILTIN;
         return m;
+    }
+
+    /** The newer version of this mod, or null. */
+    public ModUpdates.Update update() {
+        return update;
+    }
+
+    /** The update notice in the player's language, or null. */
+    public String updateText() {
+        ModUpdates.Update u = update;
+        if (u == null) {
+            return null;
+        }
+        return u.needsLoader.isEmpty()
+                ? I18n.format("steinloader.mod.update", u.version)
+                : I18n.format("steinloader.mod.updateLoader", u.version, u.needsLoader);
     }
 
     /** A mod that did not get in, with the reason. */

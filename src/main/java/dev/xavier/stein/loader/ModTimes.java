@@ -12,6 +12,7 @@ import java.util.IdentityHashMap;
 import java.util.LinkedHashMap;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Set;
 
 /**
  * How much each mod costs per frame, for F3: whoever plays sees which mod weighs, and whoever
@@ -55,6 +56,9 @@ public final class ModTimes {
 
     private static final Map<Object, Integer> ELEMENTS = new IdentityHashMap<>();
 
+    /** The keys registered by each mod, the same way as the elements. */
+    private static final Map<Object, Integer> KEYS = new IdentityHashMap<>();
+
     private ModTimes() {}
 
     /** The owners of each instance, in the order of the Loader's mod array. */
@@ -79,6 +83,33 @@ public final class ModTimes {
         if (current >= 0) {
             ELEMENTS.put(element, current);
         }
+    }
+
+    /** A key registered now belongs to whoever is running. */
+    static void key(Object binding) {
+        if (current >= 0) {
+            KEYS.put(binding, current);
+        }
+    }
+
+    /** The mod of the instance at index i (the Loader's mod array). */
+    static ModInfo owner(int i) {
+        return owners[i];
+    }
+
+    /** Was this HUD element registered by one of these mods (ids)? */
+    static boolean isOwnedBy(Object element, Set<String> ids) {
+        return owned(ELEMENTS.get(element), ids);
+    }
+
+    /** Was this key registered by one of these mods (ids)? */
+    static boolean keyOwnedBy(Object binding, Set<String> ids) {
+        return owned(KEYS.get(binding), ids);
+    }
+
+    /** Is the instance at this index (null or negative: nobody's) from one of these mods (ids)? */
+    static boolean owned(Integer i, Set<String> ids) {
+        return i != null && i >= 0 && ids.contains(owners[i].id);
     }
 
     /** Layout and draw time of a HUD element, for the mod that registered it. */

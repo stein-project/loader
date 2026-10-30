@@ -126,6 +126,19 @@ public interface SteinMod {
     default void onPage(Page page) {}
 
     /**
+     * The current server turned this whole mod off. Its events stop, and its HUD elements, Panel
+     * page and keys leave the game, with nothing the player chose changed: this is for what the
+     * Loader does not see (threads of the mod, something set on the game). Nothing else arrives
+     * until {@link #onResume}.
+     */
+    @Experimental(since = "0.1.31")
+    default void onSuspend() {}
+
+    /** The mod is back: the player left that server, or the server gave it back. */
+    @Experimental(since = "0.1.31")
+    default void onResume() {}
+
+    /**
      * Game screen built (after initGui, and again when the window is resized), like Forge's
      * InitGuiEvent.Post.
      *
