@@ -89,9 +89,6 @@ next start of everyone who has the Loader, with no new release:
   registry; give `news` a new `id` to show a new message (a player who closed a message does not see the same `id`
   again); `latest` is filled in by the installer's release workflow; only https links to the project's hosts are
   accepted (Discord, GitHub);
-- `servers.json`: features a server does not allow, which the mods leave off **only while the player is there**
-  (`Server.allows`), without changing what the player chose;
-- `revoked.json`: mods that must not load, by sha256; they show in the list, refused.
 
 Every file comes with an ed25519 signature (`<file>.sig`) and is only believed when it matches the public key in
 `Registry.java`. The last signed copy is kept in `config/steinloader-registry/` and is what applies offline, and also

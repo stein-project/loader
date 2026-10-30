@@ -56,6 +56,7 @@ public final class LoaderHost extends HostRender {
 
     @Override
     public void registerKey(Object binding) {
+        ModTimes.key(binding);
         KeyBindings.register(binding);
     }
 
@@ -247,12 +248,12 @@ public final class LoaderHost extends HostRender {
 
     @Override
     public boolean serverAllows(String feature) {
-        return ServerRules.allows(ServerOps.serverAddress(), feature);
+        return ServerControl.allows(feature);
     }
 
     @Override
     public String serverRestrictedBy(String feature) {
-        return ServerRules.restrictedBy(ServerOps.serverAddress(), feature);
+        return ServerControl.restrictedBy(feature);
     }
 
     @Override

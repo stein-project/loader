@@ -13,7 +13,6 @@ import dev.xavier.stein.loader.Remote;
 
 import net.minecraft.client.gui.GuiMainMenu;
 import net.minecraft.client.gui.GuiScreen;
-import net.minecraft.client.resources.I18n;
 
 import org.lwjgl.input.Mouse;
 
@@ -21,14 +20,10 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Stein Labs notices in the corner of the main menu: the <b>update</b>, when a new version is out,
- * and the <b>news</b> published in the project file.
- *
- * <p>Both come from the same public file ({@link Remote}), so announcing news — or warning about a
- * version — needs no new Loader. Each has its own "already seen": the notice stores its {@code id}
- * and the update stores the announced version (in {@code config/steinloader.json}), because a
- * warning that reappears on every start turns into noise, and noise gets learned to be ignored.
- * Closing one does not hide the other.
+ * Stein Labs notice in the corner of the main menu: the <b>news</b> published in the project file
+ * ({@link Remote}), so announcing something needs no new Loader. It has an "already seen": it
+ * stores its {@code id} (in {@code config/steinloader.json}), because a warning that reappears on
+ * every start turns into noise, and noise gets learned to be ignored.
  *
  * <p>With an address, the whole bubble opens the browser; the address goes through {@link Remote}'s
  * check: https, and only for the project's places.
@@ -41,25 +36,13 @@ public final class News {
     /** Slides up when the screen opens. */
     private static final int ANIM_MS = 260;
 
-    /** Color of the left strip: the update's draws more attention than the notice's. */
-    private static final int MARK_UPDATE = Theme.GOLD;
-
     private static long shownAt;
     private static String showing = "";
 
-    /** Where each bubble ended up in the drawn frame: {x, y, height, close X in x, X in y}. */
-    private static int[] updateBox;
-
+    /** Where the bubble ended up in the drawn frame: {x, y, height, close X in x, X in y}. */
     private static int[] newsBox;
 
     private News() {}
-
-    /** The update to announce, or null (there is none, or the player already closed this one). */
-    private static Remote.Update update() {
-        Remote.Update u = Remote.update();
-        Loader loader = Loader.get();
-        return u == null || loader == null || u.version.equals(loader.seenUpdate()) ? null : u;
-    }
 
     /** The notice to show, or null. */
     private static Remote.News news() {
@@ -70,20 +53,17 @@ public final class News {
 
     /** After the screen draws itself; main menu only. */
     public static void afterDrawScreen(Object screen, int mx, int my) {
-        updateBox = null;
         newsBox = null;
         if (!(screen instanceof GuiMainMenu)) {
             return;
         }
-        Remote.Update update = update();
         Remote.News news = news();
-        if (update == null && news == null) {
+        if (news == null) {
             return;
         }
         // The animation restarts when what is being shown changes.
-        String now = (update == null ? "" : update.version) + "|" + (news == null ? "" : news.id);
-        if (!now.equals(showing)) {
-            showing = now;
+        if (!news.id.equals(showing)) {
+            showing = news.id;
             shownAt = Ui.now();
         }
         GuiScreen gui = (GuiScreen) screen;
@@ -92,34 +72,17 @@ public final class News {
         // would get in the way of clicks from someone who just wants to play.
         int x = gui.width - W - 6;
         int y = 6 - Math.round((1.0F - p) * 12);
-        if (update != null) {
-            updateBox =
-                    balloon(
-                            x,
-                            y,
-                            I18n.format("steinloader.update.title"),
-                            I18n.format(
-                                    "steinloader.update.text", update.version, Remote.installed()),
-                            MARK_UPDATE,
-                            true,
-                            mx,
-                            my,
-                            p);
-            y += updateBox[2] + 6;
-        }
-        if (news != null) {
-            newsBox =
-                    balloon(
-                            x,
-                            y,
-                            news.title(),
-                            news.text(),
-                            Discord.BLURPLE,
-                            !news.url.isEmpty(),
-                            mx,
-                            my,
-                            p);
-        }
+        newsBox =
+                balloon(
+                        x,
+                        y,
+                        news.title(),
+                        news.text(),
+                        Discord.BLURPLE,
+                        !news.url.isEmpty(),
+                        mx,
+                        my,
+                        p);
     }
 
     /**
@@ -171,15 +134,6 @@ public final class News {
         GuiScreen gui = (GuiScreen) screen;
         int mx = Ui.mouseX(gui);
         int my = Ui.mouseY(gui);
-        Remote.Update update = update();
-        if (update != null && hit(updateBox, mx, my)) {
-            Ui.click();
-            if (!closing(updateBox, mx, my)) {
-                Discord.open(update.url);
-            }
-            Loader.get().seenUpdate(update.version);
-            return true;
-        }
         Remote.News news = news();
         if (news != null && hit(newsBox, mx, my)) {
             Ui.click();

@@ -13,6 +13,7 @@ import dev.xavier.stein.bridge.core.SteinLog;
 import dev.xavier.stein.loader.Loader;
 import dev.xavier.stein.loader.ModInfo;
 import dev.xavier.stein.loader.Remote;
+import dev.xavier.stein.loader.ServerControl;
 import dev.xavier.stein.loader.font.GameText;
 
 import net.minecraft.client.gui.GuiButton;
@@ -58,6 +59,10 @@ public final class LoaderScreen extends GuiScreen {
     private final Loader loader;
     private final GuiScreen parent;
     private final List<ModInfo> mods;
+
+    /** Where the chosen mod's update line was drawn, or -1. */
+    private int updateY = -1;
+
     private final Tab edge = new Tab();
     private final int[] pageX = new int[PAGES.length];
     private final int[] pageW = new int[PAGES.length];
@@ -106,6 +111,7 @@ public final class LoaderScreen extends GuiScreen {
 
     @Override
     public void initGui() {
+        loader.checkModUpdates();
         if (parent != null) {
             parent.setWorldAndResolution(this.mc, this.width, this.height);
         }
@@ -298,6 +304,9 @@ public final class LoaderScreen extends GuiScreen {
                             : m.rejected() ? Theme.FAINT : on ? Theme.INK : Theme.MUTED);
             // The rejected one shows the reason where the others show version and author: it is
             // what matters about it.
+            if (m.update() != null) {
+                Ui.rect(listX + listW - 31, y + 8, listX + listW - 28, y + 11, Theme.GOLD);
+            }
             if (m.rejected()) {
                 Ui.mono(m.reason(), listX + 6, y + 17, Theme.DANGER);
             } else {
@@ -360,6 +369,20 @@ public final class LoaderScreen extends GuiScreen {
             y = line(I18n.format("steinloader.mod.file", m.file.getName()), y, Theme.MUTED);
         }
         y = line(I18n.format("steinloader.mod.state", state(m)), y, Theme.INK);
+        List<String> off = ServerControl.disabledFeatures(m);
+        if (!off.isEmpty()) {
+            y =
+                    line(
+                            I18n.format("steinloader.mod.features", String.join(", ", off)),
+                            y,
+                            Theme.GOLD);
+        }
+        updateY = -1;
+        String update = m.updateText();
+        if (update != null) {
+            updateY = y;
+            y = line(update, y, Theme.GOLD);
+        }
         Ui.hair(dx, y + 3, dw, Theme.RULE);
         String d =
                 m.builtIn()
@@ -377,6 +400,9 @@ public final class LoaderScreen extends GuiScreen {
     private String state(ModInfo m) {
         boolean wanted = loader.isEnabled(m);
         ModInfo.State s = m.state();
+        if (ServerControl.isSuspended(m)) {
+            return "§e" + I18n.format("steinloader.state.suspended");
+        }
         if (s == ModInfo.State.BUILTIN) {
             return I18n.format("steinloader.state.builtin");
         }
@@ -648,6 +674,16 @@ public final class LoaderScreen extends GuiScreen {
                     if (overLogKnob(i, mx, my)) {
                         loader.setDebugLog(topics[i], !SteinLog.on(topics[i]));
                         Ui.click();
+                        return;
+                    }
+                }
+            }
+            if (page == 0 && updateY >= 0 && mx >= dx && mx < dx + dw) {
+                if (my >= updateY && my < updateY + 12) {
+                    ModInfo m = selected();
+                    if (m.update() != null && !m.update().url.isEmpty()) {
+                        Ui.click();
+                        Discord.open(m.update().url);
                         return;
                     }
                 }

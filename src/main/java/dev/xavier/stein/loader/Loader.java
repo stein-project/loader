@@ -13,6 +13,7 @@ import dev.xavier.stein.bridge.core.Log;
 import dev.xavier.stein.bridge.core.SteinLog;
 import dev.xavier.stein.bridge.hooks.HookSink;
 import dev.xavier.stein.gfx.SteinEntityDeferred;
+import dev.xavier.stein.loader.api.Option;
 import dev.xavier.stein.loader.api.Page;
 import dev.xavier.stein.loader.api.SteinMod;
 import dev.xavier.stein.loader.font.GameText;
@@ -33,6 +34,7 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Set;
 
 /**
  * Stein Loader: loads the mods from the game's mods folder and hands them the events that come from
@@ -85,6 +87,16 @@ public final class Loader implements HookSink {
     private LoaderConfig config;
 
     private SteinMod[] mods = new SteinMod[0];
+
+    /** Every instance, in the order of {@link #mods}, also while one is suspended there. */
+    private SteinMod[] loadedMods = mods;
+
+    /**
+     * Stands in {@link #mods} for an instance suspended by the server: every event does nothing,
+     * and the positions, which the per-mod times count by, stay the same.
+     */
+    private static final SteinMod IDLE = new SteinMod() {};
+
     private int failures;
 
     // The mods that override each hot event (Overrides), in mod order: the per-entity, per-item
@@ -162,13 +174,15 @@ public final class Loader implements HookSink {
 
     /** Every mod, in order; an error is logged and the next mod still gets the event. */
     private void each(String event, Call c) {
-        for (SteinMod m : mods) {
+        for (int i = 0; i < mods.length; i++) {
+            ModTimes.current = i;
             try {
-                c.on(m);
+                c.on(mods[i]);
             } catch (Throwable e) {
-                fail(m, event, e);
+                fail(mods[i], event, e);
             }
         }
+        ModTimes.current = -1;
     }
 
     /**
@@ -190,6 +204,7 @@ public final class Loader implements HookSink {
     /** Like {@link #each}, adding each mod's time to its own count (ModTimes). */
     private void timed(String event, Call c) {
         for (int i = 0; i < mods.length; i++) {
+            ModTimes.current = i;
             long t = System.nanoTime();
             try {
                 c.on(mods[i]);
@@ -198,6 +213,7 @@ public final class Loader implements HookSink {
             }
             ModTimes.add(i, System.nanoTime() - t);
         }
+        ModTimes.current = -1;
     }
 
     /**
@@ -293,6 +309,7 @@ public final class Loader implements HookSink {
         enabled = Dependencies.resolve(enabled, all);
         ModLoading.Loaded loaded = ModLoading.instantiate(enabled, all);
         mods = loaded.instances().toArray(new SteinMod[0]);
+        loadedMods = mods.clone();
         indexOverrides();
         ModTimes.init(loaded.owners().toArray(new ModInfo[0]));
         ModLoading.addResourcePacks(loaded.packs());
@@ -374,17 +391,6 @@ public final class Loader implements HookSink {
         return config.newsRead;
     }
 
-    /** The announced version the player already closed (empty if none). */
-    public String seenUpdate() {
-        return config.seenUpdate;
-    }
-
-    /** Marks the announced version as seen: the warning does not return until another comes out. */
-    public void seenUpdate(String version) {
-        config.seenUpdate = version == null ? "" : version;
-        config.save();
-    }
-
     /** Marks the notice as read: it does not return on the next starts. */
     public void readNews(String id) {
         config.newsRead = id == null ? "" : id;
@@ -430,8 +436,12 @@ public final class Loader implements HookSink {
      * <p>Built on every opening: the mod describes on the spot, so the values are fresh.
      */
     public List<Page> pages() {
+        checkModUpdates();
         List<Page> out = new ArrayList<>();
         for (ModInfo m : all) {
+            if (ServerControl.isSuspended(m)) {
+                continue;
+            }
             for (SteinMod instance : m.instances) {
                 Page page = new Page(m.name);
                 try {
@@ -441,11 +451,56 @@ public final class Loader implements HookSink {
                     continue;
                 }
                 if (!page.isEmpty()) {
+                    updateNotice(page, m);
                     out.add(page);
                 }
             }
         }
         return out;
+    }
+
+    /** Looks for newer versions of the mods, once per session (ModUpdates). */
+    public void checkModUpdates() {
+        ModUpdates.check(all);
+    }
+
+    /** A line at the end of the mod's page when a newer version is out. */
+    private static void updateNotice(Page page, ModInfo m) {
+        ModUpdates.Update u = m.update();
+        if (u != null) {
+            page.section(I18n.format("steinloader.mod.updateTitle"));
+            page.option(Option.action(m.updateText(), "", () -> Discord.open(u.url)));
+        }
+    }
+
+    /**
+     * Turns these mods (by id) off for the current server and the others back on: their events stop
+     * ({@link #IDLE}), and their HUD elements and keys leave the game. A mod hears it through
+     * onSuspend and onResume, for what the Loader does not see.
+     */
+    void suspend(Set<String> ids) {
+        SteinMod[] was = mods.clone();
+        for (int i = 0; i < mods.length; i++) {
+            mods[i] = ids.contains(ModTimes.owner(i).id) ? IDLE : loadedMods[i];
+        }
+        indexOverrides();
+        HudGrid.hide(e -> ModTimes.isOwnedBy(e, ids));
+        GameOps.parkKeys(ids);
+        // Last: a mod that is told sees the game already the way it will stay.
+        for (int i = 0; i < mods.length; i++) {
+            if (mods[i] == was[i]) {
+                continue;
+            }
+            try {
+                if (mods[i] == IDLE) {
+                    loadedMods[i].onSuspend();
+                } else {
+                    loadedMods[i].onResume();
+                }
+            } catch (Throwable e) {
+                fail(loadedMods[i], "onSuspend/onResume", e);
+            }
+        }
     }
 
     /** The mod's configuration screen (GuiScreen), or null. */
@@ -489,7 +544,7 @@ public final class Loader implements HookSink {
                 .addShutdownHook(
                         new Thread(
                                 () -> {
-                                    for (SteinMod m : mods) {
+                                    for (SteinMod m : loadedMods) {
                                         try {
                                             m.onShutdown();
                                         } catch (Throwable e) {
@@ -539,6 +594,7 @@ public final class Loader implements HookSink {
     public void tickEnd() {
         timed("onTickEnd", SteinMod::onTickEnd);
         GameTasks.run(this, mods);
+        ServerControl.tick(this);
         try {
             HudGrid.tick();
         } catch (Throwable e) {
@@ -639,13 +695,14 @@ public final class Loader implements HookSink {
         if (!ServerOps.lastServer.isEmpty()) {
             GameOps.connecting = ServerOps.lastServer; // also when joining through the command line
         }
+        ServerControl.joined(this, ServerOps.lastServer);
+        each("onJoinGame", SteinMod::onJoinGame);
         // Whoever is on the other side has the right to know what this client has loaded.
         try {
             ServerReport.announce(this);
         } catch (Throwable e) {
             failLoader("server notice", e);
         }
-        each("onJoinGame", SteinMod::onJoinGame);
     }
 
     @Override
@@ -916,6 +973,7 @@ public final class Loader implements HookSink {
 
     @Override
     public void customPayload(String channel, byte[] data) {
+        ServerControl.received(channel, data);
         each("onCustomPayload", m -> m.onCustomPayload(channel, data));
     }
 
