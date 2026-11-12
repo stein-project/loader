@@ -15,6 +15,10 @@ import dev.xavier.stein.loader.ModInfo;
 import dev.xavier.stein.loader.Remote;
 import dev.xavier.stein.loader.ServerControl;
 import dev.xavier.stein.loader.font.GameText;
+import dev.xavier.stein.ui.Shapes;
+import dev.xavier.stein.ui.Theme;
+import dev.xavier.stein.ui.Ui;
+import dev.xavier.stein.ui.Widgets;
 
 import net.minecraft.client.gui.GuiButton;
 import net.minecraft.client.gui.GuiScreen;

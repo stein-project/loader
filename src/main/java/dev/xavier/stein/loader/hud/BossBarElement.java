@@ -11,7 +11,7 @@ package dev.xavier.stein.loader.hud;
 import dev.xavier.stein.bridge.hooks.VanillaHud;
 import dev.xavier.stein.loader.api.HudPlacement;
 import dev.xavier.stein.loader.api.Option;
-import dev.xavier.stein.loader.gui.Ui;
+import dev.xavier.stein.ui.Ui;
 
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.FontRenderer;

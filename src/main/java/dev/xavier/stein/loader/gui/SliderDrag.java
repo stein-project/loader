@@ -9,6 +9,7 @@
 package dev.xavier.stein.loader.gui;
 
 import dev.xavier.stein.loader.api.Option;
+import dev.xavier.stein.ui.Widgets;
 
 /**
  * The drag of an {@link Option.Slider} track on a screen of option rows (the Panel, the grid
@@ -32,7 +33,7 @@ public final class SliderDrag {
         int track = rowX + rowW - Widgets.TRACK_W;
         if (o instanceof Option.Slider s && button == 0 && mx >= track - 4) {
             sliding = s;
-            Widgets.sliding = s;
+            OptionRows.sliding = s;
             trackX = track;
             s.setFraction((mx - track) / (float) Widgets.TRACK_W);
             return true;
@@ -53,7 +54,7 @@ public final class SliderDrag {
     public boolean release() {
         boolean was = sliding != null;
         sliding = null;
-        Widgets.sliding = null;
+        OptionRows.sliding = null;
         return was;
     }
 }

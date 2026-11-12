@@ -11,12 +11,13 @@ package dev.xavier.stein.loader.hud;
 import dev.xavier.stein.loader.LoaderOptions;
 import dev.xavier.stein.loader.api.HudElement;
 import dev.xavier.stein.loader.api.Option;
-import dev.xavier.stein.loader.gui.Draw2D;
-import dev.xavier.stein.loader.gui.Icons;
-import dev.xavier.stein.loader.gui.KeyCodes;
-import dev.xavier.stein.loader.gui.Theme;
-import dev.xavier.stein.loader.gui.Ui;
-import dev.xavier.stein.loader.gui.Widgets;
+import dev.xavier.stein.loader.gui.OptionRows;
+import dev.xavier.stein.ui.Draw2D;
+import dev.xavier.stein.ui.Icons;
+import dev.xavier.stein.ui.KeyCodes;
+import dev.xavier.stein.ui.Theme;
+import dev.xavier.stein.ui.Ui;
+import dev.xavier.stein.ui.Widgets;
 
 import net.minecraft.client.gui.Gui;
 import net.minecraft.client.gui.GuiScreen;
@@ -209,7 +210,7 @@ final class HudEditor extends GuiScreen {
                 if (hover) {
                     Draw2D.rect(barX + 4, y, BAR_W - 8, BAR_ROW - 2, Widgets.SURFACE_HOVER);
                 }
-                Widgets.restore(restoreAll, barX + 4, y, BAR_W - 8, BAR_ROW - 2, hover, 1.0F);
+                OptionRows.restore(restoreAll, barX + 4, y, BAR_W - 8, BAR_ROW - 2, hover, 1.0F);
             } else {
                 Widgets.button(
                         labels[i],

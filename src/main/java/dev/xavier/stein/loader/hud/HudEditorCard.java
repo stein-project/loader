@@ -11,12 +11,13 @@ package dev.xavier.stein.loader.hud;
 import dev.xavier.stein.bridge.core.Log;
 import dev.xavier.stein.loader.api.HudElement;
 import dev.xavier.stein.loader.api.Option;
-import dev.xavier.stein.loader.gui.Draw2D;
-import dev.xavier.stein.loader.gui.Icons;
+import dev.xavier.stein.loader.gui.OptionRows;
 import dev.xavier.stein.loader.gui.SliderDrag;
-import dev.xavier.stein.loader.gui.Theme;
-import dev.xavier.stein.loader.gui.Ui;
-import dev.xavier.stein.loader.gui.Widgets;
+import dev.xavier.stein.ui.Draw2D;
+import dev.xavier.stein.ui.Icons;
+import dev.xavier.stein.ui.Theme;
+import dev.xavier.stein.ui.Ui;
+import dev.xavier.stein.ui.Widgets;
 
 import net.minecraft.client.resources.I18n;
 
@@ -134,7 +135,7 @@ final class HudEditorCard {
         } else {
             for (int i = 0; i < optionRows.size(); i++) {
                 Option o = optionRows.get(i);
-                Widgets.option(
+                OptionRows.option(
                         o,
                         "editor|" + element.id(),
                         new Widgets.Row(x + 10, ry, w - 20, ROW),
@@ -205,7 +206,7 @@ final class HudEditorCard {
                 if (slider.press(o, button, mx, x + 10, w - 20)) {
                     return null;
                 }
-                boolean back = button == 1 || Widgets.backArrow(o, x + 10, w - 20, mx);
+                boolean back = button == 1 || OptionRows.backArrow(o, x + 10, w - 20, mx);
                 o.click(!back);
                 changedOptions();
             }

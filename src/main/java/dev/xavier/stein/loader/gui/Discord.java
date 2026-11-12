@@ -9,6 +9,8 @@
 package dev.xavier.stein.loader.gui;
 
 import dev.xavier.stein.loader.Remote;
+import dev.xavier.stein.ui.HoverFade;
+import dev.xavier.stein.ui.Ui;
 
 import net.minecraft.client.gui.GuiMainMenu;
 import net.minecraft.client.gui.GuiScreen;

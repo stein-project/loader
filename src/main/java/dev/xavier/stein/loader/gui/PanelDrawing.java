@@ -10,6 +10,12 @@ package dev.xavier.stein.loader.gui;
 
 import dev.xavier.stein.loader.api.Option;
 import dev.xavier.stein.loader.api.Page;
+import dev.xavier.stein.ui.Draw2D;
+import dev.xavier.stein.ui.Icons;
+import dev.xavier.stein.ui.Shapes;
+import dev.xavier.stein.ui.Theme;
+import dev.xavier.stein.ui.Ui;
+import dev.xavier.stein.ui.Widgets;
 
 import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.client.resources.I18n;
@@ -402,7 +408,7 @@ abstract class PanelDrawing extends PanelBase {
             return;
         }
         if (e.option != null) {
-            Widgets.option(
+            OptionRows.option(
                     e.option,
                     pageKey(),
                     new Widgets.Row(x, y, w, h),

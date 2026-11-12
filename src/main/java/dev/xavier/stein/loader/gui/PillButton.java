@@ -8,6 +8,8 @@
 
 package dev.xavier.stein.loader.gui;
 
+import dev.xavier.stein.ui.Widgets;
+
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiButton;
 

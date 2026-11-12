@@ -10,6 +10,7 @@ package dev.xavier.stein.loader.font;
 
 import dev.xavier.stein.bridge.core.Log;
 import dev.xavier.stein.bridge.engine.TextHook;
+import dev.xavier.stein.ui.SteinFont;
 
 /**
  * Stein's font in the mods' HUD: what a mod draws through the Loader API (armor, effects,

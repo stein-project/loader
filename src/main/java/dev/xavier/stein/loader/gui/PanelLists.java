@@ -9,6 +9,12 @@
 package dev.xavier.stein.loader.gui;
 
 import dev.xavier.stein.loader.api.Page;
+import dev.xavier.stein.ui.Draw2D;
+import dev.xavier.stein.ui.Icons;
+import dev.xavier.stein.ui.Shapes;
+import dev.xavier.stein.ui.Theme;
+import dev.xavier.stein.ui.Ui;
+import dev.xavier.stein.ui.Widgets;
 
 import java.util.List;
 

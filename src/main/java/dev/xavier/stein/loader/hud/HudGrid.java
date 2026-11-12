@@ -14,10 +14,10 @@ import dev.xavier.stein.loader.Loader;
 import dev.xavier.stein.loader.ModTimes;
 import dev.xavier.stein.loader.api.HudElement;
 import dev.xavier.stein.loader.api.Keys;
-import dev.xavier.stein.loader.gui.KeyCodes;
 import dev.xavier.stein.loader.gui.PanelScreen;
-import dev.xavier.stein.loader.gui.Surface;
 import dev.xavier.stein.loader.render.LoaderRender;
+import dev.xavier.stein.ui.KeyCodes;
+import dev.xavier.stein.ui.Surface;
 
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiChat;

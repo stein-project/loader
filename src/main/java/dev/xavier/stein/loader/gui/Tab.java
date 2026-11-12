@@ -9,6 +9,10 @@
 package dev.xavier.stein.loader.gui;
 
 import dev.xavier.stein.loader.Loader;
+import dev.xavier.stein.ui.HoverFade;
+import dev.xavier.stein.ui.Shapes;
+import dev.xavier.stein.ui.Theme;
+import dev.xavier.stein.ui.Ui;
 
 import net.minecraft.client.gui.GuiIngameMenu;
 import net.minecraft.client.gui.GuiMainMenu;

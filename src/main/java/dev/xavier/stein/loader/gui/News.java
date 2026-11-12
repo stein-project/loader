@@ -10,6 +10,10 @@ package dev.xavier.stein.loader.gui;
 
 import dev.xavier.stein.loader.Loader;
 import dev.xavier.stein.loader.Remote;
+import dev.xavier.stein.ui.Draw2D;
+import dev.xavier.stein.ui.Icons;
+import dev.xavier.stein.ui.Theme;
+import dev.xavier.stein.ui.Ui;
 
 import net.minecraft.client.gui.GuiMainMenu;
 import net.minecraft.client.gui.GuiScreen;

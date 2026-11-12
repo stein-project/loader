@@ -142,6 +142,9 @@ dependencies {
     // loaderAccess binds those accesses in the game (see below).
     compileOnly(files(openGame.map { it.outputs.files.singleFile }))
     compileOnly(files(asmCore))
+    // The Bridge's design system (dev.xavier.stein.ui) with readable names, ahead of the Bridge jar: the jar has
+    // the same classes with the game's obfuscated names in their signatures, which the Loader does not compile with.
+    compileOnly(files(bridgeDir.resolve("build/classes/java/ui")))
     compileOnly(gameClasspath())
     "hooktestCompileOnly"(files(openGame.map { it.outputs.files.singleFile }))
     "hooktestCompileOnly"(gameClasspath())

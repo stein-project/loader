@@ -13,7 +13,7 @@ import dev.xavier.stein.bridge.hooks.GameHooks;
 import dev.xavier.stein.loader.api.Players;
 import dev.xavier.stein.loader.api.Targeting;
 import dev.xavier.stein.loader.api.Terrain;
-import dev.xavier.stein.loader.gui.Draw2D;
+import dev.xavier.stein.loader.gui.PlayerHeads;
 
 import net.minecraft.client.Minecraft;
 import net.minecraft.entity.Entity;
@@ -305,7 +305,7 @@ abstract class HostWorld extends HostInventory {
 
     @Override
     public Object playerSkin(String nick) {
-        return Draw2D.playerSkin(nick);
+        return PlayerHeads.playerSkin(nick);
     }
 
     @Override
