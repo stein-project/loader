@@ -44,24 +44,6 @@ public final class LoaderOptions {
     public static final boolean NO_ANNOUNCE = Opt.flag("steinloader.noAnnounce");
 
     /**
-     * {@code -Dsteinloader.vanillaFont=true}: the Loader's menus use Minecraft's font instead of
-     * Stein's (default: off).
-     */
-    public static final boolean VANILLA_FONT = Opt.flag("steinloader.vanillaFont");
-
-    /**
-     * {@code -Dsteinloader.hudWeight=SemiBold|Bold|ExtraBold}: the weight of the HUD font, for
-     * comparison (default {@code Bold}).
-     */
-    public static final String HUD_WEIGHT = Opt.text("steinloader.hudWeight", "Bold");
-
-    /**
-     * {@code -Dsteinloader.hudFontSize=N}: the body size of the HUD font, for comparison (default
-     * 8.6).
-     */
-    public static final float HUD_FONT_SIZE = (float) Opt.decimal("steinloader.hudFontSize", 8.6);
-
-    /**
      * {@code -Dsteinloader.diag.editorOptions=id}: test, the HUD editor opens the options of this
      * element directly (default: unset).
      */

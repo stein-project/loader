@@ -11,6 +11,9 @@ package dev.xavier.stein.loader.gui;
 import dev.xavier.stein.loader.Loader;
 import dev.xavier.stein.loader.api.Option;
 import dev.xavier.stein.loader.api.Page;
+import dev.xavier.stein.ui.KeyCodes;
+import dev.xavier.stein.ui.Ui;
+import dev.xavier.stein.ui.Widgets;
 
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiScreen;
@@ -246,14 +249,14 @@ public final class PanelScreen extends PanelDrawing {
             return;
         }
         text.blur();
-        int[] box = Widgets.checkChip(o, listX + 10, r.y, listW - 20, r.h);
+        int[] box = OptionRows.checkChip(o, listX + 10, r.y, listW - 20, r.h);
         if (box != null && mx >= box[0] - 2 && mx < box[0] + box[2] + 2) {
             // The row's checkbox ticks and unticks without touching the option.
             o.check().toggle();
             Ui.click();
             return;
         }
-        int[] chip = Widgets.keyChip(o, listX + 10, r.y, listW - 20, r.h);
+        int[] chip = OptionRows.keyChip(o, listX + 10, r.y, listW - 20, r.h);
         if (chip != null && mx >= chip[0] - 2 && mx < chip[0] + chip[2] + 2) {
             // On the key label: waits for the next key (left) or clears (right).
             KeyLabels.stopListening(page(), o.key());
@@ -263,7 +266,7 @@ public final class PanelScreen extends PanelDrawing {
         }
         // On the track: the value goes where the mouse is, and follows the drag.
         if (!slider.press(o, button, mx, listX + 10, listW - 20)) {
-            boolean back = button == 1 || Widgets.backArrow(o, listX + 10, listW - 20, mx);
+            boolean back = button == 1 || OptionRows.backArrow(o, listX + 10, listW - 20, mx);
             o.click(!back);
         }
         Ui.click();

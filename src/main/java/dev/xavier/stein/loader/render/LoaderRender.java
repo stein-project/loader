@@ -10,7 +10,7 @@ package dev.xavier.stein.loader.render;
 
 import dev.xavier.stein.gfx.SteinGameState;
 import dev.xavier.stein.loader.api.spi.RenderBackend;
-import dev.xavier.stein.loader.gui.Draw2D;
+import dev.xavier.stein.ui.Draw2D;
 
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.ActiveRenderInfo;

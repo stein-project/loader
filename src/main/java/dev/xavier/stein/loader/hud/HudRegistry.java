@@ -12,8 +12,8 @@ import dev.xavier.stein.bridge.core.Log;
 import dev.xavier.stein.loader.ModTimes;
 import dev.xavier.stein.loader.api.HudElement;
 import dev.xavier.stein.loader.api.HudPlacement;
-import dev.xavier.stein.loader.gui.Surface;
-import dev.xavier.stein.loader.gui.Ui;
+import dev.xavier.stein.ui.Surface;
+import dev.xavier.stein.ui.Ui;
 
 import java.util.ArrayList;
 import java.util.Collections;

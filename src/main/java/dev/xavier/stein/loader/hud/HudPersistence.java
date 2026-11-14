@@ -16,7 +16,7 @@ import com.google.gson.JsonParser;
 import dev.xavier.stein.bridge.core.Log;
 import dev.xavier.stein.bridge.hooks.VanillaHud;
 import dev.xavier.stein.loader.api.HudPlacement;
-import dev.xavier.stein.loader.gui.Ui;
+import dev.xavier.stein.ui.Ui;
 
 import java.io.File;
 import java.io.FileInputStream;

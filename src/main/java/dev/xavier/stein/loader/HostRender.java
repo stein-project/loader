@@ -11,12 +11,13 @@ package dev.xavier.stein.loader;
 import dev.xavier.stein.bridge.engine.TextHook;
 import dev.xavier.stein.bridge.hooks.GameHooks;
 import dev.xavier.stein.loader.api.spi.RenderBackend;
-import dev.xavier.stein.loader.font.SteinFont;
-import dev.xavier.stein.loader.gui.Draw2D;
-import dev.xavier.stein.loader.gui.Surface;
-import dev.xavier.stein.loader.gui.Theme;
+import dev.xavier.stein.loader.gui.PlayerHeads;
 import dev.xavier.stein.loader.hud.HudGrid;
 import dev.xavier.stein.loader.render.LoaderRender;
+import dev.xavier.stein.ui.Draw2D;
+import dev.xavier.stein.ui.SteinFont;
+import dev.xavier.stein.ui.Surface;
+import dev.xavier.stein.ui.Theme;
 
 import java.util.List;
 
@@ -141,7 +142,7 @@ abstract class HostRender extends HostWorld {
 
     @Override
     public void drawPlayerHead(String nick, float x, float y, float size) {
-        Draw2D.playerHead(nick, x, y, size);
+        PlayerHeads.playerHead(nick, x, y, size);
     }
 
     @Override
@@ -248,7 +249,7 @@ abstract class HostRender extends HostWorld {
     @Override
     public void drawPlayerHeadPremium(
             String nick, float x, float y, float size, boolean premiumSkin) {
-        Draw2D.playerHead(nick, x, y, size, premiumSkin);
+        PlayerHeads.playerHead(nick, x, y, size, premiumSkin);
     }
 
     @Override

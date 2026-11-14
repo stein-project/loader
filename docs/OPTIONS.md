@@ -11,8 +11,5 @@ The Bridge's options are in its own `docs/OPTIONS.md`; the mod API reads one mor
 - `-Dsteinloader.disable=id1,id2`: disables these mods for this run only, without changing config/steinloader.json (default: unset).
 - `-Dsteinloader.noRemote=true`: turns the Stein registry off entirely, including the stored copies: no Discord button, no update warning, no message, no server rules, no revoked mods (default: off). `-Dstein.registry=<base>` reads the registry from another address instead (`Registry`).
 - `-Dsteinloader.noAnnounce=true`: does not tell the server which mods are loaded when joining (default: off, the list is sent on the `SteinLoader` channel).
-- `-Dsteinloader.vanillaFont=true`: the Loader's menus use Minecraft's font instead of Stein's (default: off).
-- `-Dsteinloader.hudWeight=SemiBold|Bold|ExtraBold`: the weight of the HUD font, for comparison (default `Bold`).
-- `-Dsteinloader.hudFontSize=N`: the body size of the HUD font, for comparison (default 8.6).
 - `-Dsteinloader.diag.editorOptions=id`: test, the HUD editor opens the options of this element directly (default: unset).
 - `-Dsteinloader.debugChest=true`: logs each chest the server opens and whether a virtual chest was requested (default: off).
