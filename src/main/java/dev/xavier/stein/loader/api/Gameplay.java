@@ -60,6 +60,18 @@ public final class Gameplay {
     }
 
     /**
+     * Stops sprinting now, as letting go of the forward key for a moment does: the game starts it
+     * again by its own rules (forward and the sprint key held). Whoever also lets go of the sprint
+     * key until the next tick ({@link Keys.Binding#hold}) makes the client tell the server it
+     * stopped and, one tick later, that it started — the server, which drops the attacker's
+     * sprinting on every hit that knocks back, then sees it sprinting for the next hit.
+     */
+    @Experimental(since = "0.1.33")
+    public static void stopSprinting() {
+        Host.INSTANCE.stopSprinting();
+    }
+
+    /**
      * Together with {@link #setSprintOnHit}: the hit also does not brake the player (1.8 cuts the
      * horizontal speed to 60% on every hit that knocks back). No effect with sprinting off.
      *

@@ -8,6 +8,8 @@
 
 package dev.xavier.stein.loader;
 
+import static dev.xavier.stein.loader.GameOps.mc;
+
 import dev.xavier.stein.bridge.engine.Sprint;
 import dev.xavier.stein.bridge.hooks.GameHooks;
 import dev.xavier.stein.loader.api.Players;
@@ -51,6 +53,13 @@ abstract class HostWorld extends HostInventory {
     @Override
     public void setSprintOnHit(boolean on) {
         Sprint.setOnHit(on);
+    }
+
+    @Override
+    public void stopSprinting() {
+        if (mc().thePlayer != null) {
+            mc().thePlayer.setSprinting(false);
+        }
     }
 
     @Override
@@ -271,6 +280,16 @@ abstract class HostWorld extends HostInventory {
     @Override
     public int entityKind(Object entity) {
         return HudOps.kind(entity);
+    }
+
+    @Override
+    public Object entityItemStack(Object entity) {
+        return HudOps.itemStack(entity);
+    }
+
+    @Override
+    public void playSound(String id, float pitch) {
+        HudOps.playSound(id, pitch);
     }
 
     @Override

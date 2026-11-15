@@ -529,6 +529,12 @@ public interface Host {
 
     int entityKind(Object entity);
 
+    // A dropped item's stack and a sound for the player (0.1.33)
+
+    Object entityItemStack(Object entity);
+
+    void playSound(String id, float pitch);
+
     String entityType(Object entity);
 
     /** axis: 0 x, 1 y, 2 z, 3 yaw. */
@@ -592,4 +598,6 @@ public interface Host {
     void setSprintOnHit(boolean on);
 
     void setNoHitSlowdown(boolean on);
+
+    void stopSprinting();
 }

@@ -22,6 +22,18 @@ public final class Game {
         Host.INSTANCE.setInventoryEffectsHidden(hide);
     }
 
+    /**
+     * Plays a sound to the player, at the same volume wherever they are (a notice, not a sound in
+     * the world).
+     *
+     * @param id the sound's name, as in the game's sounds.json ("random.orb", "note.pling")
+     * @param pitch 0.5 to 2 (1 = as recorded)
+     */
+    @Experimental(since = "0.1.33")
+    public static void playSound(String id, float pitch) {
+        Host.INSTANCE.playSound(id, pitch);
+    }
+
     /** Fraction of the current tick, for whoever draws interpolated. */
     public static float partialTicks() {
         return Host.INSTANCE.partialTicks();
