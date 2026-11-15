@@ -118,6 +118,21 @@ final class HudOps {
         return out;
     }
 
+    static List<Effects.Effect> potionEffectList(Object stack) {
+        if (!(stack instanceof ItemStack s) || !(s.getItem() instanceof ItemPotion p)) {
+            return List.of();
+        }
+        List<PotionEffect> list = p.getEffects(s);
+        if (list == null || list.isEmpty()) {
+            return List.of();
+        }
+        List<Effects.Effect> out = new java.util.ArrayList<>(list.size());
+        for (PotionEffect e : list) {
+            out.add(new Effects.Effect(e.getPotionID(), e.getAmplifier(), e.getDuration(), false));
+        }
+        return out;
+    }
+
     static boolean splash(Object stack) {
         return stack instanceof ItemStack s
                 && s.getItem() instanceof ItemPotion

@@ -271,6 +271,7 @@ M dev/xavier/stein/loader/api/Effects$Effect.<init>(IIIZ)V public
 M dev/xavier/stein/loader/api/Effects.durationText(Ldev/xavier/stein/loader/api/Effects$Effect;)Ljava/lang/String; public static @Experimental
 M dev/xavier/stein/loader/api/Effects.hasIcon(I)Z public static @Experimental
 M dev/xavier/stein/loader/api/Effects.name(Ldev/xavier/stein/loader/api/Effects$Effect;)Ljava/lang/String; public static @Experimental
+M dev/xavier/stein/loader/api/Effects.ofPotion(Ljava/lang/Object;)Ljava/util/List; public static @Experimental
 M dev/xavier/stein/loader/api/Effects.of(Ljava/lang/Object;)Ljava/util/List; public static @Experimental
 M dev/xavier/stein/loader/api/Entities$Kind.valueOf(Ljava/lang/String;)Ldev/xavier/stein/loader/api/Entities$Kind; public static @Experimental
 M dev/xavier/stein/loader/api/Entities$Kind.values()[Ldev/xavier/stein/loader/api/Entities$Kind; public static @Experimental

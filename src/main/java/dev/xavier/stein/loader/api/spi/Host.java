@@ -495,6 +495,8 @@ public interface Host {
 
     List<Effects.Effect> effectsOf(Object entity);
 
+    List<Effects.Effect> potionEffectsOf(Object stack);
+
     String effectName(int id, int amplifier);
 
     String effectDuration(int ticks, boolean permanent);

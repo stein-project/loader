@@ -68,6 +68,16 @@ public final class Effects {
     }
 
     /**
+     * The effects a potion gives, as its item lists them (with the custom effects a server puts on
+     * it), each with its full duration in ticks; empty if it is not a potion. A splash potion lists
+     * the duration of a direct hit.
+     */
+    @Experimental(since = "0.1.33")
+    public static List<Effect> ofPotion(Object stack) {
+        return Host.INSTANCE.potionEffectsOf(stack);
+    }
+
+    /**
      * The name in the game's language, with the level in Roman numerals as in the inventory ("Speed
      * II").
      */
