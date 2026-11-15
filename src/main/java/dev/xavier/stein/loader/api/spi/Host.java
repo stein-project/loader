@@ -495,6 +495,8 @@ public interface Host {
 
     List<Effects.Effect> effectsOf(Object entity);
 
+    List<Effects.Effect> potionEffectsOf(Object stack);
+
     String effectName(int id, int amplifier);
 
     String effectDuration(int ticks, boolean permanent);
@@ -528,6 +530,12 @@ public interface Host {
     List<Object> worldEntities();
 
     int entityKind(Object entity);
+
+    // A dropped item's stack and a sound for the player (0.1.33)
+
+    Object entityItemStack(Object entity);
+
+    void playSound(String id, float pitch);
 
     String entityType(Object entity);
 
@@ -592,4 +600,6 @@ public interface Host {
     void setSprintOnHit(boolean on);
 
     void setNoHitSlowdown(boolean on);
+
+    void stopSprinting();
 }

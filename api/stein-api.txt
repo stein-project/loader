@@ -271,6 +271,7 @@ M dev/xavier/stein/loader/api/Effects$Effect.<init>(IIIZ)V public
 M dev/xavier/stein/loader/api/Effects.durationText(Ldev/xavier/stein/loader/api/Effects$Effect;)Ljava/lang/String; public static @Experimental
 M dev/xavier/stein/loader/api/Effects.hasIcon(I)Z public static @Experimental
 M dev/xavier/stein/loader/api/Effects.name(Ldev/xavier/stein/loader/api/Effects$Effect;)Ljava/lang/String; public static @Experimental
+M dev/xavier/stein/loader/api/Effects.ofPotion(Ljava/lang/Object;)Ljava/util/List; public static @Experimental
 M dev/xavier/stein/loader/api/Effects.of(Ljava/lang/Object;)Ljava/util/List; public static @Experimental
 M dev/xavier/stein/loader/api/Entities$Kind.valueOf(Ljava/lang/String;)Ldev/xavier/stein/loader/api/Entities$Kind; public static @Experimental
 M dev/xavier/stein/loader/api/Entities$Kind.values()[Ldev/xavier/stein/loader/api/Entities$Kind; public static @Experimental
@@ -286,9 +287,11 @@ M dev/xavier/stein/loader/api/Entities.isAlive(Ljava/lang/Object;)Z public stati
 M dev/xavier/stein/loader/api/Entities.isInvisible(Ljava/lang/Object;)Z public static @Experimental
 M dev/xavier/stein/loader/api/Entities.isLiving(Ljava/lang/Object;)Z public static @Experimental
 M dev/xavier/stein/loader/api/Entities.isPlayer(Ljava/lang/Object;)Z public static @Experimental
+M dev/xavier/stein/loader/api/Entities.itemStack(Ljava/lang/Object;)Ljava/lang/Object; public static @Experimental
 M dev/xavier/stein/loader/api/Entities.kind(Ljava/lang/Object;)Ldev/xavier/stein/loader/api/Entities$Kind; public static @Experimental
 M dev/xavier/stein/loader/api/Entities.maxHealth(Ljava/lang/Object;)F public static @Experimental
 M dev/xavier/stein/loader/api/Entities.name(Ljava/lang/Object;)Ljava/lang/String; public static @Experimental
+M dev/xavier/stein/loader/api/Entities.pitch(Ljava/lang/Object;F)F public static @Experimental
 M dev/xavier/stein/loader/api/Entities.player(Ljava/lang/String;)Ljava/lang/Object; public static @Experimental
 M dev/xavier/stein/loader/api/Entities.players()Ljava/util/List; public static @Experimental
 M dev/xavier/stein/loader/api/Entities.self()Ljava/lang/Object; public static @Experimental
@@ -303,6 +306,7 @@ M dev/xavier/stein/loader/api/Game.fps()I public static @Experimental
 M dev/xavier/stein/loader/api/Game.fpsLimit()I public static @Experimental
 M dev/xavier/stein/loader/api/Game.itemData(Ljava/lang/Object;)Ljava/lang/Object; public static
 M dev/xavier/stein/loader/api/Game.partialTicks()F public static
+M dev/xavier/stein/loader/api/Game.playSound(Ljava/lang/String;F)V public static @Experimental
 M dev/xavier/stein/loader/api/Game.refreshRate()I public static @Experimental
 M dev/xavier/stein/loader/api/Game.resetCameraSmoothing()V public static
 M dev/xavier/stein/loader/api/Game.setInventoryEffectsHidden(Z)V public static
@@ -313,6 +317,7 @@ M dev/xavier/stein/loader/api/Gameplay.setNoHitDelay(Z)V public static @Experime
 M dev/xavier/stein/loader/api/Gameplay.setNoHitSlowdown(Z)V public static @Experimental
 M dev/xavier/stein/loader/api/Gameplay.setSprintAllDirections(Z)V public static @Experimental
 M dev/xavier/stein/loader/api/Gameplay.setSprintOnHit(Z)V public static @Experimental
+M dev/xavier/stein/loader/api/Gameplay.stopSprinting()V public static @Experimental
 M dev/xavier/stein/loader/api/Http.getText(Ljava/lang/String;Ljava/util/function/Consumer;Ljava/util/function/Consumer;)V public static @Experimental
 M dev/xavier/stein/loader/api/Http.getTextNow(Ljava/lang/String;)Ljava/lang/String; public static @Experimental
 M dev/xavier/stein/loader/api/Hud.cover(FFFF)V public static @Experimental

@@ -25,6 +25,7 @@ public final class Entities {
     private static final int AXIS_Y = 1;
     private static final int AXIS_Z = 2;
     private static final int AXIS_YAW = 3;
+    private static final int AXIS_PITCH = 4;
 
     private Entities() {}
 
@@ -262,6 +263,31 @@ public final class Entities {
     @Experimental(since = "0.1.16")
     public static float yaw(Object entity, float partialTicks) {
         return (float) Host.INSTANCE.entityPos(entity, AXIS_YAW, partialTicks);
+    }
+
+    /**
+     * Where it looks up or down, in degrees as the game counts them: -90 straight up, 0 level, 90
+     * straight down.
+     *
+     * @param entity an entity (game type, as Object)
+     * @param partialTicks the frame's partial tick (1 = the last tick)
+     * @return the interpolated pitch, in degrees
+     */
+    @Experimental(since = "0.1.33")
+    public static float pitch(Object entity, float partialTicks) {
+        return (float) Host.INSTANCE.entityPos(entity, AXIS_PITCH, partialTicks);
+    }
+
+    /**
+     * The item a dropped item entity carries (with its enchantments and durability, as the server
+     * sends them), for whoever wants to tell valuable loot on the ground apart.
+     *
+     * @param entity an entity (game type, as Object)
+     * @return the ItemStack, or null when it is not a dropped item
+     */
+    @Experimental(since = "0.1.33")
+    public static Object itemStack(Object entity) {
+        return Host.INSTANCE.entityItemStack(entity);
     }
 
     /**

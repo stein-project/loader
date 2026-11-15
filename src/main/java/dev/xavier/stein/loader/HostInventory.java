@@ -277,6 +277,11 @@ abstract class HostInventory implements Host {
     }
 
     @Override
+    public List<Effects.Effect> potionEffectsOf(Object stack) {
+        return HudOps.potionEffectList(stack);
+    }
+
+    @Override
     public String effectName(int id, int amplifier) {
         return HudOps.effectName(id, amplifier);
     }

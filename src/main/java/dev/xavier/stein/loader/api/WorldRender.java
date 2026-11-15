@@ -9,6 +9,7 @@ package dev.xavier.stein.loader.api;
 
 import static dev.xavier.stein.loader.api.Geometry.R;
 
+import dev.xavier.stein.loader.api.spi.Host;
 import dev.xavier.stein.loader.api.spi.RenderBackend;
 
 /**
@@ -388,6 +389,13 @@ public final class WorldRender {
      * @param background a dark rectangle behind the text, as the game's names have
      */
     public static void label(
+            String text, double x, double y, double z, float scale, int argb, boolean background) {
+        // The game's font, as the names above the players: Stein's HUD font draws in the screen's
+        // own 2D space and would not show up in the world.
+        Host.INSTANCE.withGameFont(() -> labelInGameFont(text, x, y, z, scale, argb, background));
+    }
+
+    private static void labelInGameFont(
             String text, double x, double y, double z, float scale, int argb, boolean background) {
         billboard(x, y, z, scale * 0.025F);
         state();

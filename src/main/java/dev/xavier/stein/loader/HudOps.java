@@ -15,6 +15,7 @@ import dev.xavier.stein.loader.api.Entities;
 import dev.xavier.stein.loader.api.Players;
 
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.audio.PositionedSoundRecord;
 import net.minecraft.client.gui.GuiPlayerTabOverlay;
 import net.minecraft.client.network.NetHandlerPlayClient;
 import net.minecraft.client.network.NetworkPlayerInfo;
@@ -23,6 +24,7 @@ import net.minecraft.enchantment.EnchantmentHelper;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityList;
 import net.minecraft.entity.EntityLivingBase;
+import net.minecraft.entity.item.EntityItem;
 import net.minecraft.entity.monster.EntityGolem;
 import net.minecraft.entity.monster.IMob;
 import net.minecraft.entity.passive.EntityAmbientCreature;
@@ -38,6 +40,7 @@ import net.minecraft.potion.PotionEffect;
 import net.minecraft.scoreboard.ScoreObjective;
 import net.minecraft.scoreboard.Scoreboard;
 import net.minecraft.util.IChatComponent;
+import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.StringUtils;
 import net.minecraft.world.WorldSettings;
 
@@ -111,6 +114,21 @@ final class HudOps {
         int[] out = new int[list.size()];
         for (int i = 0; i < out.length; i++) {
             out[i] = list.get(i).getPotionID();
+        }
+        return out;
+    }
+
+    static List<Effects.Effect> potionEffectList(Object stack) {
+        if (!(stack instanceof ItemStack s) || !(s.getItem() instanceof ItemPotion p)) {
+            return List.of();
+        }
+        List<PotionEffect> list = p.getEffects(s);
+        if (list == null || list.isEmpty()) {
+            return List.of();
+        }
+        List<Effects.Effect> out = new java.util.ArrayList<>(list.size());
+        for (PotionEffect e : list) {
+            out.add(new Effects.Effect(e.getPotionID(), e.getAmplifier(), e.getDuration(), false));
         }
         return out;
     }
@@ -212,6 +230,20 @@ final class HudOps {
         return k.ordinal();
     }
 
+    /** The stack of a dropped item entity, or null for any other entity. */
+    static Object itemStack(Object entity) {
+        return entity instanceof EntityItem item ? item.getEntityItem() : null;
+    }
+
+    /** A sound heard by the player wherever they are (not placed in the world). */
+    static void playSound(String id, float pitch) {
+        if (id == null || id.isEmpty()) {
+            return;
+        }
+        mc().getSoundHandler()
+                .playSound(PositionedSoundRecord.create(new ResourceLocation(id), pitch));
+    }
+
     static String type(Object entity) {
         if (!(entity instanceof Entity e) || e instanceof EntityPlayer) {
             return "";
@@ -228,6 +260,7 @@ final class HudOps {
             case 0 -> e.prevPosX + (e.posX - e.prevPosX) * pt;
             case 1 -> e.prevPosY + (e.posY - e.prevPosY) * pt;
             case 2 -> e.prevPosZ + (e.posZ - e.prevPosZ) * pt;
+            case 4 -> e.prevRotationPitch + (e.rotationPitch - e.prevRotationPitch) * pt;
             default -> e.prevRotationYaw + (e.rotationYaw - e.prevRotationYaw) * pt;
         };
     }
