@@ -477,7 +477,9 @@ final class HudEditor extends GuiScreen {
             return;
         }
         if (card.isOpen()) {
-            card.scroll(wheel);
+            if (!card.wheelSlider(Ui.mouseX(this), Ui.mouseY(this), wheel)) {
+                card.scroll(wheel);
+            }
             return;
         }
         int mx = Ui.mouseX(this);

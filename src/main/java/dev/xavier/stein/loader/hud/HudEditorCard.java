@@ -227,6 +227,30 @@ final class HudEditorCard {
         }
     }
 
+    /**
+     * The wheel over a slider's row on the open card moves it one step (up raises it); true when it
+     * did, false to let the card scroll.
+     */
+    boolean wheelSlider(int mx, int my, int wheel) {
+        int[] box = rows.isEmpty() ? null : rows.get(rows.size() - 1);
+        if (listing || box == null || box[2] != -1 || mx < box[3] || mx >= box[3] + box[4]) {
+            return false;
+        }
+        for (int i = 0; i < rows.size() - 1; i++) {
+            int[] r = rows.get(i);
+            if (my < r[0] || my >= r[0] + r[1]) {
+                continue;
+            }
+            if (optionRows.get(r[2]) instanceof Option.Slider s) {
+                s.click(wheel > 0);
+                changedOptions();
+                return true;
+            }
+            return false;
+        }
+        return false;
+    }
+
     /** The mouse wheel scrolls the card. */
     void scroll(int wheel) {
         scroll = Math.max(0, scroll + (wheel > 0 ? -20 : 20));

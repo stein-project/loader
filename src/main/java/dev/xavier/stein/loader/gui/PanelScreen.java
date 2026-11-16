@@ -326,9 +326,34 @@ public final class PanelScreen extends PanelDrawing {
     public void handleMouseInput() {
         super.handleMouseInput();
         int wheel = Mouse.getEventDWheel();
-        if (wheel != 0) {
+        if (wheel != 0 && !wheelSlider(wheel)) {
             scroll = Math.max(0, Math.min(maxScroll(), scroll + (wheel > 0 ? -24 : 24)));
         }
+    }
+
+    /**
+     * The wheel over a slider's row moves it one step (up raises it) instead of scrolling the list:
+     * a narrow track has fewer pixels than some sliders have values, so dragging alone skipped many
+     * of them. True when it did.
+     */
+    private boolean wheelSlider(int wheel) {
+        Page page = page();
+        int mx = Ui.mouseX(this);
+        int my = Ui.mouseY(this);
+        if (page == null || mx < listX || mx >= listX + listW) {
+            return false;
+        }
+        for (Row r : rows) {
+            if (r.kind != Kind.OPTION || my < r.y || my >= r.y + r.h) {
+                continue;
+            }
+            if (page.entries().get(r.index).option instanceof Option.Slider s) {
+                s.click(wheel > 0);
+                return true;
+            }
+            return false;
+        }
+        return false;
     }
 
     @Override
