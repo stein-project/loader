@@ -483,32 +483,43 @@ public final class LoaderScreen extends GuiScreen {
     }
 
     /**
-     * Appearance tab: where Stein's font applies. The Loader screens always use it; here you choose
-     * whether the mods' HUD does too, or stays on the Minecraft font. The game's own text never
-     * changes.
+     * Appearance tab: where Stein's font applies, and the Stein Sync hit marker. The Loader screens
+     * always use the font; here you choose whether the mods' HUD does too, or stays on the
+     * Minecraft font. The game's own text never changes. The hit marker only shows on servers with
+     * Stein Sync, so its row says so.
      */
     private void lookPage(int mx, int my) {
         int x = px + 10;
         int w = pw - 20;
         Ui.label(I18n.format("steinloader.look.font"), x, TOP, Theme.GOLD);
-        String[] keys = {"steinloader.look.hud"};
-        boolean[] on = {GameText.hud};
-        for (int i = 0; i < keys.length; i++) {
-            int y = TOP + 18 + i * LOOK_ROW;
-            if (overLookKnob(i, mx, my)) {
-                Ui.rect(x - 2, y - 3, x + w + 2, y + 23, Widgets.SURFACE_HOVER);
-            }
-            Ui.text(Ui.trim(I18n.format(keys[i]), w - 24), x, y, Theme.INK);
-            Ui.text(Ui.trim(I18n.format(keys[i] + ".hint"), w - 24), x, y + 11, Theme.FAINT);
-            knob("font|" + i, x + w - 18, y + 6, on[i], false);
+        lookRow(0, "steinloader.look.hud", "font|0", GameText.hud, mx, my);
+        Ui.label(I18n.format("steinloader.look.sync"), x, lookRowY(1) - 18, Theme.GOLD);
+        lookRow(1, "steinloader.look.hitMarker", "look|hitMarker", loader.hitMarker(), mx, my);
+    }
+
+    /** One switch row of the Appearance tab: name, explanation and the switch. */
+    private void lookRow(int i, String key, String knobKey, boolean on, int mx, int my) {
+        int x = px + 10;
+        int w = pw - 20;
+        int y = lookRowY(i);
+        if (overLookKnob(i, mx, my)) {
+            Ui.rect(x - 2, y - 3, x + w + 2, y + 23, Widgets.SURFACE_HOVER);
         }
+        Ui.text(Ui.trim(I18n.format(key), w - 24), x, y, Theme.INK);
+        Ui.text(Ui.trim(I18n.format(key + ".hint"), w - 24), x, y + 11, Theme.FAINT);
+        knob(knobKey, x + w - 18, y + 6, on, false);
     }
 
     /** Height of a row (name and explanation) on the Appearance tab. */
     private static final int LOOK_ROW = 30;
 
+    /** Top of row i on the Appearance tab: each row comes under its own section label. */
+    private static int lookRowY(int i) {
+        return TOP + 18 + i * (LOOK_ROW + 18);
+    }
+
     private boolean overLookKnob(int i, int mx, int my) {
-        int y = TOP + 18 + i * LOOK_ROW;
+        int y = lookRowY(i);
         return page == LOOK && my >= y - 3 && my < y + 23 && mx >= px + 10 && mx < px + pw - 10;
     }
 
@@ -668,6 +679,11 @@ public final class LoaderScreen extends GuiScreen {
             if (page == LOOK) {
                 if (overLookKnob(0, mx, my)) {
                     loader.setHudFont(!GameText.hud);
+                    Ui.click();
+                    return;
+                }
+                if (overLookKnob(1, mx, my)) {
+                    loader.setHitMarker(!loader.hitMarker());
                     Ui.click();
                     return;
                 }

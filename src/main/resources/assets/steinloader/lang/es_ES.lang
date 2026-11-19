@@ -136,8 +136,15 @@ steinloader.key.mouse=Ratón %s
 steinloader.look.font=Fuente de Stein
 steinloader.look.hud=Usar en el HUD
 steinloader.look.hud.hint=Armadura, efectos, estadísticas y lo que los mods dibujan en pantalla.
+steinloader.look.sync=Stein Sync
+steinloader.look.hitMarker=Marcador de impacto
+steinloader.look.hitMarker.hint=Una señal en la mira por cada golpe que el servidor confirma.
 
 steinloader.brand.loader=Stein Loader
 steinloader.brand.labs=Stein Labs
 steinloader.fail.noentry=steinmod.json sin "entry"
 steinloader.fail.dependency=Depende de %s, que no se cargó
+steinloader.steinsync.compatible=Compatible con Stein Sync
+steinloader.steinsync.features=Funciones: %s
+steinloader.steinsync.update=Este servidor tiene un Stein Sync más nuevo: actualiza Stein
+steinloader.steinsync.vanillaMovement=Stein Sync: este servidor se encarga de tu movimiento, así que correr en todas las direcciones y mantener la carrera al golpear quedan desactivados mientras juegas aquí.

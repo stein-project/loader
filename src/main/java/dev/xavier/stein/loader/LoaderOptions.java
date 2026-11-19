@@ -44,6 +44,56 @@ public final class LoaderOptions {
     public static final boolean NO_ANNOUNCE = Opt.flag("steinloader.noAnnounce");
 
     /**
+     * {@code -Dsteinloader.noSteinSync=true}: turns Stein Sync off on this client: no mark in the
+     * server list and no answer to a Stein Sync proxy's Hello, so every connection stays in the
+     * vanilla mode (default: off, Stein Sync is on).
+     */
+    public static final boolean NO_STEIN_SYNC = Opt.flag("steinloader.noSteinSync");
+
+    /**
+     * {@code -Dsteinloader.noQuic=true}: never joins over QUIC (stein-sync's docs/protocol.md
+     * section 7); every connection is TCP, as before the transport existed (default: off, QUIC is
+     * tried when a server offers it). The player's setting {@code steinSyncQuic} in the loader
+     * config does the same for good.
+     */
+    public static final boolean NO_QUIC = Opt.flag("steinloader.noQuic");
+
+    /**
+     * {@code -Dsteinloader.steinSyncSnap=true}: under a Stein Sync proxy's movement authority, a
+     * correction moves the picture at once with the player (default: off, a correction of a few
+     * centimetres or more is drawn as a short glide over the rest of the tick; the player's state
+     * is corrected at once either way).
+     */
+    public static final boolean STEIN_SYNC_SNAP = Opt.flag("steinloader.steinSyncSnap");
+
+    /**
+     * {@code -Dsteinloader.diag.syncNudge=D}: test, under a Stein Sync proxy's movement authority,
+     * pushes the player D blocks along X once, after the movement of Tick {@code syncNudgeAtTick}:
+     * a divergence the proxy must correct (default: 0, never).
+     */
+    public static final double DIAG_SYNC_NUDGE = Opt.decimal("steinloader.diag.syncNudge", 0);
+
+    /**
+     * {@code -Dsteinloader.diag.syncNudgeAtTick=N}: the Tick of {@code syncNudge} (default 200: ten
+     * seconds after the Accept).
+     */
+    public static final int DIAG_SYNC_NUDGE_AT =
+            Opt.integer("steinloader.diag.syncNudgeAtTick", 200);
+
+    /**
+     * {@code -Dsteinloader.quicTransport=kwik|native}: which QUIC implementation a join over QUIC
+     * uses (default: kwik, in Java; native is the Bridge's library, kept to compare the two).
+     */
+    public static final String QUIC_TRANSPORT = Opt.text("steinloader.quicTransport", "kwik");
+
+    /**
+     * {@code -Dsteinloader.diag.quicRebindAtSec=N}: test, a QUIC connection moves to a new local
+     * port after N seconds of Ticks, as an address change would (default: 0, never).
+     */
+    public static final int DIAG_QUIC_REBIND_AT_SEC =
+            Opt.integer("steinloader.diag.quicRebindAtSec", 0);
+
+    /**
      * {@code -Dsteinloader.diag.editorOptions=id}: test, the HUD editor opens the options of this
      * element directly (default: unset).
      */
@@ -54,4 +104,11 @@ public final class LoaderOptions {
      * chest was requested (default: off).
      */
     public static final boolean DEBUG_CHEST = Opt.flag("steinloader.debugChest");
+
+    /**
+     * {@code -Dsteinloader.debugSteinSync=true}: logs the Stein Sync client messages as they go:
+     * each attack put in a Tick, each BlockAction, and each block change held and released
+     * (default: off).
+     */
+    public static final boolean DEBUG_STEIN_SYNC = Opt.flag("steinloader.debugSteinSync");
 }

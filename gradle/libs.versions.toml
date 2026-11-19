@@ -3,12 +3,14 @@
 [versions]
 asm = "9.10.1"
 google-java-format = "1.36.1"
+kwik = "0.12.1"
 
 [libraries]
 asm = { module = "org.ow2.asm:asm", version.ref = "asm" }
 asm-commons = { module = "org.ow2.asm:asm-commons", version.ref = "asm" }
 asm-tree = { module = "org.ow2.asm:asm-tree", version.ref = "asm" }
 asm-analysis = { module = "org.ow2.asm:asm-analysis", version.ref = "asm" }
+kwik = { module = "tech.kwik:kwik", version.ref = "kwik" }
 
 [plugins]
 spotless = { id = "com.diffplug.spotless", version = "8.10.4" }

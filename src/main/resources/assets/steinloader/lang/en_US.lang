@@ -136,8 +136,15 @@ steinloader.key.mouse=Mouse %s
 steinloader.look.font=Stein font
 steinloader.look.hud=Use in HUD
 steinloader.look.hud.hint=Armor, effects, stats and what mods draw on screen.
+steinloader.look.sync=Stein Sync
+steinloader.look.hitMarker=Hit marker
+steinloader.look.hitMarker.hint=A flash at the crosshair for each hit the server confirms.
 
 steinloader.brand.loader=Stein Loader
 steinloader.brand.labs=Stein Labs
 steinloader.fail.noentry=steinmod.json has no "entry"
 steinloader.fail.dependency=Depends on %s, which did not load
+steinloader.steinsync.compatible=Compatible with Stein Sync
+steinloader.steinsync.features=Features: %s
+steinloader.steinsync.update=This server has a newer Stein Sync: update Stein
+steinloader.steinsync.vanillaMovement=Stein Sync: this server moves you itself, so sprinting in every direction and sprint through hits stay off while you play here.

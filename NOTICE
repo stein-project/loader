@@ -17,3 +17,21 @@ Third-party software shipped inside steinloader.jar
 ASM (https://asm.ow2.io)
   Copyright (c) 2000-2011 INRIA, France Telecom. BSD 3-Clause License (tools/asm-license.txt).
 
+
+-------------------------------------------------------------------------------
+Third-party software used next to steinloader.jar (not inside it)
+-------------------------------------------------------------------------------
+Stein Sync's default QUIC transport. These jars are not packed into steinloader.jar: wherever they are distributed
+they go, unchanged, as separate files on the game's classpath beside it, together with this notice and the licence
+texts below, so they can be replaced by any compatible version (LGPL-3.0, section 4). Without them the Loader falls
+back to TCP.
+
+Kwik 0.12.1 (https://github.com/ptrd/kwik)
+  Copyright (c) Peter Doornbosch. GNU Lesser General Public License v3 (tools/kwik-lgpl-3.0.txt, which
+  supplements the GNU General Public License v3 in tools/kwik-gpl-3.0.txt). Source: the URL above.
+Agent15 4.0 (https://github.com/ptrd/agent15)
+  Copyright (c) Peter Doornbosch. GNU Lesser General Public License v3 (same texts as Kwik). Source: the URL above.
+HKDF 2.0.0 (https://github.com/patrickfav/hkdf)
+  Copyright (c) Patrick Favre-Bulle. Apache License 2.0 (tools/hkdf-license.txt).
+SipHash 2.0.1, io7m repackage (https://github.com/io7m-com/siphash-java)
+  Copyright (c) 2016 Isaac Whitfield. MIT License (tools/siphash-license.txt).

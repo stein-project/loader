@@ -393,6 +393,84 @@ public interface SteinMod {
             float newAbsorption) {}
 
     /**
+     * The server confirmed a hit by this player: a Stein Sync proxy with its backend plugin saw the
+     * damage applied (melee, or a projectile the player shot), after armor and effects. Only on a
+     * connection where the {@code hits} feature is on ({@link Server#steinSyncHits}); never on a
+     * plain server. Comes on the game thread, once per damage event, possibly before the entity's
+     * own health or death packets.
+     *
+     * @param entityId the damaged entity's id, as this client knows it
+     * @param entity that entity in the client's world (Entity), or null when the client does not
+     *     have it (out of range, or already removed)
+     * @param damage the final damage applied, at least 0
+     * @param critical the hit was critical
+     * @param killed the hit killed the target
+     */
+    @Experimental(since = "0.1.35")
+    default void onHitConfirmed(
+            int entityId, Object entity, float damage, boolean critical, boolean killed) {}
+
+    /**
+     * {@link #onHitConfirmed(int, Object, float, boolean, boolean)} with the client tick of the
+     * attack the hit answers: the Loader calls this one, and by default it calls the other. A mod
+     * that matches hits to its own clicks overrides this one instead.
+     *
+     * @param tick the number of the client tick (counted from 1 on this connection) whose attack on
+     *     this entity the server applied, or 0 when the hit matches no attack of the Stein Sync
+     *     movement mode (a projectile, a server without it)
+     */
+    @Experimental(since = "0.1.35")
+    default void onHitConfirmed(
+            int entityId, Object entity, float damage, boolean critical, boolean killed, int tick) {
+        onHitConfirmed(entityId, entity, damage, critical, killed);
+    }
+
+    /**
+     * This player took damage, as the server applied it (after armor and effects): a Stein Sync
+     * proxy with its backend plugin reports it, only on a connection where the {@code hits} feature
+     * is on ({@link Server#steinSyncHits}). For a damage direction or a combat log; comes on the
+     * game thread, once per damage event, possibly before the health packet.
+     *
+     * @param attackerId the attacker's entity id, or 0 when there is none or this client does not
+     *     see it
+     * @param attacker that entity in the client's world (Entity), or null
+     * @param damage the final damage, at least 0
+     * @param cause one of the {@code Server.DAMAGE_*} causes ({@link Server#DAMAGE_OTHER} for one
+     *     this Loader does not know)
+     * @param critical the hit was critical
+     * @param killed the damage killed this player
+     */
+    @Experimental(since = "0.1.35")
+    default void onDamaged(
+            int attackerId,
+            Object attacker,
+            float damage,
+            int cause,
+            boolean critical,
+            boolean killed) {}
+
+    /**
+     * An entity this player sees hit another one it sees, as the server applied it: a Stein Sync
+     * proxy reports it only on a {@code hits} connection, and only when the server turned it on
+     * (some modes keep far fights quiet). Never names an entity the client was not sent.
+     *
+     * @param attackerId the attacker's entity id
+     * @param attacker that entity in the client's world (Entity), or null when already removed
+     * @param targetId the damaged entity's id
+     * @param target that entity in the client's world (Entity), or null when already removed
+     * @param critical the hit was critical
+     * @param killed the hit killed the target
+     */
+    @Experimental(since = "0.1.35")
+    default void onCombatSeen(
+            int attackerId,
+            Object attacker,
+            int targetId,
+            Object target,
+            boolean critical,
+            boolean killed) {}
+
+    /**
      * Should this entity vanish from the screen? Called for every entity every frame, in place of
      * its drawing — must answer quickly, without allocating.
      *

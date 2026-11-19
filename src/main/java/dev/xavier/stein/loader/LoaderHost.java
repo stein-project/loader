@@ -28,6 +28,7 @@ import net.minecraft.network.play.client.C17PacketCustomPayload;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -62,7 +63,8 @@ public final class LoaderHost extends HostRender {
 
     @Override
     public void setProxy(Net.Proxy p) {
-        dev.xavier.stein.bridge.engine.Net.set(
+        // Through Stein Sync's QUIC hooks, which keep a mod's route ahead of their own.
+        SteinSyncQuic.setModProxy(
                 p == null
                         ? null
                         : new dev.xavier.stein.bridge.engine.Net.Proxy() {
@@ -254,6 +256,21 @@ public final class LoaderHost extends HostRender {
     @Override
     public String serverRestrictedBy(String feature) {
         return ServerControl.restrictedBy(feature);
+    }
+
+    @Override
+    public int serverSteinSyncVersion() {
+        return SteinSync.version();
+    }
+
+    @Override
+    public List<String> serverSteinSyncFeatures() {
+        return SteinSync.features();
+    }
+
+    @Override
+    public boolean serverSteinSyncHits() {
+        return SteinSync.hits();
     }
 
     @Override

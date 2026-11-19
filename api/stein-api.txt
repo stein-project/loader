@@ -213,6 +213,14 @@ F dev/xavier/stein/loader/api/Screens$Kind.OTHER:Ldev/xavier/stein/loader/api/Sc
 F dev/xavier/stein/loader/api/Screens$Kind.PAUSE:Ldev/xavier/stein/loader/api/Screens$Kind; public static final ordinal=6
 F dev/xavier/stein/loader/api/Screens$Kind.SINGLEPLAYER:Ldev/xavier/stein/loader/api/Screens$Kind; public static final ordinal=2
 F dev/xavier/stein/loader/api/Screens$Kind.STEIN:Ldev/xavier/stein/loader/api/Screens$Kind; public static final ordinal=11
+F dev/xavier/stein/loader/api/Server.DAMAGE_EXPLOSION:I public static final value=3 @Experimental
+F dev/xavier/stein/loader/api/Server.DAMAGE_FALL:I public static final value=4 @Experimental
+F dev/xavier/stein/loader/api/Server.DAMAGE_FIRE:I public static final value=5 @Experimental
+F dev/xavier/stein/loader/api/Server.DAMAGE_MAGIC:I public static final value=7 @Experimental
+F dev/xavier/stein/loader/api/Server.DAMAGE_MELEE:I public static final value=1 @Experimental
+F dev/xavier/stein/loader/api/Server.DAMAGE_OTHER:I public static final value=0 @Experimental
+F dev/xavier/stein/loader/api/Server.DAMAGE_PROJECTILE:I public static final value=2 @Experimental
+F dev/xavier/stein/loader/api/Server.DAMAGE_VOID:I public static final value=6 @Experimental
 F dev/xavier/stein/loader/api/Targeting$Hit.distance:D public final
 F dev/xavier/stein/loader/api/Targeting$Hit.entity:Ljava/lang/Object; public final
 F dev/xavier/stein/loader/api/Targeting$Hit.x:D public final
@@ -271,8 +279,8 @@ M dev/xavier/stein/loader/api/Effects$Effect.<init>(IIIZ)V public
 M dev/xavier/stein/loader/api/Effects.durationText(Ldev/xavier/stein/loader/api/Effects$Effect;)Ljava/lang/String; public static @Experimental
 M dev/xavier/stein/loader/api/Effects.hasIcon(I)Z public static @Experimental
 M dev/xavier/stein/loader/api/Effects.name(Ldev/xavier/stein/loader/api/Effects$Effect;)Ljava/lang/String; public static @Experimental
-M dev/xavier/stein/loader/api/Effects.ofPotion(Ljava/lang/Object;)Ljava/util/List; public static @Experimental
 M dev/xavier/stein/loader/api/Effects.of(Ljava/lang/Object;)Ljava/util/List; public static @Experimental
+M dev/xavier/stein/loader/api/Effects.ofPotion(Ljava/lang/Object;)Ljava/util/List; public static @Experimental
 M dev/xavier/stein/loader/api/Entities$Kind.valueOf(Ljava/lang/String;)Ldev/xavier/stein/loader/api/Entities$Kind; public static @Experimental
 M dev/xavier/stein/loader/api/Entities$Kind.values()[Ldev/xavier/stein/loader/api/Entities$Kind; public static @Experimental
 M dev/xavier/stein/loader/api/Entities.absorption(Ljava/lang/Object;)F public static @Experimental
@@ -640,6 +648,10 @@ M dev/xavier/stein/loader/api/Server.lastAddress()Ljava/lang/String; public stat
 M dev/xavier/stein/loader/api/Server.latency()I public static @Experimental
 M dev/xavier/stein/loader/api/Server.name()Ljava/lang/String; public static @Experimental
 M dev/xavier/stein/loader/api/Server.restrictedBy(Ljava/lang/String;)Ljava/lang/String; public static @Experimental
+M dev/xavier/stein/loader/api/Server.steinSyncActive()Z public static @Experimental
+M dev/xavier/stein/loader/api/Server.steinSyncFeatures()Ljava/util/List; public static @Experimental
+M dev/xavier/stein/loader/api/Server.steinSyncHits()Z public static @Experimental
+M dev/xavier/stein/loader/api/Server.steinSyncVersion()I public static @Experimental
 M dev/xavier/stein/loader/api/Stacks.count(Ljava/lang/Object;)I public static @Experimental
 M dev/xavier/stein/loader/api/Stacks.create(Ljava/lang/String;II)Ljava/lang/Object; public static @Experimental
 M dev/xavier/stein/loader/api/Stacks.damage(Ljava/lang/Object;)I public static @Experimental
@@ -663,7 +675,9 @@ M dev/xavier/stein/loader/api/SteinMod.onArmorTexture(Ljava/lang/Object;ILjava/l
 M dev/xavier/stein/loader/api/SteinMod.onAttackEntity(Ljava/lang/Object;)Z public
 M dev/xavier/stein/loader/api/SteinMod.onBlockModel(Ljava/lang/Object;Ljava/lang/Object;Ljava/lang/Object;Ljava/lang/Object;)Ljava/lang/Object; public
 M dev/xavier/stein/loader/api/SteinMod.onChat(Ljava/lang/Object;)Ljava/lang/Object; public
+M dev/xavier/stein/loader/api/SteinMod.onCombatSeen(ILjava/lang/Object;ILjava/lang/Object;ZZ)V public @Experimental
 M dev/xavier/stein/loader/api/SteinMod.onCustomPayload(Ljava/lang/String;[B)V public @Experimental
+M dev/xavier/stein/loader/api/SteinMod.onDamaged(ILjava/lang/Object;FIZZ)V public @Experimental
 M dev/xavier/stein/loader/api/SteinMod.onDisconnected(Ljava/lang/String;Ljava/lang/String;)V public @Experimental
 M dev/xavier/stein/loader/api/SteinMod.onEntityDeath(Ljava/lang/Object;)V public @Experimental
 M dev/xavier/stein/loader/api/SteinMod.onEntityHurt(Ljava/lang/Object;)Z public @Experimental
@@ -675,6 +689,8 @@ M dev/xavier/stein/loader/api/SteinMod.onGuiInit(Ljava/lang/Object;Ljava/util/Li
 M dev/xavier/stein/loader/api/SteinMod.onGuiMouseInput(Ljava/lang/Object;)Z public
 M dev/xavier/stein/loader/api/SteinMod.onHealthChanged(Ljava/lang/Object;FFFF)V public @Experimental
 M dev/xavier/stein/loader/api/SteinMod.onHideEntity(Ljava/lang/Object;)Z public
+M dev/xavier/stein/loader/api/SteinMod.onHitConfirmed(ILjava/lang/Object;FZZ)V public @Experimental
+M dev/xavier/stein/loader/api/SteinMod.onHitConfirmed(ILjava/lang/Object;FZZI)V public @Experimental
 M dev/xavier/stein/loader/api/SteinMod.onInteractEntity(Ljava/lang/Object;)Z public @Experimental
 M dev/xavier/stein/loader/api/SteinMod.onItemModel(Ljava/lang/Object;Ljava/lang/Object;)Ljava/lang/Object; public
 M dev/xavier/stein/loader/api/SteinMod.onJoinGame()V public

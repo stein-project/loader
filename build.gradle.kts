@@ -73,11 +73,15 @@ val bridgeReady = listOf(":assemble", ":toolsClasses", ":patcherClasses", ":test
     .map { bridgeBuild.task(it) }
 
 val asmCore: Configuration = configurations.create("asmCore") { isTransitive = false }
+// Kwik (QUIC in Java, LGPL-3.0, with agent15, hkdf and siphash): Stein Sync's default QUIC transport. Not packed into
+// the Loader jar: its jars go next to it on the game's classpath, unchanged, as LGPL asks of a library linked this way.
+val kwik: Configuration = configurations.create("kwik")
 val asm: Configuration = configurations.create("asm")
 val sdkTools: Configuration = configurations.create("sdkTools")
 
 dependencies {
     asmCore(libs.asm)
+    kwik(libs.kwik)
     asm(libs.asm)
     asm(libs.asm.commons)
     asm(libs.asm.tree)
@@ -142,6 +146,7 @@ dependencies {
     // loaderAccess binds those accesses in the game (see below).
     compileOnly(files(openGame.map { it.outputs.files.singleFile }))
     compileOnly(files(asmCore))
+    compileOnly(files(kwik))
     // The Bridge's design system (dev.xavier.stein.ui) with readable names, ahead of the Bridge jar: the jar has
     // the same classes with the game's obfuscated names in their signatures, which the Loader does not compile with.
     compileOnly(files(bridgeDir.resolve("build/classes/java/ui")))
@@ -220,7 +225,7 @@ fun modSteps(name: String, compile: TaskProvider<JavaCompile>, resources: TaskPr
 // ---- the Loader ----
 
 val loaderRemap = modSteps("steinloader", tasks.compileJava, tasks.processResources, provider { namedGameJar }) {
-    listOf(asmCore.singleFile, work.get().dir("steinloader/classes").asFile)
+    listOf(asmCore.singleFile, work.get().dir("steinloader/classes").asFile) + kwik.files
 }
 val loaderSrgClasses = work.map { it.dir("steinloader/classes") }
 
@@ -394,8 +399,11 @@ val apiSourcesJar = tasks.register<Jar>("apiSourcesJar") {
 dependencies { testCompileOnly(files(loaderClasses)) }
 
 // Mods' access to the game's closed members (internal.Access), and the "depends" and "optional" of steinmod.json:
-// who gets in, who is refused, and the order.
-for ((name, main) in listOf("accessTest" to "AccessTest", "dependenciesTest" to "dev.xavier.stein.loader.DependenciesTest", "serverRequestTest" to "dev.xavier.stein.loader.ServerRequestTest")) {
+// who gets in, who is refused, and the order; the Stein Sync readers and writers against hostile bytes, and the
+// client's Tick encoding and block hold.
+for ((name, main) in listOf("accessTest" to "AccessTest", "dependenciesTest" to "dev.xavier.stein.loader.DependenciesTest", "serverRequestTest" to "dev.xavier.stein.loader.ServerRequestTest",
+    "steinSyncTest" to "dev.xavier.stein.loader.SteinSyncTest",
+    "steinSyncClientTest" to "dev.xavier.stein.loader.SteinSyncClientTest")) {
     tasks.register<JavaExec>(name) {
         group = "verification"
         description = "Runs $main."
@@ -455,8 +463,8 @@ val preflight = tasks.register<JavaExec>("preflight") {
 tasks.test { failOnNoDiscoveredTests = false }
 tasks.assemble { dependsOn(loaderJar, apiJar, apiSourcesJar, hooktestMod) }
 tasks.check {
-    dependsOn(modPatchCheck, coverage, apiReferences, apiCheck, "accessTest", "dependenciesTest", hooktestCoverage,
-        preflight)
+    dependsOn(modPatchCheck, coverage, apiReferences, apiCheck, "accessTest", "dependenciesTest", "steinSyncTest",
+        "steinSyncClientTest", hooktestCoverage, preflight)
 }
 
 // ---- running the game ----
@@ -485,7 +493,8 @@ fun gameCommand(gameDir: File, jvmArgs: List<String>, gameArgs: List<String> = e
     return listOf(java.executablePath.asFile.path, "-Xmx${mem}G", "-Xms256M", "-XX:SoftMaxHeapSize=1024M",
         "-XX:+UseZGC", "-XX:-ZProactive", "--enable-native-access=ALL-UNNAMED",
         "-Djava.library.path=${runGame("natives")}") + jvmArgs +
-        listOf("-cp", runGame("classpath") + File.pathSeparator + runLoaderJar().path,
+        listOf("-cp", runGame("classpath") + File.pathSeparator + runLoaderJar().path +
+            kwik.files.joinToString("") { File.pathSeparator + it.path },
             "dev.xavier.stein.bridge.launch.Main", "--username", providers.gradleProperty("stein.user")
                 .getOrElse("SteinBridge"), "--version", "1.8.9", "--gameDir", gameDir.path,
             "--assetsDir", runGame("assets"), "--assetIndex", "1.8", "--uuid", "00000000000000000000000000000000",

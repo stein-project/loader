@@ -376,6 +376,23 @@ public final class Loader implements HookSink {
         }
     }
 
+    /** Is the hit marker on (Appearance tab of the menu)? */
+    public boolean hitMarker() {
+        return HitMarker.enabled;
+    }
+
+    /**
+     * The hit marker of Stein Sync (Appearance tab of the menu): a flash at the crosshair for each
+     * hit the server confirms. Applies immediately, and the choice is stored.
+     */
+    public void setHitMarker(boolean on) {
+        HitMarker.enabled = on;
+        if (!on) {
+            HitMarker.clear();
+        }
+        config.save();
+    }
+
     /** Did the Panel key already get the new default (Insert)? Once per installation. */
     public boolean panelKeySet() {
         return config.panelKeySet;
@@ -538,6 +555,14 @@ public final class Loader implements HookSink {
             failLoader("network", e);
         }
         Accounts.start();
+        // Before the first server list ping: without it the Bridge does not read the Stein Sync
+        // offer of a status at all (and never with -Dsteinloader.noSteinSync).
+        try {
+            SteinSyncJoin.install();
+            SteinSyncQuic.install();
+        } catch (Throwable e) {
+            failLoader("Stein Sync", e);
+        }
         GpuInfo.write(Minecraft.getMinecraft().mcDataDir);
         // onShutdown: a single shutdown hook (thread) for all the mods; each used to add its own.
         Runtime.getRuntime()
@@ -595,6 +620,7 @@ public final class Loader implements HookSink {
         timed("onTickEnd", SteinMod::onTickEnd);
         GameTasks.run(this, mods);
         ServerControl.tick(this);
+        SteinSync.tick();
         try {
             HudGrid.tick();
         } catch (Throwable e) {
@@ -624,6 +650,11 @@ public final class Loader implements HookSink {
         frame("onOverlay", SteinMod::onOverlay, partialTicks);
         // The HUD grid: the mods' elements and the game's HUD parts that the Loader takes over.
         HudGrid.render(partialTicks);
+        try {
+            HitMarker.draw();
+        } catch (Throwable e) {
+            failLoader("hit marker", e);
+        }
         // And, last, what goes over even the grid's elements (the Tab list), truly on top. The
         // grid's items (hotbar, armor, inventory) are drawn with depth, and whatever came after
         // them failed the depth test right where they are: the icons showed through the Tab list.
@@ -974,7 +1005,22 @@ public final class Loader implements HookSink {
     @Override
     public void customPayload(String channel, byte[] data) {
         ServerControl.received(channel, data);
+        int message = 0;
+        try {
+            message = SteinSync.received(channel, data);
+        } catch (Throwable e) {
+            failLoader("Stein Sync", e);
+        }
+        if (message != 0) {
+            SteinSyncEvents.dispatch(this, mods, message);
+        }
         each("onCustomPayload", m -> m.onCustomPayload(channel, data));
+    }
+
+    @Override
+    public void serverListEntry(
+            Object serverData, int x, int y, int listWidth, int mouseX, int mouseY) {
+        SteinSyncBadge.draw(serverData, x, y, listWidth, mouseX, mouseY);
     }
 
     @Override

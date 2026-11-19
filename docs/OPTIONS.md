@@ -11,5 +11,13 @@ The Bridge's options are in its own `docs/OPTIONS.md`; the mod API reads one mor
 - `-Dsteinloader.disable=id1,id2`: disables these mods for this run only, without changing config/steinloader.json (default: unset).
 - `-Dsteinloader.noRemote=true`: turns the Stein registry off entirely, including the stored copies: no Discord button, no update warning, no message, no server rules, no revoked mods (default: off). `-Dstein.registry=<base>` reads the registry from another address instead (`Registry`).
 - `-Dsteinloader.noAnnounce=true`: does not tell the server which mods are loaded when joining (default: off, the list is sent on the `SteinLoader` channel).
+- `-Dsteinloader.noSteinSync=true`: turns Stein Sync off on this client: no mark in the server list and no answer to a Stein Sync proxy's Hello, so every connection stays in the vanilla mode (default: off, Stein Sync is on).
+- `-Dsteinloader.noQuic=true`: never joins over QUIC (stein-sync's docs/protocol.md section 7); every connection is TCP, as before the transport existed (default: off, QUIC is tried when a server offers it). The player's setting `steinSyncQuic` in the loader config does the same for good.
+- `-Dsteinloader.steinSyncSnap=true`: under a Stein Sync proxy's movement authority, a correction moves the picture at once with the player (default: off, a correction of a few centimetres or more is drawn as a short glide over the rest of the tick; the player's state is corrected at once either way).
+- `-Dsteinloader.diag.syncNudge=D`: test, under a Stein Sync proxy's movement authority, pushes the player D blocks along X once, after the movement of Tick `syncNudgeAtTick`: a divergence the proxy must correct (default: 0, never).
+- `-Dsteinloader.diag.syncNudgeAtTick=N`: the Tick of `syncNudge` (default 200: ten seconds after the Accept).
+- `-Dsteinloader.quicTransport=kwik|native`: which QUIC implementation a join over QUIC uses (default: kwik, in Java; native is the Bridge's library, kept to compare the two).
+- `-Dsteinloader.diag.quicRebindAtSec=N`: test, a QUIC connection moves to a new local port after N seconds of Ticks, as an address change would (default: 0, never).
 - `-Dsteinloader.diag.editorOptions=id`: test, the HUD editor opens the options of this element directly (default: unset).
 - `-Dsteinloader.debugChest=true`: logs each chest the server opens and whether a virtual chest was requested (default: off).
+- `-Dsteinloader.debugSteinSync=true`: logs the Stein Sync client messages as they go: each attack put in a Tick, each BlockAction, and each block change held and released (default: off).

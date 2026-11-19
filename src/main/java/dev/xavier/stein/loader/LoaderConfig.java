@@ -33,8 +33,8 @@ import java.util.TreeSet;
 
 /**
  * The Loader's own configuration file (config/steinloader.json): which mods are disabled, what the
- * player has already seen and which log topics are on. Reading also applies the log topics and the
- * HUD font option; saving writes everything back.
+ * player has already seen and which log topics are on. Reading also applies the log topics, the HUD
+ * font and the hit marker options; saving writes everything back.
  */
 final class LoaderConfig {
 
@@ -97,6 +97,14 @@ final class LoaderConfig {
                     GameText.hud = hud.getAsBoolean();
                 }
             }
+            JsonElement marker = o.get("hitMarker");
+            if (marker != null && marker.isJsonPrimitive()) {
+                HitMarker.enabled = marker.getAsBoolean();
+            }
+            JsonElement quic = o.get("steinSyncQuic");
+            if (quic != null && quic.isJsonPrimitive()) {
+                SteinSyncQuic.allowed = quic.getAsBoolean();
+            }
             JsonElement log = o.get("registro");
             if (log != null && log.isJsonObject()) {
                 JsonObject topics = log.getAsJsonObject();
@@ -132,6 +140,8 @@ final class LoaderConfig {
         JsonObject font = new JsonObject();
         font.addProperty("hud", GameText.hud);
         root.add("fonte", font);
+        root.addProperty("hitMarker", HitMarker.enabled);
+        root.addProperty("steinSyncQuic", SteinSyncQuic.allowed);
         root.addProperty("noticia", newsRead);
         root.addProperty("teclaPainel", panelKeySet);
         root.addProperty("versaoAvisada", seenUpdate);

@@ -9,6 +9,8 @@ package dev.xavier.stein.loader.api;
 
 import dev.xavier.stein.loader.api.spi.Host;
 
+import java.util.List;
+
 /** The server the player is on, and joining another one. */
 @Experimental(since = "0.1.16")
 public final class Server {
@@ -67,6 +69,80 @@ public final class Server {
     public static String restrictedBy(String feature) {
         return Host.INSTANCE.serverRestrictedBy(feature);
     }
+
+    /**
+     * Is this connection in Stein Sync mode? A Stein Sync proxy in front of the server offered it
+     * when the player joined and this client accepted. False outside a server, on a server without
+     * Stein Sync and with {@code -Dsteinloader.noSteinSync=true}. Cheap enough to ask on every
+     * frame.
+     */
+    @Experimental(since = "0.1.35")
+    public static boolean steinSyncActive() {
+        return Host.INSTANCE.serverSteinSyncVersion() > 0;
+    }
+
+    /**
+     * The Stein Sync protocol version agreed on this connection (the lower of the proxy's and this
+     * client's), or 0 when it is not in Stein Sync mode.
+     */
+    @Experimental(since = "0.1.35")
+    public static int steinSyncVersion() {
+        return Host.INSTANCE.serverSteinSyncVersion();
+    }
+
+    /**
+     * The Stein Sync features turned on for this connection, as named by the protocol: the ones the
+     * server offered and this client supports. Unmodifiable; empty when Stein Sync is not active.
+     * This client knows {@code "hits"} (hit confirmation, attacks judged by the proxy, damage and
+     * combat events), {@code "blocks"} (block changes resync, without flicker) and {@code "move"}
+     * (one message per tick in place of the vanilla movement packets).
+     */
+    @Experimental(since = "0.1.35")
+    public static List<String> steinSyncFeatures() {
+        return Host.INSTANCE.serverSteinSyncFeatures();
+    }
+
+    /**
+     * Does this connection confirm hits? True when Stein Sync is active with its {@code hits}
+     * feature: then {@link SteinMod#onHitConfirmed}, {@link SteinMod#onDamaged} and {@link
+     * SteinMod#onCombatSeen} report what the server applied. Cheap enough to ask on every frame.
+     */
+    @Experimental(since = "0.1.35")
+    public static boolean steinSyncHits() {
+        return Host.INSTANCE.serverSteinSyncHits();
+    }
+
+    /** {@link SteinMod#onDamaged} cause: anything not listed below, or a cause unknown here. */
+    @Experimental(since = "0.1.35")
+    public static final int DAMAGE_OTHER = 0;
+
+    /** {@link SteinMod#onDamaged} cause: a melee hit. */
+    @Experimental(since = "0.1.35")
+    public static final int DAMAGE_MELEE = 1;
+
+    /** {@link SteinMod#onDamaged} cause: a projectile. */
+    @Experimental(since = "0.1.35")
+    public static final int DAMAGE_PROJECTILE = 2;
+
+    /** {@link SteinMod#onDamaged} cause: an explosion. */
+    @Experimental(since = "0.1.35")
+    public static final int DAMAGE_EXPLOSION = 3;
+
+    /** {@link SteinMod#onDamaged} cause: a fall. */
+    @Experimental(since = "0.1.35")
+    public static final int DAMAGE_FALL = 4;
+
+    /** {@link SteinMod#onDamaged} cause: fire or lava. */
+    @Experimental(since = "0.1.35")
+    public static final int DAMAGE_FIRE = 5;
+
+    /** {@link SteinMod#onDamaged} cause: the void. */
+    @Experimental(since = "0.1.35")
+    public static final int DAMAGE_VOID = 6;
+
+    /** {@link SteinMod#onDamaged} cause: magic or an effect (poison, wither, potions). */
+    @Experimental(since = "0.1.35")
+    public static final int DAMAGE_MAGIC = 7;
 
     /** The last server joined in this session ("" if none): what a "reconnect" uses. */
     public static String lastAddress() {
