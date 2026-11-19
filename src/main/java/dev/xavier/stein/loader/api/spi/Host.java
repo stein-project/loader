@@ -16,6 +16,7 @@ import dev.xavier.stein.loader.api.Terrain;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.ServiceLoader;
@@ -358,6 +359,21 @@ public interface Host {
     /** The server that turns the feature off here, or "" (0.1.28). */
     default String serverRestrictedBy(String feature) {
         return "";
+    }
+
+    /** The Stein Sync version agreed on this connection, or 0 when not active (0.1.35). */
+    default int serverSteinSyncVersion() {
+        return 0;
+    }
+
+    /** The Stein Sync features turned on for this connection; empty when none (0.1.35). */
+    default List<String> serverSteinSyncFeatures() {
+        return Collections.emptyList();
+    }
+
+    /** Is the Stein Sync {@code hits} feature on for this connection (0.1.35)? */
+    default boolean serverSteinSyncHits() {
+        return false;
     }
 
     // Lang (0.1.16)

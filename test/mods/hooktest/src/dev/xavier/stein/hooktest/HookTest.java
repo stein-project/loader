@@ -13,6 +13,7 @@ import dev.xavier.stein.loader.api.Entities;
 import dev.xavier.stein.loader.api.Mesh;
 import dev.xavier.stein.loader.api.Net;
 import dev.xavier.stein.loader.api.Render;
+import dev.xavier.stein.loader.api.Server;
 import dev.xavier.stein.loader.api.SteinMod;
 import dev.xavier.stein.loader.api.WorldRender;
 
@@ -32,6 +33,7 @@ import java.nio.charset.StandardCharsets;
  *       Mesh) around a point in front of the player — the screenshots of both pipelines compare
  *       them;
  *   <li>onCustomPayload: counts plugin packets and writes the first channels;
+ *   <li>onHitConfirmed, onDamaged, onCombatSeen: write the first Stein Sync combat messages;
  *   <li>onPlaySound: counts sounds and writes the first ones;
  *   <li>onSendChat: "/hooktest" does not go to the server — answers in the chat with the counts and
  *       sends a plugin packet.
@@ -42,6 +44,7 @@ public final class HookTest implements SteinMod {
     private int frames;
     private int payloads;
     private int sounds;
+    private int hits;
     private String lastChannel = "-";
 
     // The Render API scene: one of each shape, around a point six blocks in front of the camera.
@@ -155,6 +158,68 @@ public final class HookTest implements SteinMod {
         if (payloads <= 5) {
             System.out.println(
                     "[hooktest] plugin packet: " + channel + " (" + data.length + " bytes)");
+        }
+    }
+
+    @Override
+    public void onDamaged(
+            int attackerId,
+            Object attacker,
+            float damage,
+            int cause,
+            boolean critical,
+            boolean killed) {
+        hits++;
+        if (hits <= 8) {
+            System.out.println(
+                    "[hooktest] damaged: by "
+                            + attackerId
+                            + ", damage "
+                            + damage
+                            + ", cause "
+                            + cause
+                            + (killed ? ", killed" : ""));
+        }
+    }
+
+    @Override
+    public void onCombatSeen(
+            int attackerId,
+            Object attacker,
+            int targetId,
+            Object target,
+            boolean critical,
+            boolean killed) {
+        hits++;
+        if (hits <= 8) {
+            System.out.println("[hooktest] combat seen: " + attackerId + " hit " + targetId);
+        }
+    }
+
+    @Override
+    public void onHitConfirmed(
+            int entityId, Object entity, float damage, boolean critical, boolean killed, int tick) {
+        if (hits < 8) {
+            System.out.println("[hooktest] hit confirmed for tick " + tick);
+        }
+        SteinMod.super.onHitConfirmed(entityId, entity, damage, critical, killed, tick);
+    }
+
+    @Override
+    public void onHitConfirmed(
+            int entityId, Object entity, float damage, boolean critical, boolean killed) {
+        hits++;
+        if (hits <= 8) {
+            System.out.println(
+                    "[hooktest] hit confirmed: entity "
+                            + entityId
+                            + (entity == null ? " (not in the world)" : " " + entity.getClass())
+                            + ", damage "
+                            + damage
+                            + (critical ? ", critical" : "")
+                            + (killed ? ", killed" : "")
+                            + ", hits active "
+                            + Server.steinSyncHits());
         }
     }
 

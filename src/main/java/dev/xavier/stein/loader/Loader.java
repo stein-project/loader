@@ -977,6 +977,37 @@ public final class Loader implements HookSink {
         each("onCustomPayload", m -> m.onCustomPayload(channel, data));
     }
 
+    // The Stein Sync events come from the Bridge's Stein Sync client, which runs with or without
+    // the Loader; the Loader only hands them to the mods.
+
+    @Override
+    public void steinSyncHit(
+            int targetId, Object target, float damage, boolean critical, boolean killed, int tick) {
+        SteinSyncEvents.hit(this, mods, targetId, target, damage, critical, killed, tick);
+    }
+
+    @Override
+    public void steinSyncDamaged(
+            int attackerId,
+            Object attacker,
+            float damage,
+            int cause,
+            boolean critical,
+            boolean killed) {
+        SteinSyncEvents.damaged(this, mods, attackerId, attacker, damage, cause, critical, killed);
+    }
+
+    @Override
+    public void steinSyncCombatSeen(
+            int attackerId,
+            Object attacker,
+            int targetId,
+            Object target,
+            boolean critical,
+            boolean killed) {
+        SteinSyncEvents.seen(this, mods, attackerId, attacker, targetId, target, critical, killed);
+    }
+
     @Override
     public String sendChat(String message) {
         String msg = message;
