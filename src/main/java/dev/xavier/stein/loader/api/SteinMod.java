@@ -428,6 +428,24 @@ public interface SteinMod {
     }
 
     /**
+     * A color to tint this living entity with this frame, like the game's damage red: the body and
+     * the armor take it, as strong as its alpha. Called for every living entity every frame — must
+     * answer quickly, without allocating.
+     *
+     * <p>Only where the game has no tint of its own (a creeper about to explode keeps its flash,
+     * and the damage red still comes first while the entity is hurt). With several mods, each
+     * receives the previous one's answer.
+     *
+     * @param entity the entity about to be drawn (EntityLivingBase)
+     * @param color the color so far (ARGB; 0: none)
+     * @return the color to use (ARGB; 0: none)
+     */
+    @Experimental(since = "0.1.35")
+    default int onEntityColor(Object entity, int color) {
+        return color;
+    }
+
+    /**
      * The whole Tab list, in place of the game's: the mod draws its own (ping, filters, how many
      * players to show). Called every frame with Tab open — answer quickly. The first mod that draws
      * ends it.

@@ -670,6 +670,7 @@ M dev/xavier/stein/loader/api/SteinMod.onBlockModel(Ljava/lang/Object;Ljava/lang
 M dev/xavier/stein/loader/api/SteinMod.onChat(Ljava/lang/Object;)Ljava/lang/Object; public
 M dev/xavier/stein/loader/api/SteinMod.onCustomPayload(Ljava/lang/String;[B)V public @Experimental
 M dev/xavier/stein/loader/api/SteinMod.onDisconnected(Ljava/lang/String;Ljava/lang/String;)V public @Experimental
+M dev/xavier/stein/loader/api/SteinMod.onEntityColor(Ljava/lang/Object;I)I public @Experimental
 M dev/xavier/stein/loader/api/SteinMod.onEntityDeath(Ljava/lang/Object;)V public @Experimental
 M dev/xavier/stein/loader/api/SteinMod.onEntityHurt(Ljava/lang/Object;)Z public @Experimental
 M dev/xavier/stein/loader/api/SteinMod.onFov(FFZ)F public
