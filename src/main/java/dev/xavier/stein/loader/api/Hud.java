@@ -54,6 +54,37 @@ public final class Hud {
     }
 
     /**
+     * The mod draws its own crosshair: the game's is left out of the next frame. Call it on every
+     * frame while the mod's crosshair is on (from {@link SteinMod#onOverlay}), even in a frame in
+     * which the mod chose to show none (third person, a screen open); without the call, the game's
+     * crosshair comes back on the following frame, so a mod that is turned off or fails never
+     * leaves the player without one.
+     */
+    @Experimental(since = "0.1.36")
+    public static void replaceCrosshair() {
+        Host.INSTANCE.hudReplaceCrosshair();
+    }
+
+    /**
+     * Whether the game shows its crosshair in this frame, mods aside: not with the F3 screen open,
+     * and in spectator only over an entity or a container. A mod that draws its own crosshair
+     * follows it to keep the game's rules. Valid from {@link SteinMod#onOverlay} on.
+     */
+    @Experimental(since = "0.1.36")
+    public static boolean crosshairAllowed() {
+        return Host.INSTANCE.hudCrosshairAllowed();
+    }
+
+    /**
+     * Whether the player hid the HUD with F1: what a mod draws over the world for the player
+     * (markers, hit boxes) hides with it.
+     */
+    @Experimental(since = "0.1.36")
+    public static boolean isHiddenWithF1() {
+        return Host.INSTANCE.hudHiddenWithF1();
+    }
+
+    /**
      * The grid editor (GuiScreen), returning to {@code parent} (GuiScreen, or null for the game).
      */
     public static Object editorScreen(Object parent) {

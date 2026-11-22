@@ -252,6 +252,30 @@ final class HudOps {
         return s == null ? "" : s;
     }
 
+    /**
+     * Where the entity looks this frame, as a unit vector (out[0..2]): the head for living
+     * entities, as the game's getLook, but without allocating.
+     */
+    static boolean look(Object entity, float pt, double[] out) {
+        if (!(entity instanceof Entity e)) {
+            return false;
+        }
+        float yaw;
+        if (e instanceof EntityLivingBase l) {
+            yaw = l.prevRotationYawHead + (l.rotationYawHead - l.prevRotationYawHead) * pt;
+        } else {
+            yaw = e.prevRotationYaw + (e.rotationYaw - e.prevRotationYaw) * pt;
+        }
+        float pitch = e.prevRotationPitch + (e.rotationPitch - e.prevRotationPitch) * pt;
+        double y = Math.toRadians(-yaw) - Math.PI;
+        double p = Math.toRadians(-pitch);
+        double horizontal = -Math.cos(p);
+        out[0] = Math.sin(y) * horizontal;
+        out[1] = Math.sin(p);
+        out[2] = Math.cos(y) * horizontal;
+        return true;
+    }
+
     static double pos(Object entity, int axis, float pt) {
         if (!(entity instanceof Entity e)) {
             return 0;

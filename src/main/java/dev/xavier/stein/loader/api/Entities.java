@@ -359,6 +359,56 @@ public final class Entities {
     }
 
     /**
+     * How high the entity's eyes are above its feet, in blocks (0 if it is not an entity).
+     *
+     * @param entity the entity (Entity)
+     * @return the eye height
+     */
+    @Experimental(since = "0.1.36")
+    public static float eyeHeight(Object entity) {
+        return Host.INSTANCE.eyeHeight(entity);
+    }
+
+    /**
+     * Where the entity looks this frame: a unit vector into out[0..2] (x, y, z), from its head's
+     * turn for living entities, as the game computes it. Allocates nothing.
+     *
+     * @param entity the entity (Entity)
+     * @param partialTicks the frame's partial tick
+     * @param out at least 3 doubles
+     * @return false if it is not an entity (out untouched)
+     */
+    @Experimental(since = "0.1.36")
+    public static boolean look(Object entity, float partialTicks, double[] out) {
+        return Host.INSTANCE.entityLook(entity, partialTicks, out);
+    }
+
+    /**
+     * Whether the living entity has the potion effect with this id now (15: blindness, 14:
+     * invisibility), without the list {@link Effects#of} builds.
+     *
+     * @param entity the entity (EntityLivingBase; anything else: false)
+     * @param id the game's potion id
+     * @return true while the effect is active
+     */
+    @Experimental(since = "0.1.36")
+    public static boolean hasEffect(Object entity, int id) {
+        return Host.INSTANCE.hasEffect(entity, id);
+    }
+
+    /**
+     * Whether the entity is something thrown or shot: arrows, snowballs, eggs, ender pearls, thrown
+     * potions and bottles o' enchanting, fireballs, wither skulls and the fishing hook.
+     *
+     * @param entity the entity (Entity)
+     * @return true for a projectile
+     */
+    @Experimental(since = "0.1.36")
+    public static boolean isProjectile(Object entity) {
+        return Host.INSTANCE.isProjectile(entity);
+    }
+
+    /**
      * Where the screen is seen from: the player itself, or the entity it is spectating in spectator
      * mode. Aiming ({@link Targeting}) comes from here.
      *

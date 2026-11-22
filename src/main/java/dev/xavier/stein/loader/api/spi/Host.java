@@ -11,6 +11,7 @@ import dev.xavier.stein.loader.api.Effects;
 import dev.xavier.stein.loader.api.HudElement;
 import dev.xavier.stein.loader.api.Net;
 import dev.xavier.stein.loader.api.Players;
+import dev.xavier.stein.loader.api.Profiler;
 import dev.xavier.stein.loader.api.Targeting;
 import dev.xavier.stein.loader.api.Terrain;
 
@@ -385,6 +386,56 @@ public interface Host {
 
     String chatFormatted(Object component);
 
+    // Chat messages (0.1.36)
+
+    int chatMessageCount();
+
+    Object chatMessage(int index);
+
+    long chatMessageTime(Object message);
+
+    boolean chatRemove(Object message);
+
+    void chatAddOld(Object message, long time);
+
+    void chatClear();
+
+    void chatHighlight(Object message, int argb);
+
+    void chatLimit(int messages);
+
+    void chatPeek(boolean on);
+
+    void chatFilter(java.util.function.Predicate<Object> test);
+
+    Object chatHovered();
+
+    int chatHoveredColumn();
+
+    int chatRowWidth();
+
+    Object chatHoveredText();
+
+    String chatClickAction(Object component);
+
+    String chatClickValue(Object component);
+
+    boolean chatRunClick(Object screen, Object component);
+
+    Object chatAppend(Object component, Object tail);
+
+    String chatToJson(Object component);
+
+    Object chatFromJson(String json);
+
+    boolean chatIsOpen();
+
+    String chatInputText();
+
+    void chatSetInputText(String text);
+
+    void chatSubmit(boolean keepOpen);
+
     // Screens (0.1.16)
 
     Object screenCurrent();
@@ -614,4 +665,60 @@ public interface Host {
     void stopSprinting();
 
     void setDoubleTapSprint(boolean on);
+
+    // Crosshair, interface scale and perspective (0.1.36)
+
+    void hudReplaceCrosshair();
+
+    boolean hudCrosshairAllowed();
+
+    int guiScale();
+
+    int displaySize(boolean width);
+
+    int perspective();
+
+    // The entities of the frame, eyes and effects (0.1.36)
+
+    int drawnEntityCount();
+
+    Object drawnEntity(int i);
+
+    float eyeHeight(Object entity);
+
+    boolean entityLook(Object entity, float partialTicks, double[] out);
+
+    boolean hasEffect(Object entity, int id);
+
+    boolean isProjectile(Object entity);
+
+    boolean hudHiddenWithF1();
+
+    boolean gameHitboxesShown();
+
+    // Name labels (0.1.36)
+
+    void setNameLabelStyle(
+            boolean background,
+            int backgroundArgb,
+            int paddingX,
+            int paddingY,
+            int cornerRadius,
+            boolean textShadow,
+            int textRgb,
+            boolean plainText,
+            float scale,
+            float heightOffset);
+
+    void setShowOwnNameLabel(boolean on);
+
+    // Profiler (0.1.36)
+
+    void profilerMeasure(String modId, boolean on);
+
+    boolean profilerMeasuring();
+
+    void profilerWindow(int millis);
+
+    Profiler.Snapshot profilerSnapshot();
 }

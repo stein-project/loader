@@ -24,5 +24,13 @@ public enum Blend {
     MULTIPLY,
 
     /** Lightens softly, the opposite of {@link #MULTIPLY}. Black changes nothing. */
-    SCREEN
+    SCREEN,
+
+    /**
+     * Inverts what is behind, the way the game draws its crosshair: white turns each color into its
+     * opposite, black changes nothing, and a gray in between inverts part of the way. The alpha is
+     * not used, so for a weaker inversion multiply the color itself by the opacity.
+     */
+    @Experimental(since = "0.1.36")
+    INVERT
 }

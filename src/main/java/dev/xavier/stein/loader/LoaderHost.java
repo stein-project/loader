@@ -10,15 +10,20 @@ package dev.xavier.stein.loader;
 
 import dev.xavier.stein.bridge.core.Log;
 import dev.xavier.stein.bridge.core.SteinLog;
+import dev.xavier.stein.bridge.engine.ChatInput;
+import dev.xavier.stein.bridge.engine.ChatLines;
+import dev.xavier.stein.bridge.engine.ChatView;
 import dev.xavier.stein.bridge.engine.KeyBindings;
 import dev.xavier.stein.bridge.hooks.GameHooks;
 import dev.xavier.stein.loader.api.HudElement;
 import dev.xavier.stein.loader.api.Net;
+import dev.xavier.stein.loader.api.Profiler;
 import dev.xavier.stein.loader.api.spi.Host;
 import dev.xavier.stein.loader.gui.PanelScreen;
 import dev.xavier.stein.loader.hud.HudGrid;
 
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.GuiChat;
 import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.client.network.NetHandlerPlayClient;
 import net.minecraft.client.resources.I18n;
@@ -29,6 +34,7 @@ import net.minecraft.network.play.client.C17PacketCustomPayload;
 import java.io.File;
 import java.io.IOException;
 import java.util.Map;
+import java.util.function.Predicate;
 
 /**
  * The mod API wired to the Bridge and the Loader. It is the only place where {@code
@@ -52,6 +58,11 @@ public final class LoaderHost extends HostRender {
     @Override
     public void resetCameraSmoothing() {
         GameHooks.resetCameraSmoothing();
+    }
+
+    @Override
+    public int perspective() {
+        return Minecraft.getMinecraft().gameSettings.thirdPersonView;
     }
 
     @Override
@@ -135,6 +146,26 @@ public final class LoaderHost extends HostRender {
     public String modVersion(String id) {
         ModInfo m = loaded(id);
         return m == null ? null : m.version;
+    }
+
+    @Override
+    public void profilerMeasure(String modId, boolean on) {
+        ModProfile.request(modId, on);
+    }
+
+    @Override
+    public boolean profilerMeasuring() {
+        return ModProfile.active;
+    }
+
+    @Override
+    public void profilerWindow(int millis) {
+        ModProfile.window(millis);
+    }
+
+    @Override
+    public Profiler.Snapshot profilerSnapshot() {
+        return ModProfile.snapshot();
     }
 
     @Override
@@ -332,6 +363,128 @@ public final class LoaderHost extends HostRender {
     @Override
     public String chatFormatted(Object component) {
         return GameOps.formatted(component);
+    }
+
+    // ---- chat messages (the Bridge's store) ----
+
+    @Override
+    public int chatMessageCount() {
+        return ChatLines.count();
+    }
+
+    @Override
+    public Object chatMessage(int index) {
+        return ChatLines.message(index);
+    }
+
+    @Override
+    public long chatMessageTime(Object message) {
+        return ChatLines.timeOf(message);
+    }
+
+    @Override
+    public boolean chatRemove(Object message) {
+        return ChatLines.remove(message);
+    }
+
+    @Override
+    public void chatAddOld(Object message, long time) {
+        ChatLines.addOld(message, time);
+    }
+
+    @Override
+    public void chatClear() {
+        ChatLines.clear();
+    }
+
+    @Override
+    public void chatHighlight(Object message, int argb) {
+        ChatLines.setColor(message, argb);
+    }
+
+    @Override
+    public void chatLimit(int messages) {
+        ChatLines.setLimit(messages);
+    }
+
+    @Override
+    public void chatPeek(boolean on) {
+        ChatView.setPeek(on);
+    }
+
+    @Override
+    public void chatFilter(Predicate<Object> test) {
+        ChatView.setFilter(test);
+    }
+
+    @Override
+    public Object chatHovered() {
+        return ChatView.hovered();
+    }
+
+    @Override
+    public int chatHoveredColumn() {
+        return ChatView.hoveredColumn();
+    }
+
+    @Override
+    public int chatRowWidth() {
+        return ChatView.boxWidth();
+    }
+
+    @Override
+    public Object chatHoveredText() {
+        return ChatOps.hoveredText();
+    }
+
+    @Override
+    public String chatClickAction(Object component) {
+        return ChatOps.clickAction(component);
+    }
+
+    @Override
+    public String chatClickValue(Object component) {
+        return ChatOps.clickValue(component);
+    }
+
+    @Override
+    public boolean chatRunClick(Object screen, Object component) {
+        return ChatInput.click(screen, component);
+    }
+
+    @Override
+    public Object chatAppend(Object component, Object tail) {
+        return ChatOps.append(component, tail);
+    }
+
+    @Override
+    public String chatToJson(Object component) {
+        return ChatOps.toJson(component);
+    }
+
+    @Override
+    public Object chatFromJson(String json) {
+        return ChatOps.fromJson(json);
+    }
+
+    @Override
+    public boolean chatIsOpen() {
+        return GameOps.screen() instanceof GuiChat;
+    }
+
+    @Override
+    public String chatInputText() {
+        return ChatInput.text();
+    }
+
+    @Override
+    public void chatSetInputText(String text) {
+        ChatInput.setText(text);
+    }
+
+    @Override
+    public void chatSubmit(boolean keepOpen) {
+        ChatInput.submit(keepOpen);
     }
 
     @Override

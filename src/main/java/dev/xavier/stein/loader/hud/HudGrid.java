@@ -11,6 +11,7 @@ package dev.xavier.stein.loader.hud;
 import dev.xavier.stein.bridge.core.Log;
 import dev.xavier.stein.bridge.hooks.VanillaHud;
 import dev.xavier.stein.loader.Loader;
+import dev.xavier.stein.loader.ModProfile;
 import dev.xavier.stein.loader.ModTimes;
 import dev.xavier.stein.loader.api.HudElement;
 import dev.xavier.stein.loader.api.Keys;
@@ -264,6 +265,9 @@ public final class HudGrid {
                     continue;
                 }
                 long t = System.nanoTime();
+                if (ModProfile.active) {
+                    ModProfile.drawOwner = ModTimes.elementOwner(e);
+                }
                 draw(e, p, w, h, false, partialTicks);
                 ModTimes.elementTime(e, System.nanoTime() - t);
             }

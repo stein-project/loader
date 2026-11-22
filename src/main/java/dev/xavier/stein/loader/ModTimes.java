@@ -70,9 +70,15 @@ public final class ModTimes {
         elementPerFrame = new double[byInstance.length];
     }
 
-    /** Time spent by the mod at index i (the Loader's mod array). */
-    static void add(int i, long nanos) {
+    /**
+     * Time spent by the mod at index i (the Loader's mod array), in this kind of event (for the
+     * profiler, {@link ModProfile}, while it runs).
+     */
+    static void add(int i, int phase, long nanos) {
         spent[i] += nanos;
+        if (ModProfile.active) {
+            ModProfile.add(i, phase, nanos);
+        }
     }
 
     /**
@@ -118,7 +124,18 @@ public final class ModTimes {
         if (i != null) {
             elementSpent[i] += nanos;
             elementDrawn = true;
+            if (ModProfile.active) {
+                ModProfile.add(i, ModProfile.HUD_ELEMENTS, nanos);
+            }
+        } else if (ModProfile.active) {
+            ModProfile.loader(nanos); // one of the game's HUD parts, which the Loader draws
         }
+    }
+
+    /** The instance that registered this HUD element, or -1 (the game's parts). */
+    public static int elementOwner(Object element) {
+        Integer i = ELEMENTS.get(element);
+        return i == null ? -1 : i;
     }
 
     /** One more frame; every second, closes the window. */

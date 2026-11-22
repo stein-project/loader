@@ -20,7 +20,10 @@ import dev.xavier.stein.loader.gui.PlayerHeads;
 import net.minecraft.client.Minecraft;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityLivingBase;
+import net.minecraft.entity.IProjectile;
 import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.entity.projectile.EntityFireball;
+import net.minecraft.entity.projectile.EntityFishHook;
 
 import java.util.List;
 
@@ -371,6 +374,48 @@ abstract class HostWorld extends HostInventory {
     @Override
     public Object camera() {
         return Minecraft.getMinecraft().getRenderViewEntity();
+    }
+
+    @Override
+    public int drawnEntityCount() {
+        return GameHooks.drawnEntityCount();
+    }
+
+    @Override
+    public Object drawnEntity(int i) {
+        return GameHooks.drawnEntity(i);
+    }
+
+    @Override
+    public float eyeHeight(Object entity) {
+        return entity instanceof Entity e ? e.getEyeHeight() : 0;
+    }
+
+    @Override
+    public boolean entityLook(Object entity, float partialTicks, double[] out) {
+        return HudOps.look(entity, partialTicks, out);
+    }
+
+    @Override
+    public boolean hasEffect(Object entity, int id) {
+        return entity instanceof EntityLivingBase l && l.isPotionActive(id);
+    }
+
+    @Override
+    public boolean isProjectile(Object entity) {
+        return entity instanceof IProjectile
+                || entity instanceof EntityFireball
+                || entity instanceof EntityFishHook;
+    }
+
+    @Override
+    public boolean hudHiddenWithF1() {
+        return Minecraft.getMinecraft().gameSettings.hideGUI;
+    }
+
+    @Override
+    public boolean gameHitboxesShown() {
+        return Minecraft.getMinecraft().getRenderManager().isDebugBoundingBox();
     }
 
     @Override

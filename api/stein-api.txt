@@ -26,6 +26,8 @@ C dev/xavier/stein/loader/api/Mesh$Primitive public final super=java/lang/Enum i
 C dev/xavier/stein/loader/api/ModConfig public final super=java/lang/Object itf= @Experimental
 C dev/xavier/stein/loader/api/ModContext public final super=java/lang/Object itf= @Experimental
 C dev/xavier/stein/loader/api/Mods public final super=java/lang/Object itf=
+C dev/xavier/stein/loader/api/NameLabels public final super=java/lang/Object itf= @Experimental
+C dev/xavier/stein/loader/api/NameLabels$Style public final super=java/lang/Object itf= @Experimental
 C dev/xavier/stein/loader/api/Net public final super=java/lang/Object itf=
 C dev/xavier/stein/loader/api/Net$Proxy public interface super=java/lang/Object itf=
 C dev/xavier/stein/loader/api/Option public abstract super=java/lang/Object itf=
@@ -39,6 +41,11 @@ C dev/xavier/stein/loader/api/Page$Item public final super=java/lang/Object itf=
 C dev/xavier/stein/loader/api/Panel public final super=java/lang/Object itf=
 C dev/xavier/stein/loader/api/Players public final super=java/lang/Object itf= @Experimental
 C dev/xavier/stein/loader/api/Players$Entry public final super=java/lang/Object itf=
+C dev/xavier/stein/loader/api/Profiler public final super=java/lang/Object itf= @Experimental
+C dev/xavier/stein/loader/api/Profiler$ModCost public final super=java/lang/Object itf=
+C dev/xavier/stein/loader/api/Profiler$Phase public final super=java/lang/Enum itf=
+C dev/xavier/stein/loader/api/Profiler$Snapshot public final super=java/lang/Object itf=
+C dev/xavier/stein/loader/api/Profiler$Zone public final super=java/lang/Object itf=
 C dev/xavier/stein/loader/api/Relation public final super=java/lang/Enum itf= @Experimental
 C dev/xavier/stein/loader/api/Relations public final super=java/lang/Object itf= @Experimental
 C dev/xavier/stein/loader/api/Relations$Provider public interface super=java/lang/Object itf=
@@ -67,9 +74,12 @@ F dev/xavier/stein/loader/api/Account$Kind.NOT_MICROSOFT:Ldev/xavier/stein/loade
 F dev/xavier/stein/loader/api/Account$Kind.OFFLINE:Ldev/xavier/stein/loader/api/Account$Kind; public static final ordinal=0
 F dev/xavier/stein/loader/api/Account$Kind.UNVERIFIED:Ldev/xavier/stein/loader/api/Account$Kind; public static final ordinal=4
 F dev/xavier/stein/loader/api/Blend.ADDITIVE:Ldev/xavier/stein/loader/api/Blend; public static final ordinal=1 @Experimental
+F dev/xavier/stein/loader/api/Blend.INVERT:Ldev/xavier/stein/loader/api/Blend; public static final ordinal=4 @Experimental
 F dev/xavier/stein/loader/api/Blend.MULTIPLY:Ldev/xavier/stein/loader/api/Blend; public static final ordinal=2 @Experimental
 F dev/xavier/stein/loader/api/Blend.NORMAL:Ldev/xavier/stein/loader/api/Blend; public static final ordinal=0 @Experimental
 F dev/xavier/stein/loader/api/Blend.SCREEN:Ldev/xavier/stein/loader/api/Blend; public static final ordinal=3 @Experimental
+F dev/xavier/stein/loader/api/Chat.MAX_LIMIT:I public static final value=5000 @Experimental
+F dev/xavier/stein/loader/api/Chat.VANILLA_LIMIT:I public static final value=100 @Experimental
 F dev/xavier/stein/loader/api/Effects$Effect.amplifier:I public final
 F dev/xavier/stein/loader/api/Effects$Effect.duration:I public final
 F dev/xavier/stein/loader/api/Effects$Effect.id:I public final
@@ -162,6 +172,20 @@ F dev/xavier/stein/loader/api/Mesh$Primitive.QUADS:Ldev/xavier/stein/loader/api/
 F dev/xavier/stein/loader/api/Mesh$Primitive.TRIANGLES:Ldev/xavier/stein/loader/api/Mesh$Primitive; public static final ordinal=2 @Experimental
 F dev/xavier/stein/loader/api/Mesh$Primitive.TRIANGLE_FAN:Ldev/xavier/stein/loader/api/Mesh$Primitive; public static final ordinal=4 @Experimental
 F dev/xavier/stein/loader/api/Mesh$Primitive.TRIANGLE_STRIP:Ldev/xavier/stein/loader/api/Mesh$Primitive; public static final ordinal=3 @Experimental
+F dev/xavier/stein/loader/api/NameLabels$Style.MAX_CORNER_RADIUS:I public static final value=6 @Experimental
+F dev/xavier/stein/loader/api/NameLabels$Style.MAX_PADDING:I public static final value=8 @Experimental
+F dev/xavier/stein/loader/api/NameLabels$Style.VANILLA:Ldev/xavier/stein/loader/api/NameLabels$Style; public static final @Experimental
+F dev/xavier/stein/loader/api/NameLabels$Style.VANILLA_BACKGROUND:I public static final value=1056964608 @Experimental
+F dev/xavier/stein/loader/api/NameLabels$Style.background:Z public final @Experimental
+F dev/xavier/stein/loader/api/NameLabels$Style.backgroundColor:I public final @Experimental
+F dev/xavier/stein/loader/api/NameLabels$Style.cornerRadius:I public final @Experimental
+F dev/xavier/stein/loader/api/NameLabels$Style.heightOffset:F public final @Experimental
+F dev/xavier/stein/loader/api/NameLabels$Style.paddingX:I public final @Experimental
+F dev/xavier/stein/loader/api/NameLabels$Style.paddingY:I public final @Experimental
+F dev/xavier/stein/loader/api/NameLabels$Style.plainText:Z public final @Experimental
+F dev/xavier/stein/loader/api/NameLabels$Style.scale:F public final @Experimental
+F dev/xavier/stein/loader/api/NameLabels$Style.textColor:I public final @Experimental
+F dev/xavier/stein/loader/api/NameLabels$Style.textShadow:Z public final @Experimental
 F dev/xavier/stein/loader/api/Option$Slider.max:D public final @Experimental
 F dev/xavier/stein/loader/api/Option$Slider.min:D public final @Experimental
 F dev/xavier/stein/loader/api/Option$Slider.step:D public final @Experimental
@@ -192,6 +216,31 @@ F dev/xavier/stein/loader/api/Players$Entry.ping:I public final
 F dev/xavier/stein/loader/api/Players$Entry.spectator:Z public final
 F dev/xavier/stein/loader/api/Players$Entry.tabName:Ljava/lang/String; public final
 F dev/xavier/stein/loader/api/Players$Entry.team:Ljava/lang/String; public final
+F dev/xavier/stein/loader/api/Profiler$ModCost.drawsPerFrame:D public final
+F dev/xavier/stein/loader/api/Profiler$ModCost.id:Ljava/lang/String; public final
+F dev/xavier/stein/loader/api/Profiler$ModCost.name:Ljava/lang/String; public final
+F dev/xavier/stein/loader/api/Profiler$ModCost.totalAvgMs:D public final
+F dev/xavier/stein/loader/api/Profiler$ModCost.totalP99Ms:D public final
+F dev/xavier/stein/loader/api/Profiler$ModCost.verticesPerFrame:D public final
+F dev/xavier/stein/loader/api/Profiler$Phase.EVENTS:Ldev/xavier/stein/loader/api/Profiler$Phase; public static final ordinal=6
+F dev/xavier/stein/loader/api/Profiler$Phase.HOOKS:Ldev/xavier/stein/loader/api/Profiler$Phase; public static final ordinal=7
+F dev/xavier/stein/loader/api/Profiler$Phase.HUD:Ldev/xavier/stein/loader/api/Profiler$Phase; public static final ordinal=1
+F dev/xavier/stein/loader/api/Profiler$Phase.HUD_ELEMENTS:Ldev/xavier/stein/loader/api/Profiler$Phase; public static final ordinal=2
+F dev/xavier/stein/loader/api/Profiler$Phase.INPUT:Ldev/xavier/stein/loader/api/Profiler$Phase; public static final ordinal=5
+F dev/xavier/stein/loader/api/Profiler$Phase.SCREEN:Ldev/xavier/stein/loader/api/Profiler$Phase; public static final ordinal=4
+F dev/xavier/stein/loader/api/Profiler$Phase.TICK:Ldev/xavier/stein/loader/api/Profiler$Phase; public static final ordinal=0
+F dev/xavier/stein/loader/api/Profiler$Phase.WORLD:Ldev/xavier/stein/loader/api/Profiler$Phase; public static final ordinal=3
+F dev/xavier/stein/loader/api/Profiler$Snapshot.closedAt:J public final
+F dev/xavier/stein/loader/api/Profiler$Snapshot.frameAvgMs:D public final
+F dev/xavier/stein/loader/api/Profiler$Snapshot.frameP99Ms:D public final
+F dev/xavier/stein/loader/api/Profiler$Snapshot.frames:I public final
+F dev/xavier/stein/loader/api/Profiler$Snapshot.loaderMs:D public final
+F dev/xavier/stein/loader/api/Profiler$Snapshot.mods:Ljava/util/List; public final
+F dev/xavier/stein/loader/api/Profiler$Snapshot.seconds:D public final
+F dev/xavier/stein/loader/api/Profiler$Snapshot.zones:Ljava/util/List; public final
+F dev/xavier/stein/loader/api/Profiler$Zone.avgMs:D public final
+F dev/xavier/stein/loader/api/Profiler$Zone.name:Ljava/lang/String; public final
+F dev/xavier/stein/loader/api/Profiler$Zone.parent:Ljava/lang/String; public final
 F dev/xavier/stein/loader/api/Relation.ALLY:Ldev/xavier/stein/loader/api/Relation; public static final ordinal=3 @Experimental
 F dev/xavier/stein/loader/api/Relation.ENEMY:Ldev/xavier/stein/loader/api/Relation; public static final ordinal=4 @Experimental
 F dev/xavier/stein/loader/api/Relation.GROUP:Ldev/xavier/stein/loader/api/Relation; public static final ordinal=2 @Experimental
@@ -262,11 +311,35 @@ M dev/xavier/stein/loader/api/Account.useOffline(Ljava/lang/String;)V public sta
 M dev/xavier/stein/loader/api/Blend.valueOf(Ljava/lang/String;)Ldev/xavier/stein/loader/api/Blend; public static @Experimental
 M dev/xavier/stein/loader/api/Blend.values()[Ldev/xavier/stein/loader/api/Blend; public static @Experimental
 M dev/xavier/stein/loader/api/Chat.actionBar(Ljava/lang/String;)V public static @Experimental
+M dev/xavier/stein/loader/api/Chat.addOld(Ljava/lang/Object;J)V public static @Experimental
+M dev/xavier/stein/loader/api/Chat.append(Ljava/lang/Object;Ljava/lang/Object;)Ljava/lang/Object; public static @Experimental
+M dev/xavier/stein/loader/api/Chat.clear()V public static @Experimental
+M dev/xavier/stein/loader/api/Chat.clickAction(Ljava/lang/Object;)Ljava/lang/String; public static @Experimental
+M dev/xavier/stein/loader/api/Chat.clickValue(Ljava/lang/Object;)Ljava/lang/String; public static @Experimental
 M dev/xavier/stein/loader/api/Chat.formatted(Ljava/lang/Object;)Ljava/lang/String; public static @Experimental
+M dev/xavier/stein/loader/api/Chat.fromJson(Ljava/lang/String;)Ljava/lang/Object; public static @Experimental
+M dev/xavier/stein/loader/api/Chat.hoveredColumn()I public static @Experimental
+M dev/xavier/stein/loader/api/Chat.hoveredMessage()Ljava/lang/Object; public static @Experimental
+M dev/xavier/stein/loader/api/Chat.hoveredText()Ljava/lang/Object; public static @Experimental
+M dev/xavier/stein/loader/api/Chat.inputText()Ljava/lang/String; public static @Experimental
+M dev/xavier/stein/loader/api/Chat.isOpen()Z public static @Experimental
+M dev/xavier/stein/loader/api/Chat.message(I)Ljava/lang/Object; public static @Experimental
+M dev/xavier/stein/loader/api/Chat.messageCount()I public static @Experimental
+M dev/xavier/stein/loader/api/Chat.messageTime(Ljava/lang/Object;)J public static @Experimental
 M dev/xavier/stein/loader/api/Chat.plain(Ljava/lang/Object;)Ljava/lang/String; public static @Experimental
 M dev/xavier/stein/loader/api/Chat.print(Ljava/lang/String;)V public static @Experimental
+M dev/xavier/stein/loader/api/Chat.removeMessage(Ljava/lang/Object;)Z public static @Experimental
+M dev/xavier/stein/loader/api/Chat.rowWidth()I public static @Experimental
+M dev/xavier/stein/loader/api/Chat.runClick(Ljava/lang/Object;Ljava/lang/Object;)Z public static @Experimental
 M dev/xavier/stein/loader/api/Chat.send(Ljava/lang/String;)V public static @Experimental
+M dev/xavier/stein/loader/api/Chat.setFilter(Ljava/util/function/Predicate;)V public static @Experimental
+M dev/xavier/stein/loader/api/Chat.setHighlight(Ljava/lang/Object;I)V public static @Experimental
+M dev/xavier/stein/loader/api/Chat.setInputText(Ljava/lang/String;)V public static @Experimental
+M dev/xavier/stein/loader/api/Chat.setLimit(I)V public static @Experimental
+M dev/xavier/stein/loader/api/Chat.setPeek(Z)V public static @Experimental
+M dev/xavier/stein/loader/api/Chat.submitInput(Z)V public static @Experimental
 M dev/xavier/stein/loader/api/Chat.text(Ljava/lang/String;)Ljava/lang/Object; public static @Experimental
+M dev/xavier/stein/loader/api/Chat.toJson(Ljava/lang/Object;)Ljava/lang/String; public static @Experimental
 M dev/xavier/stein/loader/api/Effects$Effect.<init>(IIIZ)V public
 M dev/xavier/stein/loader/api/Effects.durationText(Ldev/xavier/stein/loader/api/Effects$Effect;)Ljava/lang/String; public static @Experimental
 M dev/xavier/stein/loader/api/Effects.hasIcon(I)Z public static @Experimental
@@ -281,6 +354,8 @@ M dev/xavier/stein/loader/api/Entities.armor(Ljava/lang/Object;)I public static 
 M dev/xavier/stein/loader/api/Entities.camera()Ljava/lang/Object; public static @Experimental
 M dev/xavier/stein/loader/api/Entities.displayName(Ljava/lang/Object;)Ljava/lang/String; public static @Experimental
 M dev/xavier/stein/loader/api/Entities.distance(Ljava/lang/Object;Ljava/lang/Object;)F public static @Experimental
+M dev/xavier/stein/loader/api/Entities.eyeHeight(Ljava/lang/Object;)F public static @Experimental
+M dev/xavier/stein/loader/api/Entities.hasEffect(Ljava/lang/Object;I)Z public static @Experimental
 M dev/xavier/stein/loader/api/Entities.health(Ljava/lang/Object;)F public static @Experimental
 M dev/xavier/stein/loader/api/Entities.hurtTime(Ljava/lang/Object;)I public static @Experimental
 M dev/xavier/stein/loader/api/Entities.isAlive(Ljava/lang/Object;)Z public static @Experimental
@@ -288,11 +363,13 @@ M dev/xavier/stein/loader/api/Entities.isFlying(Ljava/lang/Object;)Z public stat
 M dev/xavier/stein/loader/api/Entities.isInvisible(Ljava/lang/Object;)Z public static @Experimental
 M dev/xavier/stein/loader/api/Entities.isLiving(Ljava/lang/Object;)Z public static @Experimental
 M dev/xavier/stein/loader/api/Entities.isPlayer(Ljava/lang/Object;)Z public static @Experimental
+M dev/xavier/stein/loader/api/Entities.isProjectile(Ljava/lang/Object;)Z public static @Experimental
 M dev/xavier/stein/loader/api/Entities.isRiding(Ljava/lang/Object;)Z public static @Experimental
 M dev/xavier/stein/loader/api/Entities.isSneaking(Ljava/lang/Object;)Z public static @Experimental
 M dev/xavier/stein/loader/api/Entities.isSprinting(Ljava/lang/Object;)Z public static @Experimental
 M dev/xavier/stein/loader/api/Entities.itemStack(Ljava/lang/Object;)Ljava/lang/Object; public static @Experimental
 M dev/xavier/stein/loader/api/Entities.kind(Ljava/lang/Object;)Ldev/xavier/stein/loader/api/Entities$Kind; public static @Experimental
+M dev/xavier/stein/loader/api/Entities.look(Ljava/lang/Object;F[D)Z public static @Experimental
 M dev/xavier/stein/loader/api/Entities.maxHealth(Ljava/lang/Object;)F public static @Experimental
 M dev/xavier/stein/loader/api/Entities.name(Ljava/lang/Object;)Ljava/lang/String; public static @Experimental
 M dev/xavier/stein/loader/api/Entities.pitch(Ljava/lang/Object;F)F public static @Experimental
@@ -308,8 +385,10 @@ M dev/xavier/stein/loader/api/Experimental.since()Ljava/lang/String; public abst
 M dev/xavier/stein/loader/api/Game.enchantmentsVersion()I public static
 M dev/xavier/stein/loader/api/Game.fps()I public static @Experimental
 M dev/xavier/stein/loader/api/Game.fpsLimit()I public static @Experimental
+M dev/xavier/stein/loader/api/Game.hitboxesShown()Z public static @Experimental
 M dev/xavier/stein/loader/api/Game.itemData(Ljava/lang/Object;)Ljava/lang/Object; public static
 M dev/xavier/stein/loader/api/Game.partialTicks()F public static
+M dev/xavier/stein/loader/api/Game.perspective()I public static @Experimental
 M dev/xavier/stein/loader/api/Game.playSound(Ljava/lang/String;F)V public static @Experimental
 M dev/xavier/stein/loader/api/Game.refreshRate()I public static @Experimental
 M dev/xavier/stein/loader/api/Game.resetCameraSmoothing()V public static
@@ -326,9 +405,12 @@ M dev/xavier/stein/loader/api/Gameplay.stopSprinting()V public static @Experimen
 M dev/xavier/stein/loader/api/Http.getText(Ljava/lang/String;Ljava/util/function/Consumer;Ljava/util/function/Consumer;)V public static @Experimental
 M dev/xavier/stein/loader/api/Http.getTextNow(Ljava/lang/String;)Ljava/lang/String; public static @Experimental
 M dev/xavier/stein/loader/api/Hud.cover(FFFF)V public static @Experimental
+M dev/xavier/stein/loader/api/Hud.crosshairAllowed()Z public static @Experimental
 M dev/xavier/stein/loader/api/Hud.editorScreen(Ljava/lang/Object;)Ljava/lang/Object; public static
 M dev/xavier/stein/loader/api/Hud.isEnabled(Ljava/lang/String;)Z public static
+M dev/xavier/stein/loader/api/Hud.isHiddenWithF1()Z public static @Experimental
 M dev/xavier/stein/loader/api/Hud.register(Ldev/xavier/stein/loader/api/HudElement;)V public static
+M dev/xavier/stein/loader/api/Hud.replaceCrosshair()V public static @Experimental
 M dev/xavier/stein/loader/api/Hud.setHidden(Z)V public static @Experimental
 M dev/xavier/stein/loader/api/HudElement.defaultBackground()F public @Experimental
 M dev/xavier/stein/loader/api/HudElement.defaultPlacement()Ldev/xavier/stein/loader/api/HudPlacement; public abstract
@@ -457,6 +539,15 @@ M dev/xavier/stein/loader/api/ModContext.tr(Ljava/lang/String;[Ljava/lang/Object
 M dev/xavier/stein/loader/api/ModContext.version()Ljava/lang/String; public @Experimental
 M dev/xavier/stein/loader/api/Mods.isLoaded(Ljava/lang/String;)Z public static
 M dev/xavier/stein/loader/api/Mods.version(Ljava/lang/String;)Ljava/lang/String; public static
+M dev/xavier/stein/loader/api/NameLabels$Style.withBackground(ZI)Ldev/xavier/stein/loader/api/NameLabels$Style; public @Experimental
+M dev/xavier/stein/loader/api/NameLabels$Style.withCornerRadius(I)Ldev/xavier/stein/loader/api/NameLabels$Style; public @Experimental
+M dev/xavier/stein/loader/api/NameLabels$Style.withHeightOffset(F)Ldev/xavier/stein/loader/api/NameLabels$Style; public @Experimental
+M dev/xavier/stein/loader/api/NameLabels$Style.withPadding(II)Ldev/xavier/stein/loader/api/NameLabels$Style; public @Experimental
+M dev/xavier/stein/loader/api/NameLabels$Style.withScale(F)Ldev/xavier/stein/loader/api/NameLabels$Style; public @Experimental
+M dev/xavier/stein/loader/api/NameLabels$Style.withShadow(Z)Ldev/xavier/stein/loader/api/NameLabels$Style; public @Experimental
+M dev/xavier/stein/loader/api/NameLabels$Style.withTextColor(IZ)Ldev/xavier/stein/loader/api/NameLabels$Style; public @Experimental
+M dev/xavier/stein/loader/api/NameLabels.setShowOwn(Z)V public static @Experimental
+M dev/xavier/stein/loader/api/NameLabels.setStyle(Ldev/xavier/stein/loader/api/NameLabels$Style;)V public static @Experimental
 M dev/xavier/stein/loader/api/Net$Proxy.address(Ljava/lang/Object;I)Ljava/lang/Object; public abstract
 M dev/xavier/stein/loader/api/Net$Proxy.wrap(Ljava/lang/Object;)Ljava/lang/Object; public abstract
 M dev/xavier/stein/loader/api/Net.sendPayload(Ljava/lang/String;[B)Z public static @Experimental
@@ -543,6 +634,18 @@ M dev/xavier/stein/loader/api/Players.tabFooter()Ljava/lang/String; public stati
 M dev/xavier/stein/loader/api/Players.tabHeader()Ljava/lang/String; public static @Experimental
 M dev/xavier/stein/loader/api/Players.tabName(Ljava/lang/String;)Ljava/lang/String; public static @Experimental
 M dev/xavier/stein/loader/api/Players.team(Ljava/lang/String;)Ljava/lang/String; public static @Experimental
+M dev/xavier/stein/loader/api/Profiler$ModCost.<init>(Ljava/lang/String;Ljava/lang/String;[D[DDDDD)V public
+M dev/xavier/stein/loader/api/Profiler$ModCost.avg(Ldev/xavier/stein/loader/api/Profiler$Phase;)D public
+M dev/xavier/stein/loader/api/Profiler$ModCost.p99(Ldev/xavier/stein/loader/api/Profiler$Phase;)D public
+M dev/xavier/stein/loader/api/Profiler$Phase.valueOf(Ljava/lang/String;)Ldev/xavier/stein/loader/api/Profiler$Phase; public static
+M dev/xavier/stein/loader/api/Profiler$Phase.values()[Ldev/xavier/stein/loader/api/Profiler$Phase; public static
+M dev/xavier/stein/loader/api/Profiler$Snapshot.<init>(JDIDDDLjava/util/List;Ljava/util/List;)V public
+M dev/xavier/stein/loader/api/Profiler$Snapshot.modsMs()D public
+M dev/xavier/stein/loader/api/Profiler$Zone.<init>(Ljava/lang/String;Ljava/lang/String;D)V public
+M dev/xavier/stein/loader/api/Profiler.measure(Ldev/xavier/stein/loader/api/ModContext;Z)V public static @Experimental
+M dev/xavier/stein/loader/api/Profiler.measuring()Z public static @Experimental
+M dev/xavier/stein/loader/api/Profiler.snapshot()Ldev/xavier/stein/loader/api/Profiler$Snapshot; public static @Experimental
+M dev/xavier/stein/loader/api/Profiler.window(I)V public static @Experimental
 M dev/xavier/stein/loader/api/Relation.friendly()Z public @Experimental
 M dev/xavier/stein/loader/api/Relation.valueOf(Ljava/lang/String;)Ldev/xavier/stein/loader/api/Relation; public static @Experimental
 M dev/xavier/stein/loader/api/Relation.values()[Ldev/xavier/stein/loader/api/Relation; public static @Experimental
@@ -571,6 +674,8 @@ M dev/xavier/stein/loader/api/Render.arc(FFFFFFI)V public static @Experimental
 M dev/xavier/stein/loader/api/Render.blend(Ldev/xavier/stein/loader/api/Blend;Ljava/lang/Runnable;)V public static @Experimental
 M dev/xavier/stein/loader/api/Render.circle(FFFI)V public static @Experimental
 M dev/xavier/stein/loader/api/Render.clip(FFFF)V public static @Experimental
+M dev/xavier/stein/loader/api/Render.displayHeight()I public static @Experimental
+M dev/xavier/stein/loader/api/Render.displayWidth()I public static @Experimental
 M dev/xavier/stein/loader/api/Render.effectIcon(IFF)V public static @Experimental
 M dev/xavier/stein/loader/api/Render.fan([F[FII)V public static @Experimental
 M dev/xavier/stein/loader/api/Render.fontHeight()I public static @Experimental
@@ -578,6 +683,7 @@ M dev/xavier/stein/loader/api/Render.gameFont(Ljava/lang/Runnable;)V public stat
 M dev/xavier/stein/loader/api/Render.gameTabList(I)V public static @Experimental
 M dev/xavier/stein/loader/api/Render.gradient(FFFFIIZ)V public static @Experimental
 M dev/xavier/stein/loader/api/Render.guiHeight()I public static @Experimental
+M dev/xavier/stein/loader/api/Render.guiScale()I public static @Experimental
 M dev/xavier/stein/loader/api/Render.guiWidth()I public static @Experimental
 M dev/xavier/stein/loader/api/Render.image(Ljava/lang/String;FFFF)V public static @Experimental
 M dev/xavier/stein/loader/api/Render.image(Ljava/lang/String;FFFFFFFFI)V public static @Experimental
@@ -668,6 +774,9 @@ M dev/xavier/stein/loader/api/SteinMod.onArmorTexture(Ljava/lang/Object;ILjava/l
 M dev/xavier/stein/loader/api/SteinMod.onAttackEntity(Ljava/lang/Object;)Z public
 M dev/xavier/stein/loader/api/SteinMod.onBlockModel(Ljava/lang/Object;Ljava/lang/Object;Ljava/lang/Object;Ljava/lang/Object;)Ljava/lang/Object; public
 M dev/xavier/stein/loader/api/SteinMod.onChat(Ljava/lang/Object;)Ljava/lang/Object; public
+M dev/xavier/stein/loader/api/SteinMod.onChatClick(Ljava/lang/Object;Ljava/lang/Object;)Z public @Experimental
+M dev/xavier/stein/loader/api/SteinMod.onChatLine(Ljava/lang/Object;I)Ljava/lang/Object; public @Experimental
+M dev/xavier/stein/loader/api/SteinMod.onChatRowDrawn(Ljava/lang/Object;IIII)V public @Experimental
 M dev/xavier/stein/loader/api/SteinMod.onCustomPayload(Ljava/lang/String;[B)V public @Experimental
 M dev/xavier/stein/loader/api/SteinMod.onDisconnected(Ljava/lang/String;Ljava/lang/String;)V public @Experimental
 M dev/xavier/stein/loader/api/SteinMod.onEntityColor(Ljava/lang/Object;I)I public @Experimental
@@ -678,9 +787,11 @@ M dev/xavier/stein/loader/api/SteinMod.onFovModifier(F)F public
 M dev/xavier/stein/loader/api/SteinMod.onGhostEntity(Ljava/lang/Object;)Z public
 M dev/xavier/stein/loader/api/SteinMod.onGuiAction(Ljava/lang/Object;Ljava/lang/Object;)Z public
 M dev/xavier/stein/loader/api/SteinMod.onGuiInit(Ljava/lang/Object;Ljava/util/List;)V public
+M dev/xavier/stein/loader/api/SteinMod.onGuiKey(Ljava/lang/Object;CI)Z public @Experimental
 M dev/xavier/stein/loader/api/SteinMod.onGuiMouseInput(Ljava/lang/Object;)Z public
 M dev/xavier/stein/loader/api/SteinMod.onHealthChanged(Ljava/lang/Object;FFFF)V public @Experimental
 M dev/xavier/stein/loader/api/SteinMod.onHideEntity(Ljava/lang/Object;)Z public
+M dev/xavier/stein/loader/api/SteinMod.onHideGameHitbox(Ljava/lang/Object;)Z public @Experimental
 M dev/xavier/stein/loader/api/SteinMod.onInteractEntity(Ljava/lang/Object;)Z public @Experimental
 M dev/xavier/stein/loader/api/SteinMod.onItemModel(Ljava/lang/Object;Ljava/lang/Object;)Ljava/lang/Object; public
 M dev/xavier/stein/loader/api/SteinMod.onJoinGame()V public
@@ -748,6 +859,7 @@ M dev/xavier/stein/loader/api/Terrain.mapColor(III)I public static @Experimental
 M dev/xavier/stein/loader/api/Terrain.skyLight(III)I public static @Experimental
 M dev/xavier/stein/loader/api/Typeface.valueOf(Ljava/lang/String;)Ldev/xavier/stein/loader/api/Typeface; public static @Experimental
 M dev/xavier/stein/loader/api/Typeface.values()[Ldev/xavier/stein/loader/api/Typeface; public static @Experimental
+M dev/xavier/stein/loader/api/WorldRender.batch(Ljava/lang/Runnable;)V public static @Experimental
 M dev/xavier/stein/loader/api/WorldRender.beam(DDDDDI)V public static @Experimental
 M dev/xavier/stein/loader/api/WorldRender.blend(Ldev/xavier/stein/loader/api/Blend;Ljava/lang/Runnable;)V public static @Experimental
 M dev/xavier/stein/loader/api/WorldRender.block(IIII)V public static @Experimental
@@ -759,6 +871,9 @@ M dev/xavier/stein/loader/api/WorldRender.cameraY()D public static @Experimental
 M dev/xavier/stein/loader/api/WorldRender.cameraZ()D public static @Experimental
 M dev/xavier/stein/loader/api/WorldRender.circle(DDDDI)V public static @Experimental
 M dev/xavier/stein/loader/api/WorldRender.distance(DDD)D public static @Experimental
+M dev/xavier/stein/loader/api/WorldRender.drawnEntities()I public static @Experimental
+M dev/xavier/stein/loader/api/WorldRender.drawnEntity(I)Ljava/lang/Object; public static @Experimental
+M dev/xavier/stein/loader/api/WorldRender.entityBounds(Ljava/lang/Object;[D)Z public static @Experimental
 M dev/xavier/stein/loader/api/WorldRender.entityBox(Ljava/lang/Object;I)V public static @Experimental
 M dev/xavier/stein/loader/api/WorldRender.entityOutline(Ljava/lang/Object;DI)V public static @Experimental
 M dev/xavier/stein/loader/api/WorldRender.image(Ldev/xavier/stein/loader/api/Render$Texture;DDDDI)V public static @Experimental
@@ -770,6 +885,7 @@ M dev/xavier/stein/loader/api/WorldRender.mesh(Ldev/xavier/stein/loader/api/Mesh
 M dev/xavier/stein/loader/api/WorldRender.mesh(Ldev/xavier/stein/loader/api/Mesh;Ldev/xavier/stein/loader/api/Render$Texture;DDD)V public static @Experimental
 M dev/xavier/stein/loader/api/WorldRender.mesh(Ldev/xavier/stein/loader/api/Mesh;Ljava/lang/String;DDD)V public static @Experimental
 M dev/xavier/stein/loader/api/WorldRender.partialTicks()F public static @Experimental
+M dev/xavier/stein/loader/api/WorldRender.pixelSize(D)D public static @Experimental
 M dev/xavier/stein/loader/api/WorldRender.pop()V public static @Experimental
 M dev/xavier/stein/loader/api/WorldRender.push()V public static @Experimental
 M dev/xavier/stein/loader/api/WorldRender.push(DDD)V public static @Experimental

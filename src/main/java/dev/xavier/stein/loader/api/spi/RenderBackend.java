@@ -97,6 +97,13 @@ public interface RenderBackend {
      */
     boolean entityBounds(Object entity, double[] out);
 
+    /**
+     * The size, in blocks, of one pixel of the screen seen one block away from the camera, in the
+     * frame's projection (field of view and window height): multiply by a distance for the size
+     * there.
+     */
+    double pixelSize();
+
     /** The game font's width of {@code s}, in pixels. */
     int textWidth(String s);
 

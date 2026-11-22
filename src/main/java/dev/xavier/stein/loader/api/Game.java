@@ -34,6 +34,15 @@ public final class Game {
         Host.INSTANCE.playSound(id, pitch);
     }
 
+    /**
+     * The camera's perspective (F5): 0 first person, 1 third person from behind, 2 third person
+     * from the front.
+     */
+    @Experimental(since = "0.1.36")
+    public static int perspective() {
+        return Host.INSTANCE.perspective();
+    }
+
     /** Fraction of the current tick, for whoever draws interpolated. */
     public static float partialTicks() {
         return Host.INSTANCE.partialTicks();
@@ -91,6 +100,15 @@ public final class Game {
      */
     public static Object spriteAt(float u, float v) {
         return Host.INSTANCE.spriteAt(u, v);
+    }
+
+    /**
+     * Whether the game's hit boxes are on (F3+B). A mod that draws its own can follow this switch
+     * and leave the game's out with {@link SteinMod#onHideGameHitbox}.
+     */
+    @Experimental(since = "0.1.36")
+    public static boolean hitboxesShown() {
+        return Host.INSTANCE.gameHitboxesShown();
     }
 
     /** Frames per second, the F3 number (measured every second). */

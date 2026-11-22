@@ -176,6 +176,28 @@ public final class Render {
         return Host.INSTANCE.guiSize(false);
     }
 
+    /**
+     * Screen pixels per GUI unit: the game's interface scale (1 to 4 or more, "Auto" resolved). A
+     * mod that wants something to land on whole screen pixels (a crosshair centered on the middle
+     * pixel) divides by it.
+     */
+    @Experimental(since = "0.1.36")
+    public static int guiScale() {
+        return Host.INSTANCE.guiScale();
+    }
+
+    /** The game window's width, in screen pixels. */
+    @Experimental(since = "0.1.36")
+    public static int displayWidth() {
+        return Host.INSTANCE.displaySize(true);
+    }
+
+    /** The game window's height, in screen pixels. */
+    @Experimental(since = "0.1.36")
+    public static int displayHeight() {
+        return Host.INSTANCE.displaySize(false);
+    }
+
     // --- images ---
 
     /**

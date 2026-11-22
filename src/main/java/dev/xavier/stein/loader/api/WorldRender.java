@@ -48,6 +48,12 @@ public final class WorldRender {
     private static int local;
     private static int session = -1;
 
+    /** Inside {@link #batch}: lines, boxes and quads gather into one draw. */
+    private static boolean batching;
+
+    /** A batch has vertices waiting (and its drawing state set). */
+    private static boolean pending;
+
     private WorldRender() {}
 
     // --- state ---
@@ -58,11 +64,13 @@ public final class WorldRender {
      */
     public static void throughWalls(Runnable draw) {
         inWorld();
+        flush();
         boolean before = throughWalls;
         throughWalls = true;
         try {
             draw.run();
         } finally {
+            flush();
             throughWalls = before;
         }
     }
@@ -70,13 +78,74 @@ public final class WorldRender {
     /** Runs {@code draw} with another {@link Blend} (glows: {@link Blend#ADDITIVE}). */
     public static void blend(Blend mode, Runnable draw) {
         inWorld();
+        flush();
         Blend before = blend;
         blend = mode;
         try {
             draw.run();
         } finally {
+            flush();
             blend = before;
         }
+    }
+
+    /**
+     * Runs {@code draw} with its lines, boxes, block and entity outlines and quads gathered into
+     * one draw, instead of one per shape: for many shapes in a frame, a hit box per entity. The
+     * camera is read once, at the start. Other shapes, {@link #throughWalls}, {@link #blend} and
+     * the transforms still work inside: they first draw what was gathered. Pass a {@code Runnable}
+     * kept in a field, so a frame allocates nothing.
+     */
+    @Experimental(since = "0.1.36")
+    public static void batch(Runnable draw) {
+        inWorld();
+        if (batching) {
+            draw.run();
+            return;
+        }
+        flush();
+        camera();
+        batching = true;
+        try {
+            draw.run();
+        } finally {
+            try {
+                flush();
+            } finally {
+                batching = false;
+            }
+        }
+    }
+
+    // --- the frame's entities ---
+
+    /**
+     * How many entities the game drew in this frame: the ones it chose to show itself (in view,
+     * within the entity distance, not hidden by a mod), the player in first person not among them.
+     * Read inside {@link SteinMod#onRenderWorld}, where the list is complete.
+     */
+    @Experimental(since = "0.1.36")
+    public static int drawnEntities() {
+        return Host.INSTANCE.drawnEntityCount();
+    }
+
+    /**
+     * The i-th entity the game drew in this frame ({@code 0 <= i < drawnEntities()}), or null past
+     * the end. Going through them allocates nothing.
+     */
+    @Experimental(since = "0.1.36")
+    public static Object drawnEntity(int i) {
+        return Host.INSTANCE.drawnEntity(i);
+    }
+
+    /**
+     * The size, in blocks, of one pixel of the screen at {@code distance} blocks from the camera:
+     * for a line that keeps the same width on screen near and far ({@code pixelSize(d) * 2} is two
+     * pixels wide). It follows the field of view (zoom included) and the window's height.
+     */
+    @Experimental(since = "0.1.36")
+    public static double pixelSize(double distance) {
+        return R.pixelSize() * distance;
     }
 
     // --- the camera ---
@@ -126,6 +195,7 @@ public final class WorldRender {
      */
     public static void push(double x, double y, double z) {
         inWorld();
+        flush();
         camera();
         R.push();
         R.translate(wx(x), wy(y), wz(z));
@@ -138,6 +208,7 @@ public final class WorldRender {
         if (local == 0) {
             throw new IllegalStateException("push() needs a point first: push(x, y, z)");
         }
+        flush();
         R.push();
         local++;
     }
@@ -151,6 +222,7 @@ public final class WorldRender {
         if (local == 0) {
             throw new IllegalStateException("pop() without push");
         }
+        flush();
         R.pop();
         local--;
     }
@@ -208,9 +280,9 @@ public final class WorldRender {
             double z2,
             double width,
             int argb) {
-        begin();
+        beginQuads();
         segment(x1, y1, z1, x2, y2, z2, width, argb);
-        end(RenderBackend.QUADS);
+        endQuads();
     }
 
     /** The edges of the box from (minX, minY, minZ) to (maxX, maxY, maxZ). */
@@ -223,15 +295,29 @@ public final class WorldRender {
             double maxZ,
             double width,
             int argb) {
-        begin();
+        beginQuads();
         edges(minX, minY, minZ, maxX, maxY, maxZ, width, argb);
-        end(RenderBackend.QUADS);
+        endQuads();
     }
 
     /** The edges of the block at (x, y, z), slightly outside it so they do not flicker. */
     public static void blockOutline(int x, int y, int z, double width, int argb) {
         double e = 0.002;
         boxOutline(x - e, y - e, z - e, x + 1 + e, y + 1 + e, z + 1 + e, width, argb);
+    }
+
+    /**
+     * An entity's hit box where it is drawn this frame (its position between ticks), in world
+     * coordinates: out[0..5] = minX, minY, minZ, maxX, maxY, maxZ. Allocates nothing.
+     *
+     * @param entity the entity (Entity)
+     * @param out at least 6 doubles
+     * @return false if it is not an entity (out untouched)
+     */
+    @Experimental(since = "0.1.36")
+    public static boolean entityBounds(Object entity, double[] out) {
+        inWorld();
+        return R.entityBounds(entity, out);
     }
 
     /** The edges of an entity's hit box, where it is drawn this frame. */
@@ -252,7 +338,7 @@ public final class WorldRender {
             double maxY,
             double maxZ,
             int argb) {
-        begin();
+        beginQuads();
         double ax = wx(minX), ay = wy(minY), az = wz(minZ);
         double bx = wx(maxX), by = wy(maxY), bz = wz(maxZ);
         Geometry.quad(ax, ay, az, bx, ay, az, bx, ay, bz, ax, ay, bz, argb);
@@ -261,7 +347,7 @@ public final class WorldRender {
         Geometry.quad(ax, ay, bz, bx, ay, bz, bx, by, bz, ax, by, bz, argb);
         Geometry.quad(ax, ay, az, ax, ay, bz, ax, by, bz, ax, by, az, argb);
         Geometry.quad(bx, ay, az, bx, by, az, bx, by, bz, bx, ay, bz, argb);
-        end(RenderBackend.QUADS);
+        endQuads();
     }
 
     /** The block at (x, y, z) filled with a color (use some transparency). */
@@ -292,11 +378,11 @@ public final class WorldRender {
             double y4,
             double z4,
             int argb) {
-        begin();
+        beginQuads();
         Geometry.quad(
                 wx(x1), wy(y1), wz(z1), wx(x2), wy(y2), wz(z2), wx(x3), wy(y3), wz(z3), wx(x4),
                 wy(y4), wz(z4), argb);
-        end(RenderBackend.QUADS);
+        endQuads();
     }
 
     /**
@@ -397,6 +483,7 @@ public final class WorldRender {
 
     private static void labelInGameFont(
             String text, double x, double y, double z, float scale, int argb, boolean background) {
+        flush();
         billboard(x, y, z, scale * 0.025F);
         state();
         try {
@@ -468,6 +555,7 @@ public final class WorldRender {
     private static void mesh(
             Mesh mesh, double x, double y, double z, int texture, String resource, int tint) {
         inWorld();
+        flush();
         camera();
         R.push();
         R.translate(wx(x), wy(y), wz(z));
@@ -493,6 +581,8 @@ public final class WorldRender {
             local = 0;
             blend = Blend.NORMAL;
             throughWalls = false;
+            batching = false;
+            pending = false;
         }
     }
 
@@ -500,6 +590,7 @@ public final class WorldRender {
         if (local == 0) {
             throw new IllegalStateException("translate, rotate and scale need push(x, y, z) first");
         }
+        flush();
     }
 
     private static double[] camera() {
@@ -535,6 +626,7 @@ public final class WorldRender {
 
     private static void begin() {
         inWorld();
+        flush();
         camera();
         state();
         Geometry.begin(RenderBackend.POSITION_COLOR);
@@ -545,6 +637,34 @@ public final class WorldRender {
             Geometry.draw(primitive, 0, null);
         } finally {
             R.endState();
+        }
+    }
+
+    /** {@link #begin} for a shape made of quads: inside a batch it only adds to it. */
+    private static void beginQuads() {
+        if (!batching) {
+            begin();
+            return;
+        }
+        inWorld();
+        if (!pending) {
+            state();
+            Geometry.begin(RenderBackend.POSITION_COLOR);
+            pending = true;
+        }
+    }
+
+    private static void endQuads() {
+        if (!batching) {
+            end(RenderBackend.QUADS);
+        }
+    }
+
+    /** Draws what the batch gathered so far, before anything that changes the state. */
+    private static void flush() {
+        if (pending) {
+            pending = false;
+            end(RenderBackend.QUADS);
         }
     }
 
@@ -625,6 +745,8 @@ public final class WorldRender {
 
     private static void facing(
             double x, double y, double z, double size, int texture, String resource, int argb) {
+        inWorld();
+        flush();
         billboard(x, y, z, (float) size);
         state();
         try {

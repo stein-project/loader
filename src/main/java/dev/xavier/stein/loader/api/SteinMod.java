@@ -102,6 +102,66 @@ public interface SteinMod {
         return message;
     }
 
+    /**
+     * Any message about to enter the chat: from the server (after {@link #onChat}), from the game
+     * itself (a screenshot, a command's answer) and from mods ({@link Chat#print}). Mods receive,
+     * in order, the message returned by the previous one. The message returned is the one the chat
+     * keeps: {@link Chat#removeMessage} and {@link Chat#setHighlight} take that object.
+     *
+     * @param message the message (IChatComponent), as the previous mod returned it
+     * @param id the game's line id: 0, or the id of a message that replaces an older one in place
+     * @return the message to show (the same one or another IChatComponent), or null to keep it out
+     */
+    @Experimental(since = "0.1.36")
+    default Object onChatLine(Object message, int id) {
+        return message;
+    }
+
+    /**
+     * A row of the chat was just drawn (a message wraps into rows), on the closed chat and on the
+     * open one: the place to draw something on it — an icon at its end, a mark. The coordinates are
+     * the chat's own, already moved and scaled with it: the row's text starts at (x, y) and is 8
+     * high; its dark box ends at x + width. Draw with {@link Render}. Called for every row on
+     * screen, every frame: answer quickly, without allocating.
+     *
+     * @param message the message the row belongs to (IChatComponent)
+     * @param x where the row's text starts
+     * @param y the top of the row's text
+     * @param width the width of the row's box
+     * @param alpha how visible the row is now (0 to 255; it fades on the closed chat)
+     */
+    @Experimental(since = "0.1.36")
+    default void onChatRowDrawn(Object message, int x, int y, int width, int alpha) {}
+
+    /**
+     * A key typed on an open screen (GuiScreen.keyTyped), before the screen gets it: the chat's
+     * input field, a sign, an inventory. The first mod that keeps it ends it.
+     *
+     * @param screen the open screen (GuiScreen)
+     * @param c the typed character (0 for keys without one)
+     * @param key the key code ({@link Keys})
+     * @return true to keep the key from the screen
+     */
+    @Experimental(since = "0.1.36")
+    default boolean onGuiKey(Object screen, char c, int key) {
+        return false;
+    }
+
+    /**
+     * A click on a text in the open chat, before the game runs what it does (opening a link,
+     * running a command, putting a command in the input field): see {@link Chat#clickAction}. The
+     * first mod that keeps it ends it; {@link Chat#runClick} runs it later, after asking the
+     * player.
+     *
+     * @param screen the chat screen (GuiChat)
+     * @param component the text clicked (IChatComponent)
+     * @return true to keep the game from running it
+     */
+    @Experimental(since = "0.1.36")
+    default boolean onChatClick(Object screen, Object component) {
+        return false;
+    }
+
     /** Joining a server or world has completed (S01PacketJoinGame handled). */
     default void onJoinGame() {}
 
@@ -424,6 +484,20 @@ public interface SteinMod {
      * @return true to draw it as a ghost
      */
     default boolean onGhostEntity(Object entity) {
+        return false;
+    }
+
+    /**
+     * Should the game's own hit box of this entity (F3+B) be left out? Called for every entity the
+     * game draws while F3+B is on — must answer quickly, without allocating. True when the mod
+     * draws hit boxes of its own ({@link WorldRender#drawnEntity}, {@link
+     * WorldRender#entityOutline}).
+     *
+     * @param entity the entity being drawn (Entity)
+     * @return true to leave the game's box out
+     */
+    @Experimental(since = "0.1.36")
+    default boolean onHideGameHitbox(Object entity) {
         return false;
     }
 

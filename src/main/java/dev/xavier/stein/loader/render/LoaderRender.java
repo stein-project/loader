@@ -8,7 +8,9 @@
 
 package dev.xavier.stein.loader.render;
 
+import dev.xavier.stein.bridge.hooks.GameHooks;
 import dev.xavier.stein.gfx.SteinGameState;
+import dev.xavier.stein.loader.ModProfile;
 import dev.xavier.stein.loader.api.spi.RenderBackend;
 import dev.xavier.stein.ui.Draw2D;
 
@@ -49,6 +51,8 @@ public final class LoaderRender implements RenderBackend {
         {GL11.GL_SRC_ALPHA, GL11.GL_ONE},
         {GL11.GL_DST_COLOR, GL11.GL_ONE_MINUS_SRC_ALPHA},
         {GL11.GL_ONE, GL11.GL_ONE_MINUS_SRC_COLOR},
+        // INVERT: the game's crosshair blend.
+        {GL11.GL_ONE_MINUS_DST_COLOR, GL11.GL_ONE_MINUS_SRC_COLOR},
     };
 
     private final Map<String, ResourceLocation> resources = new HashMap<>();
@@ -109,6 +113,9 @@ public final class LoaderRender implements RenderBackend {
             int texture,
             String resource,
             int tint) {
+        if (ModProfile.active) {
+            ModProfile.draw(count);
+        }
         boolean textured = format != POSITION_COLOR;
         boolean colored = format != POSITION_TEX;
         if (textured) {
@@ -306,6 +313,12 @@ public final class LoaderRender implements RenderBackend {
         out[6] = rm.playerViewY;
         out[7] = rm.playerViewX;
         out[8] = partialTicks;
+    }
+
+    @Override
+    public double pixelSize() {
+        double half = Math.toRadians(GameHooks.worldFov()) / 2;
+        return 2 * Math.tan(half) / Math.max(1, Minecraft.getMinecraft().displayHeight);
     }
 
     @Override

@@ -107,6 +107,7 @@ public final class Loader implements HookSink {
     private SteinMod[] hideMods = mods;
     private SteinMod[] ghostMods = mods;
     private SteinMod[] entityColorMods = mods;
+    private SteinMod[] gameHitboxMods = mods;
     private SteinMod[] itemModelMods = mods;
     private SteinMod[] blockModelMods = mods;
     private SteinMod[] armorTextureMods = mods;
@@ -116,6 +117,7 @@ public final class Loader implements HookSink {
     private SteinMod[] playerListMods = mods;
     private SteinMod[] playerListNameMods = mods;
     private SteinMod[] playSoundMods = mods;
+    private SteinMod[] chatRowMods = mods;
 
     /** Does any mod draw in onOverlayTop? With none, there is no depth to clear. */
     private boolean overlayTop;
@@ -126,6 +128,7 @@ public final class Loader implements HookSink {
         hideMods = Overrides.of(mods, "onHideEntity", o);
         ghostMods = Overrides.of(mods, "onGhostEntity", o);
         entityColorMods = Overrides.of(mods, "onEntityColor", o, int.class);
+        gameHitboxMods = Overrides.of(mods, "onHideGameHitbox", o);
         itemModelMods = Overrides.of(mods, "onItemModel", o, o);
         blockModelMods = Overrides.of(mods, "onBlockModel", o, o, o, o);
         armorTextureMods = Overrides.of(mods, "onArmorTexture", o, int.class, String.class, o);
@@ -135,6 +138,8 @@ public final class Loader implements HookSink {
         playerListMods = Overrides.of(mods, "onPlayerList", o, int.class, o, o);
         playerListNameMods = Overrides.of(mods, "onPlayerListName", o, String.class);
         playSoundMods = Overrides.of(mods, "onPlaySound", o);
+        chatRowMods =
+                Overrides.of(mods, "onChatRowDrawn", o, int.class, int.class, int.class, int.class);
         overlayTop = Overrides.of(mods, "onOverlayTop", float.class).length > 0;
     }
 
@@ -173,18 +178,28 @@ public final class Loader implements HookSink {
 
     /** An event a mod can claim: the first one that answers true stops it. */
     @FunctionalInterface
-    private interface Claim {
+    interface Claim {
         boolean on(SteinMod m, Object arg);
     }
 
     /** Every mod, in order; an error is logged and the next mod still gets the event. */
     private void each(String event, Call c) {
+        each(event, ModProfile.EVENTS, c);
+    }
+
+    /** Like {@link #each(String, Call)}, timed as this kind of event while the profiler runs. */
+    private void each(String event, int phase, Call c) {
+        boolean profiled = ModProfile.active;
         for (int i = 0; i < mods.length; i++) {
             ModTimes.current = i;
+            long t = profiled ? System.nanoTime() : 0L;
             try {
                 c.on(mods[i]);
             } catch (Throwable e) {
                 fail(mods[i], event, e);
+            }
+            if (profiled) {
+                ModProfile.add(i, phase, System.nanoTime() - t);
             }
         }
         ModTimes.current = -1;
@@ -207,7 +222,7 @@ public final class Loader implements HookSink {
     }
 
     /** Like {@link #each}, adding each mod's time to its own count (ModTimes). */
-    private void timed(String event, Call c) {
+    private void timed(String event, int phase, Call c) {
         for (int i = 0; i < mods.length; i++) {
             ModTimes.current = i;
             long t = System.nanoTime();
@@ -216,7 +231,7 @@ public final class Loader implements HookSink {
             } catch (Throwable e) {
                 fail(mods[i], event, e);
             }
-            ModTimes.add(i, System.nanoTime() - t);
+            ModTimes.add(i, phase, System.nanoTime() - t);
         }
         ModTimes.current = -1;
     }
@@ -225,37 +240,50 @@ public final class Loader implements HookSink {
      * A timed drawing event: each mod draws in a render session of its own (LoaderRender), and the
      * last one is closed after the loop.
      */
-    private void frame(String event, FrameCall c, float partialTicks) {
+    private void frame(String event, int phase, FrameCall c, float partialTicks) {
         LoaderRender r = LoaderRender.INSTANCE;
+        boolean profiled = ModProfile.active;
         for (int i = 0; i < mods.length; i++) {
             long t = System.nanoTime();
             r.nextSession();
+            if (profiled) {
+                ModProfile.drawOwner = i;
+            }
             try {
                 c.on(mods[i], partialTicks);
             } catch (Throwable e) {
                 fail(mods[i], event, e);
             }
-            ModTimes.add(i, System.nanoTime() - t);
+            ModTimes.add(i, phase, System.nanoTime() - t);
         }
+        ModProfile.drawOwner = -1;
         r.nextSession();
     }
 
     /** A timed screen event. */
     private void screen(
             String event, ScreenCall c, Object screen, int mouseX, int mouseY, float partialTicks) {
+        boolean profiled = ModProfile.active;
         for (int i = 0; i < mods.length; i++) {
             long t = System.nanoTime();
+            if (profiled) {
+                ModProfile.drawOwner = i;
+            }
             try {
                 c.on(mods[i], screen, mouseX, mouseY, partialTicks);
             } catch (Throwable e) {
                 fail(mods[i], event, e);
             }
-            ModTimes.add(i, System.nanoTime() - t);
+            ModTimes.add(i, ModProfile.SCREEN, System.nanoTime() - t);
         }
+        ModProfile.drawOwner = -1;
     }
 
     /** True as soon as one mod claims the event; the mods after it do not see it. */
-    private boolean claim(String event, Claim c, Object arg) {
+    private boolean claim(String event, int phase, Claim c, Object arg) {
+        if (ModProfile.active) {
+            return ProfiledHooks.claim(this, mods, event, phase, c, arg);
+        }
         for (SteinMod m : mods) {
             try {
                 if (c.on(m, arg)) {
@@ -318,6 +346,7 @@ public final class Loader implements HookSink {
         loadedMods = mods.clone();
         indexOverrides();
         ModTimes.init(loaded.owners().toArray(new ModInfo[0]));
+        ModProfile.init(loadedMods, loaded.owners().toArray(new ModInfo[0]));
         ModLoading.addResourcePacks(loaded.packs());
         Log.info(
                 "loader",
@@ -601,7 +630,9 @@ public final class Loader implements HookSink {
 
     @Override
     public void tickEnd() {
-        timed("onTickEnd", SteinMod::onTickEnd);
+        timed("onTickEnd", ModProfile.TICK, SteinMod::onTickEnd);
+        boolean profiled = ModProfile.active;
+        long t = profiled ? System.nanoTime() : 0L;
         GameTasks.run(this, mods);
         ServerControl.tick(this);
         try {
@@ -615,24 +646,35 @@ public final class Loader implements HookSink {
             failLoader("server ping", e);
         }
         KeyGuard.tick();
+        if (profiled && ModProfile.active) {
+            ModProfile.loader(System.nanoTime() - t);
+        }
+    }
+
+    @Override
+    public void frameEnd() {
+        if (ModProfile.active) {
+            ModProfile.frame();
+        }
     }
 
     @Override
     public void keyInput() {
-        each("onKeyInput", SteinMod::onKeyInput);
+        each("onKeyInput", ModProfile.INPUT, SteinMod::onKeyInput);
     }
 
     @Override
     public void mouseInput() {
-        each("onMouseInput", SteinMod::onMouseInput);
+        each("onMouseInput", ModProfile.INPUT, SteinMod::onMouseInput);
     }
 
     @Override
     public void overlay(float partialTicks) {
         ModTimes.frame();
-        frame("onOverlay", SteinMod::onOverlay, partialTicks);
+        frame("onOverlay", ModProfile.HUD, SteinMod::onOverlay, partialTicks);
         // The HUD grid: the mods' elements and the game's HUD parts that the Loader takes over.
         HudGrid.render(partialTicks);
+        ModProfile.drawOwner = -1;
         // And, last, what goes over even the grid's elements (the Tab list), truly on top. The
         // grid's items (hotbar, armor, inventory) are drawn with depth, and whatever came after
         // them failed the depth test right where they are: the icons showed through the Tab list.
@@ -640,7 +682,7 @@ public final class Loader implements HookSink {
         if (overlayTop) {
             GlStateManager.clear(GL11.GL_DEPTH_BUFFER_BIT);
         }
-        frame("onOverlayTop", SteinMod::onOverlayTop, partialTicks);
+        frame("onOverlayTop", ModProfile.HUD, SteinMod::onOverlayTop, partialTicks);
     }
 
     @Override
@@ -678,11 +720,14 @@ public final class Loader implements HookSink {
         } catch (Throwable e) {
             failLoader("menu tab", e);
         }
-        return claim("onGuiMouseInput", SteinMod::onGuiMouseInput, screen);
+        return claim("onGuiMouseInput", ModProfile.INPUT, SteinMod::onGuiMouseInput, screen);
     }
 
     @Override
     public Object chat(Object message) {
+        if (ModProfile.active) {
+            return ProfiledHooks.chat(this, mods, message);
+        }
         Object msg = message;
         for (SteinMod m : mods) {
             try {
@@ -696,6 +741,62 @@ public final class Loader implements HookSink {
             }
         }
         return msg;
+    }
+
+    @Override
+    public Object chatLine(Object message, int id) {
+        Object msg = message;
+        for (SteinMod m : mods) {
+            try {
+                Object r = m.onChatLine(msg, id);
+                if (r == null) {
+                    return null;
+                }
+                msg = r;
+            } catch (Throwable e) {
+                fail(m, "onChatLine", e);
+            }
+        }
+        return msg;
+    }
+
+    @Override
+    public void chatRowDrawn(Object message, int x, int y, int width, int alpha) {
+        for (SteinMod m : chatRowMods) {
+            try {
+                m.onChatRowDrawn(message, x, y, width, alpha);
+            } catch (Throwable e) {
+                fail(m, "onChatRowDrawn", e);
+            }
+        }
+    }
+
+    @Override
+    public boolean guiKey(Object screen, char c, int key) {
+        for (SteinMod m : mods) {
+            try {
+                if (m.onGuiKey(screen, c, key)) {
+                    return true;
+                }
+            } catch (Throwable e) {
+                fail(m, "onGuiKey", e);
+            }
+        }
+        return false;
+    }
+
+    @Override
+    public boolean chatClick(Object screen, Object component) {
+        for (SteinMod m : mods) {
+            try {
+                if (m.onChatClick(screen, component)) {
+                    return true;
+                }
+            } catch (Throwable e) {
+                fail(m, "onChatClick", e);
+            }
+        }
+        return false;
     }
 
     @Override
@@ -727,6 +828,9 @@ public final class Loader implements HookSink {
 
     @Override
     public boolean guiAction(Object screen, Object button) {
+        if (ModProfile.active) {
+            return ProfiledHooks.guiAction(this, mods, screen, button);
+        }
         for (SteinMod m : mods) {
             try {
                 if (m.onGuiAction(screen, button)) {
@@ -741,6 +845,9 @@ public final class Loader implements HookSink {
 
     @Override
     public float fov(float fov, float partialTicks, boolean useFovSetting) {
+        if (ModProfile.active) {
+            return ProfiledHooks.fov(this, fovMods, fov, partialTicks, useFovSetting);
+        }
         float f = fov;
         for (SteinMod m : fovMods) {
             try {
@@ -754,6 +861,9 @@ public final class Loader implements HookSink {
 
     @Override
     public float fovModifier(float modifier) {
+        if (ModProfile.active) {
+            return ProfiledHooks.fovModifier(this, fovModifierMods, modifier);
+        }
         float f = modifier;
         for (SteinMod m : fovModifierMods) {
             try {
@@ -778,6 +888,9 @@ public final class Loader implements HookSink {
 
     @Override
     public Object itemModel(Object stack, Object model) {
+        if (ModProfile.active) {
+            return ProfiledHooks.itemModel(this, itemModelMods, stack, model);
+        }
         Object r = model;
         for (SteinMod m : itemModelMods) {
             try {
@@ -811,6 +924,10 @@ public final class Loader implements HookSink {
 
     @Override
     public Object armorTexture(Object stack, int layer, String overlay, Object location) {
+        if (ModProfile.active) {
+            return ProfiledHooks.armorTexture(
+                    this, armorTextureMods, stack, layer, overlay, location);
+        }
         Object r = location;
         for (SteinMod m : armorTextureMods) {
             try {
@@ -827,16 +944,19 @@ public final class Loader implements HookSink {
 
     @Override
     public boolean attackEntity(Object target) {
-        return claim("onAttackEntity", SteinMod::onAttackEntity, target);
+        return claim("onAttackEntity", ModProfile.EVENTS, SteinMod::onAttackEntity, target);
     }
 
     @Override
     public boolean interactEntity(Object target) {
-        return claim("onInteractEntity", SteinMod::onInteractEntity, target);
+        return claim("onInteractEntity", ModProfile.EVENTS, SteinMod::onInteractEntity, target);
     }
 
     @Override
     public boolean windowClick(int windowId, int slot, int button, int mode) {
+        if (ModProfile.active) {
+            return ProfiledHooks.windowClick(this, mods, windowId, slot, button, mode);
+        }
         for (SteinMod m : mods) {
             try {
                 if (m.onWindowClick(windowId, slot, button, mode)) {
@@ -861,6 +981,9 @@ public final class Loader implements HookSink {
 
     @Override
     public boolean entityHurt(Object entity) {
+        if (ModProfile.active) {
+            return ProfiledHooks.entityHurt(this, mods, entity);
+        }
         boolean cancel = false;
         for (SteinMod m : mods) {
             try {
@@ -893,6 +1016,9 @@ public final class Loader implements HookSink {
 
     @Override
     public boolean hideEntity(Object entity) {
+        if (ModProfile.active) {
+            return ProfiledHooks.hideEntity(this, hideMods, entity);
+        }
         for (SteinMod m : hideMods) {
             try {
                 if (m.onHideEntity(entity)) {
@@ -906,7 +1032,24 @@ public final class Loader implements HookSink {
     }
 
     @Override
+    public boolean hideGameHitbox(Object entity) {
+        for (SteinMod m : gameHitboxMods) {
+            try {
+                if (m.onHideGameHitbox(entity)) {
+                    return true;
+                }
+            } catch (Throwable e) {
+                fail(m, "onHideGameHitbox", e);
+            }
+        }
+        return false;
+    }
+
+    @Override
     public boolean ghostEntity(Object entity) {
+        if (ModProfile.active) {
+            return ProfiledHooks.ghostEntity(this, ghostMods, entity);
+        }
         for (SteinMod m : ghostMods) {
             try {
                 if (m.onGhostEntity(entity)) {
@@ -921,6 +1064,9 @@ public final class Loader implements HookSink {
 
     @Override
     public int entityColor(Object entity, int color) {
+        if (ModProfile.active) {
+            return ProfiledHooks.entityColor(this, entityColorMods, entity, color);
+        }
         for (SteinMod m : entityColorMods) {
             try {
                 color = m.onEntityColor(entity, color);
@@ -933,6 +1079,10 @@ public final class Loader implements HookSink {
 
     @Override
     public boolean playerList(Object overlay, int width, Object scoreboard, Object objective) {
+        if (ModProfile.active) {
+            return ProfiledHooks.playerList(
+                    this, playerListMods, overlay, width, scoreboard, objective);
+        }
         for (SteinMod m : playerListMods) {
             try {
                 if (m.onPlayerList(overlay, width, scoreboard, objective)) {
@@ -947,6 +1097,9 @@ public final class Loader implements HookSink {
 
     @Override
     public String playerListName(Object playerInfo, String name) {
+        if (ModProfile.active) {
+            return ProfiledHooks.playerListName(this, playerListNameMods, playerInfo, name);
+        }
         String r = name;
         for (SteinMod m : playerListNameMods) {
             try {
@@ -963,6 +1116,9 @@ public final class Loader implements HookSink {
 
     @Override
     public Object nametag(Object entity, Object name) {
+        if (ModProfile.active) {
+            return ProfiledHooks.nametag(this, nametagMods, entity, name);
+        }
         Object r = name;
         for (SteinMod m : nametagMods) {
             try {
@@ -985,7 +1141,7 @@ public final class Loader implements HookSink {
         // pass, with the text cache) instead of one pass per draw; a no-op on the fixed pipeline.
         SteinEntityDeferred.worldBegin();
         try {
-            frame("onRenderWorld", SteinMod::onRenderWorld, partialTicks);
+            frame("onRenderWorld", ModProfile.WORLD, SteinMod::onRenderWorld, partialTicks);
         } finally {
             SteinEntityDeferred.worldEnd();
             r.world(false, partialTicks);
@@ -1000,6 +1156,9 @@ public final class Loader implements HookSink {
 
     @Override
     public String sendChat(String message) {
+        if (ModProfile.active) {
+            return ProfiledHooks.sendChat(this, mods, message);
+        }
         String msg = message;
         for (SteinMod m : mods) {
             try {
@@ -1016,6 +1175,9 @@ public final class Loader implements HookSink {
 
     @Override
     public Object playSound(Object sound) {
+        if (ModProfile.active) {
+            return ProfiledHooks.playSound(this, playSoundMods, sound);
+        }
         Object s = sound;
         for (SteinMod m : playSoundMods) {
             try {

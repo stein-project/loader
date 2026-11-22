@@ -8,6 +8,7 @@
 
 package dev.xavier.stein.loader;
 
+import dev.xavier.stein.bridge.engine.NameStyle;
 import dev.xavier.stein.bridge.engine.TextHook;
 import dev.xavier.stein.bridge.hooks.GameHooks;
 import dev.xavier.stein.loader.api.spi.RenderBackend;
@@ -19,6 +20,9 @@ import dev.xavier.stein.ui.SteinFont;
 import dev.xavier.stein.ui.Surface;
 import dev.xavier.stein.ui.Theme;
 
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.ScaledResolution;
+
 import java.util.List;
 
 /**
@@ -29,16 +33,25 @@ abstract class HostRender extends HostWorld {
 
     @Override
     public void drawRect(float x, float y, float w, float h, int argb) {
+        if (ModProfile.active) {
+            ModProfile.draw(4);
+        }
         Draw2D.rect(x, y, w, h, argb);
     }
 
     @Override
     public void drawRoundRect(float x, float y, float w, float h, float r, int argb) {
+        if (ModProfile.active) {
+            ModProfile.draw(4);
+        }
         Draw2D.roundRect(x, y, w, h, r, argb);
     }
 
     @Override
     public void drawSurface(float x, float y, float w, float h, float opacity) {
+        if (ModProfile.active) {
+            ModProfile.draw(4);
+        }
         Surface.draw(x, y, w, h, opacity);
     }
 
@@ -58,22 +71,61 @@ abstract class HostRender extends HostWorld {
     }
 
     @Override
+    public void setNameLabelStyle(
+            boolean background,
+            int backgroundArgb,
+            int paddingX,
+            int paddingY,
+            int cornerRadius,
+            boolean textShadow,
+            int textRgb,
+            boolean plainText,
+            float scale,
+            float heightOffset) {
+        NameStyle.set(
+                background,
+                backgroundArgb,
+                paddingX,
+                paddingY,
+                cornerRadius,
+                textShadow,
+                textRgb,
+                plainText,
+                scale,
+                heightOffset);
+    }
+
+    @Override
+    public void setShowOwnNameLabel(boolean on) {
+        NameStyle.setShowOwn(on);
+    }
+
+    @Override
     public void hudHidden(boolean hidden) {
         GameHooks.hideHud = hidden;
     }
 
     @Override
     public void drawRing(float cx, float cy, float r, float t, int argb) {
+        if (ModProfile.active) {
+            ModProfile.draw(0);
+        }
         Draw2D.ring(cx, cy, r, t, argb);
     }
 
     @Override
     public void drawTriangle(float x1, float y1, float x2, float y2, float x3, float y3, int argb) {
+        if (ModProfile.active) {
+            ModProfile.draw(3);
+        }
         Draw2D.triangle(x1, y1, x2, y2, x3, y3, argb);
     }
 
     @Override
     public int drawText(String s, float x, float y, int argb, boolean shadow) {
+        if (ModProfile.active) {
+            ModProfile.draw(s == null ? 0 : 4 * s.length());
+        }
         return Draw2D.text(s, x, y, argb, shadow);
     }
 
@@ -97,6 +149,9 @@ abstract class HostRender extends HostWorld {
     public float drawStyledText(String s, float x, float y, int argb, int face, float size) {
         if (s == null || s.isEmpty()) {
             return x;
+        }
+        if (ModProfile.active) {
+            ModProfile.draw(4 * s.length());
         }
         SteinFont.Face f = FACES[face];
         if (!SteinFont.ready(f)) {
@@ -132,16 +187,25 @@ abstract class HostRender extends HostWorld {
             float u1,
             float v1,
             int argb) {
+        if (ModProfile.active) {
+            ModProfile.draw(4);
+        }
         Draw2D.image(texture, x, y, w, h, u0, v0, u1, v1, argb);
     }
 
     @Override
     public void drawItem(Object stack, int x, int y, boolean overlay) {
+        if (ModProfile.active) {
+            ModProfile.draw(0);
+        }
         Draw2D.item(stack, x, y, overlay);
     }
 
     @Override
     public void drawPlayerHead(String nick, float x, float y, float size) {
+        if (ModProfile.active) {
+            ModProfile.draw(0);
+        }
         PlayerHeads.playerHead(nick, x, y, size);
     }
 
@@ -207,6 +271,9 @@ abstract class HostRender extends HostWorld {
             float u1,
             float v1,
             int argb) {
+        if (ModProfile.active) {
+            ModProfile.draw(4);
+        }
         Draw2D.textureDraw(handle, x, y, w, h, u0, v0, u1, v1, argb);
     }
 
@@ -218,6 +285,9 @@ abstract class HostRender extends HostWorld {
     @Override
     public void drawFan(
             float[] xs, float[] ys, float[] us, float[] vs, int count, int argb, int handle) {
+        if (ModProfile.active) {
+            ModProfile.draw(count);
+        }
         Draw2D.fan(xs, ys, us, vs, count, argb, handle);
     }
 
@@ -232,28 +302,64 @@ abstract class HostRender extends HostWorld {
     }
 
     @Override
+    public int guiScale() {
+        return new ScaledResolution(Minecraft.getMinecraft()).getScaleFactor();
+    }
+
+    @Override
+    public int displaySize(boolean width) {
+        Minecraft mc = Minecraft.getMinecraft();
+        return width ? mc.displayWidth : mc.displayHeight;
+    }
+
+    @Override
+    public void hudReplaceCrosshair() {
+        GameHooks.replaceCrosshair();
+    }
+
+    @Override
+    public boolean hudCrosshairAllowed() {
+        return GameHooks.crosshairAllowed();
+    }
+
+    @Override
     public void drawItemCount(Object stack, int x, int y, boolean overlay, String count) {
+        if (ModProfile.active) {
+            ModProfile.draw(0);
+        }
         Draw2D.itemCount(stack, x, y, overlay, count);
     }
 
     @Override
     public void drawEffectIcon(int id, float x, float y) {
+        if (ModProfile.active) {
+            ModProfile.draw(4);
+        }
         Draw2D.effectIcon(id, x, y);
     }
 
     @Override
     public void drawPingIcon(int ms, float x, float y) {
+        if (ModProfile.active) {
+            ModProfile.draw(4);
+        }
         Draw2D.pingIcon(ms, x, y);
     }
 
     @Override
     public void drawPlayerHeadPremium(
             String nick, float x, float y, float size, boolean premiumSkin) {
+        if (ModProfile.active) {
+            ModProfile.draw(0);
+        }
         PlayerHeads.playerHead(nick, x, y, size, premiumSkin);
     }
 
     @Override
     public void drawGameTabList(int width) {
+        if (ModProfile.active) {
+            ModProfile.draw(0);
+        }
         HudOps.drawGameTabList(width);
     }
 
