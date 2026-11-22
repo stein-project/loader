@@ -449,6 +449,16 @@ public interface Host {
 
     boolean isInvisible(Object entity);
 
+    // Movement state (0.1.35)
+
+    boolean isSprinting(Object entity);
+
+    boolean isSneaking(Object entity);
+
+    boolean isRiding(Object entity);
+
+    boolean isFlying(Object entity);
+
     float distance(Object a, Object b);
 
     String playerDisplayName(String nick);
@@ -602,4 +612,6 @@ public interface Host {
     void setNoHitSlowdown(boolean on);
 
     void stopSprinting();
+
+    void setDoubleTapSprint(boolean on);
 }

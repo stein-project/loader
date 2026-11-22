@@ -165,8 +165,8 @@ public final class Page {
      * "list"}, {@code "gear"}, {@code "grid"}, {@code "users"}, {@code "layers"}, {@code "shield"},
      * {@code "clock"}, {@code "check"}, {@code "bolt"}, {@code "lock"}, {@code "key"}, {@code
      * "search"}, {@code "star"}, {@code "heart"}, {@code "pin"}, {@code "ping"}, {@code "folder"},
-     * {@code "sword"}, {@code "loop"}. With no icon (or a name that does not exist), the page
-     * appears with the name's initial in a circle.
+     * {@code "sword"}, {@code "loop"}, {@code "run"} (since 0.1.35). With no icon (or a name that
+     * does not exist), the page appears with the name's initial in a circle.
      */
     public Page icon(String name) {
         this.icon = name == null ? "" : name;

@@ -84,6 +84,9 @@ public final class Loader implements HookSink {
 
     private final List<ModInfo> all = new ArrayList<>();
 
+    /** {@link #all} in the order the menu shows it (ModOrder), set once the folder is read. */
+    private List<ModInfo> shown = all;
+
     private LoaderConfig config;
 
     private SteinMod[] mods = new SteinMod[0];
@@ -305,6 +308,7 @@ public final class Loader implements HookSink {
         File dir = new File(gameDir, "mods");
         dir.mkdirs();
         List<ModInfo> enabled = ModLoading.scanAndFilter(dir, all, config.disabled, VERSION);
+        shown = ModOrder.forMenu(all);
 
         enabled = Dependencies.resolve(enabled, all);
         ModLoading.Loaded loaded = ModLoading.instantiate(enabled, all);
@@ -330,9 +334,12 @@ public final class Loader implements HookSink {
 
     // ---- for the menu ----
 
-    /** The game's parts first, then the mods from the folder in file order. */
+    /**
+     * The game's parts first, then the mods that come with the Stein Client, then the others, each
+     * group in file order (ModOrder).
+     */
     public List<ModInfo> mods() {
-        return Collections.unmodifiableList(all);
+        return Collections.unmodifiableList(shown);
     }
 
     /** The mod in the list with this id (the first, if repeated), or null. */
@@ -438,7 +445,7 @@ public final class Loader implements HookSink {
     public List<Page> pages() {
         checkModUpdates();
         List<Page> out = new ArrayList<>();
-        for (ModInfo m : all) {
+        for (ModInfo m : shown) {
             if (ServerControl.isSuspended(m)) {
                 continue;
             }

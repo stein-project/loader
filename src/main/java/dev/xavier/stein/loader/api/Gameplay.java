@@ -72,6 +72,19 @@ public final class Gameplay {
     }
 
     /**
+     * Sprinting from double-tapping forward: on (the game's behavior), tapping forward twice starts
+     * sprinting; off, only the sprint key does. Unlike the other switches here, this one only
+     * removes a way of pressing: the client sends exactly what a player who never double-taps
+     * sends.
+     *
+     * @param on false to stop the double tap from starting a sprint
+     */
+    @Experimental(since = "0.1.35")
+    public static void setDoubleTapSprint(boolean on) {
+        Host.INSTANCE.setDoubleTapSprint(on);
+    }
+
+    /**
      * Together with {@link #setSprintOnHit}: the hit also does not brake the player (1.8 cuts the
      * horizontal speed to 60% on every hit that knocks back). No effect with sprinting off.
      *

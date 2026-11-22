@@ -20,6 +20,7 @@ import dev.xavier.stein.loader.gui.PlayerHeads;
 import net.minecraft.client.Minecraft;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityLivingBase;
+import net.minecraft.entity.player.EntityPlayer;
 
 import java.util.List;
 
@@ -65,6 +66,11 @@ abstract class HostWorld extends HostInventory {
     @Override
     public void setNoHitSlowdown(boolean on) {
         Sprint.setNoSlow(on);
+    }
+
+    @Override
+    public void setDoubleTapSprint(boolean on) {
+        Sprint.setDoubleTap(on);
     }
 
     @Override
@@ -200,6 +206,26 @@ abstract class HostWorld extends HostInventory {
     @Override
     public boolean isInvisible(Object entity) {
         return GameOps.invisible(entity);
+    }
+
+    @Override
+    public boolean isSprinting(Object entity) {
+        return entity instanceof Entity e && e.isSprinting();
+    }
+
+    @Override
+    public boolean isSneaking(Object entity) {
+        return entity instanceof Entity e && e.isSneaking();
+    }
+
+    @Override
+    public boolean isRiding(Object entity) {
+        return entity instanceof Entity e && e.ridingEntity != null;
+    }
+
+    @Override
+    public boolean isFlying(Object entity) {
+        return entity instanceof EntityPlayer p && p.capabilities.isFlying;
     }
 
     @Override
