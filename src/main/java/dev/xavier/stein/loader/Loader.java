@@ -106,6 +106,7 @@ public final class Loader implements HookSink {
     // and several-times-a-frame hooks ask only these, and return at once when there are none.
     private SteinMod[] hideMods = mods;
     private SteinMod[] ghostMods = mods;
+    private SteinMod[] entityColorMods = mods;
     private SteinMod[] itemModelMods = mods;
     private SteinMod[] blockModelMods = mods;
     private SteinMod[] armorTextureMods = mods;
@@ -124,6 +125,7 @@ public final class Loader implements HookSink {
         Class<?> o = Object.class;
         hideMods = Overrides.of(mods, "onHideEntity", o);
         ghostMods = Overrides.of(mods, "onGhostEntity", o);
+        entityColorMods = Overrides.of(mods, "onEntityColor", o, int.class);
         itemModelMods = Overrides.of(mods, "onItemModel", o, o);
         blockModelMods = Overrides.of(mods, "onBlockModel", o, o, o, o);
         armorTextureMods = Overrides.of(mods, "onArmorTexture", o, int.class, String.class, o);
@@ -915,6 +917,18 @@ public final class Loader implements HookSink {
             }
         }
         return false;
+    }
+
+    @Override
+    public int entityColor(Object entity, int color) {
+        for (SteinMod m : entityColorMods) {
+            try {
+                color = m.onEntityColor(entity, color);
+            } catch (Throwable e) {
+                fail(m, "onEntityColor", e);
+            }
+        }
+        return color;
     }
 
     @Override
