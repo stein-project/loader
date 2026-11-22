@@ -314,6 +314,51 @@ public final class Entities {
     }
 
     /**
+     * Sprinting right now, as the game decided it (the player's own client state for the local
+     * player, the server's word for the others).
+     *
+     * @param entity an entity (game type, as Object)
+     * @return true while sprinting; false when it is not an entity
+     */
+    @Experimental(since = "0.1.35")
+    public static boolean isSprinting(Object entity) {
+        return Host.INSTANCE.isSprinting(entity);
+    }
+
+    /**
+     * Sneaking right now (crouched), as the game decided it.
+     *
+     * @param entity an entity (game type, as Object)
+     * @return true while sneaking; false when it is not an entity
+     */
+    @Experimental(since = "0.1.35")
+    public static boolean isSneaking(Object entity) {
+        return Host.INSTANCE.isSneaking(entity);
+    }
+
+    /**
+     * Riding something (a horse, a minecart, a boat, a pig).
+     *
+     * @param entity an entity (game type, as Object)
+     * @return true while mounted; false when it is not an entity
+     */
+    @Experimental(since = "0.1.35")
+    public static boolean isRiding(Object entity) {
+        return Host.INSTANCE.isRiding(entity);
+    }
+
+    /**
+     * Flying (creative or spectator flight, or flight a server allowed): only players fly.
+     *
+     * @param entity an entity (game type, as Object)
+     * @return true while flying; false for anything that is not a flying player
+     */
+    @Experimental(since = "0.1.35")
+    public static boolean isFlying(Object entity) {
+        return Host.INSTANCE.isFlying(entity);
+    }
+
+    /**
      * Where the screen is seen from: the player itself, or the entity it is spectating in spectator
      * mode. Aiming ({@link Targeting}) comes from here.
      *
